@@ -1,0 +1,628 @@
+@charset "UTF-8";
+@import url("https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap");
+:root {
+  --color-primary: #2f2c2a;
+  --color-primary-light: #817e7c;
+  --color-primary-pale: #b4b3b3;
+  --color-secondary: #ffffff;
+  --color-accent: #1b86d4;
+  --header-height: 50px;
+  --font-family: "Objective", "游ゴシック体", "Yu Gothic", YuGothic, "ヒラギノ角ゴ Pro", "Hiragino Kaku Gothic Pro", "メイリオ", "Meiryo", sans-serif;
+  --font-family-title: "Merriweather", serif;
+  --font-size: 16px;
+}
+body {
+  position: relative;
+  overflow-x: hidden;
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  color: var(--color-primary);
+  min-height: 100svh;
+  min-height: -webkit-fill-available;
+  overscroll-behavior: none;
+  letter-spacing: 2px;
+  height: 100%;
+}
+body.fixed {
+  overflow: hidden;
+}
+
+.mouse-stalker {
+  display: none;
+}
+
+.desc h2 {
+  font-size: 1.75rem;
+  font-family: var(--font-family-title);
+}
+.desc h3 {
+  font-size: 1.5rem;
+  font-family: var(--font-family-title);
+}
+.desc h4 {
+  font-size: 1.25rem;
+  font-family: var(--font-family-title);
+}
+.desc .text {
+  margin: 1.5rem auto;
+}
+.desc .text p {
+  line-height: 2;
+}
+.desc .text p + p {
+  margin-top: 0.5rem;
+}
+
+a {
+  text-decoration: none;
+}
+
+.en {
+  font-family: var(--font-family-title);
+}
+
+/* Responsive */
+.pc {
+  display: none;
+}
+
+.sp {
+  display: block;
+}
+
+.button {
+  margin-top: 1rem;
+  display: inline-block;
+}
+.button a {
+  text-decoration: none;
+  color: var(--color-secondary);
+  padding: 1rem 2rem;
+  background-color: var(--color-primary);
+}
+
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 0.75rem;
+  width: 100%;
+  height: var(--header-height);
+  overflow: hidden;
+  z-index: 99999;
+  background: none;
+}
+header .logo a img {
+  width: 180px;
+}
+
+/* noise */
+.noise {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background-image: url(../images/noise.png);
+  background-size: 150px 150px;
+  opacity: .4;
+}
+
+#mv {
+  position: relative;
+  width: 100%;
+  height: calc(250vh - var(--header-height));
+  background-color: var(--color-secondary);
+}
+#mv .concept-box {
+  position: relative;
+  width: 100%;
+  height: calc(290vh - var(--header-height));
+}
+#mv .concept-box .concept {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9;
+}
+#mv .concept-box .concept h1 {
+  position: relative;
+  font-size: clamp(2rem, 3.5vw, 5rem);
+  color: var(--color-accent);
+  font-family: var(--font-family-title);
+  text-align: center;
+  line-height: normal;
+}
+#mv .concept-box .concept h1 strong {
+  color: #d4521b;
+}
+#mv .expanding-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  /* background-color: var(--color-primary); */
+}
+
+section {
+  position: relative;
+  padding: 5rem 0;
+  z-index: 99;
+}
+section .wrapper {
+  padding: 0 1.25rem;
+}
+
+#about {
+  color: var(--color-secondary);
+}
+#about .desc .profile-box {
+  margin-top: 1rem;
+}
+#about .desc .profile-box h3 small {
+  font-size: 0.5em;
+  padding-right: 0.25rem;
+}
+#about .desc .about-flex {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+#about .desc .about-flex .about-img svg {
+  stroke: #FFFFFF; /* 線の色 */
+  stroke-width: 2; /* 線の太さ */
+  fill: none; /* 塗りつぶしを無効に */
+}
+
+/* #portfolio */
+#portfolio {
+  background-color: var(--color-secondary);
+}
+#portfolio .title h2 {
+  margin-bottom: 1rem;
+}
+#portfolio .portfolio-mock {
+  position: relative;
+  margin-top: 3rem;
+  overflow: hidden;
+  z-index: 999;
+}
+#portfolio .portfolio-mock .mock-pc {
+  width: 73.25vw;
+  height: auto;
+}
+#portfolio .portfolio-mock .mock-sp {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 22vw;
+  height: auto;
+  z-index: 99;
+}
+#portfolio .portfolio-mock .portfolio-mock-img {
+  position: absolute;
+  top: 3.25vw;
+  left: 4vw;
+  width: 100%;
+}
+#portfolio .portfolio-mock .portfolio-mock-img .portfolio-works > * {
+  -o-object-fit: cover;
+     object-fit: cover;
+  -o-object-position: top;
+     object-position: top;
+}
+#portfolio .portfolio-mock .portfolio-mock-img .portfolio-works .works-pc {
+  width: clamp(200px, 54.5vw, 1000px);
+  aspect-ratio: 16/10;
+  height: 34vw;
+  margin-left: clamp(20px, 5.5vw, 75px);
+}
+#portfolio .portfolio-mock .portfolio-mock-img .portfolio-works .works-sp {
+  position: absolute;
+  right: 5vw;
+  width: 19.5vw;
+  height: 39.5vw;
+}
+#portfolio .portfolio-mock .portflio-mock-desc .portfolio-desc {
+  margin-top: 1rem;
+}
+#portfolio .portfolio-mock .portflio-mock-desc .portfolio-desc h3 {
+  font-size: 1rem;
+  text-align: center;
+  line-height: normal;
+}
+#portfolio .portfolio-mock .portflio-mock-desc .portfolio-desc .desc-detail {
+  text-align: center;
+  padding: .25rem;
+  margin-top: .5rem;
+}
+#portfolio .portfolio-mock .portflio-mock-desc .portfolio-desc .tech {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: .5rem;
+  margin-top: 1rem;
+}
+#portfolio .portfolio-mock .portflio-mock-desc .portfolio-desc .tech li {
+  list-style: none;
+}
+#portfolio .portfolio-mock .portflio-mock-desc .portfolio-desc .tech li i {
+  font-size: 1.5rem;
+}
+.portfolio-select {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%) scale(0);
+  width: 100%;
+  height: auto;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.5s ease;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.portfolio-select.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) scale(1);
+  pointer-events: auto;
+}
+.portfolio-select ul {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+}
+.portfolio-select ul li {
+  list-style: none;
+  width: calc(25% - 0.5rem);
+  box-shadow: 0 0 10px rgba(1, 1, 1, 1);
+}
+.portfolio-select ul li a {
+  overflow: hidden;
+}
+.portfolio-select ul li a img {
+  width: 100%;
+  height: 45vw;
+  -o-object-fit: cover;
+     object-fit: cover;
+  -o-object-position: top;
+     object-position: top;
+}
+.portfolio-select ul li a .site-title {
+  display: none;
+}
+
+#skills {
+  color: var(--color-secondary);
+}
+#skills .chart-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+#skills .chart-box canvas {
+  width: 100%;
+  height: auto;
+}
+
+#contact {
+  background-color: var(--color-secondary);
+}
+#contact form .form-block {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1.5rem;
+}
+#contact form .form-block label {
+  padding-bottom: 1rem;
+  font-size: 0.825em;
+  color: var(--color-primary);
+}
+#contact form .form-block input, #contact form .form-block textarea {
+  padding: 1rem;
+  border: 1px solid var(--color-primary-light);
+  background-color: var(--color-primary);
+  color: var(--color-secondary);
+}
+#contact form .form-block input:focus, #contact form .form-block textarea:focus {
+  outline: 0;
+  border: 1px solid var(--color-accent);
+  box-shadow: 2px 2px 10px var(--color-accent);
+}
+#contact form .form-block textarea {
+  min-height: 10rem;
+}
+#contact form .form-block .submit-btn {
+  position: relative;
+  width: -moz-fit-content;
+  width: fit-content;
+  display: inline-block;
+  width: fit-content;
+  padding: 0.5rem 3rem;
+  background-color: var(--color-primary);
+  color: var(--color-secondary);
+  border: none;
+  font-size: var(--font-size);
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.5s;
+}
+#contact form .form-block .submit-btn::before {
+  content: "";
+  width: 4rem;
+  height: 2px;
+  background-color: var(--color-primary-light);
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateX(50%);
+  cursor: pointer;
+  transition: all 0.5s;
+}
+#contact form .form-block .submit-btn .loading {
+  display: none;
+  align-items: center;
+  gap: 10px;
+}
+#contact form .form-block .submit-btn .loading.is-loading .default {
+  display: none;
+}
+#contact form .form-block .submit-btn .loading.is-loading .loading {
+  display: flex;
+}
+#contact form .form-block .submit-btn .loading .spinner {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid #fff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+}
+#contact-thanks {
+  background-color: var(--color-secondary);
+}
+
+/* #shadow */
+#shadow {
+  width: 100%;
+  height: 100svh;
+  background-color: var(--color-secondary);
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  opacity: .5;
+}
+#shadow.active {
+  display: block;
+}
+
+/* footer */
+footer {
+  position: relative;
+  background-color: var(--color-primary);
+  color: var(--color-secondary);
+  bottom: 0;
+  z-index: 99;
+}
+footer .footer-logo a img {
+  width: 100%;
+}
+footer .footer-links {
+  margin-top: 2rem;
+}
+footer .footer-links ul {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+footer .footer-links ul li {
+  list-style: none;
+}
+footer .footer-links ul li a {
+  color: var(--color-secondary);
+  font-size: 2rem;
+}
+footer .copy {
+  margin-top: 2rem;
+  padding: 1rem;
+  text-align: center;
+  color: var(--color-primary-light);
+}
+
+/* Animation */
+.target {
+  opacity: 0;
+  transition: all 2s;
+}
+.target.is-show {
+  opacity: 1;
+}
+.target.is-show.draw {
+  animation: draw 3s ease forwards;
+}
+
+@keyframes draw {
+  0% {
+    stroke-dasharray: 2000;
+    stroke-dashoffset: 2000;
+    fill: transparent;
+  }
+  50% {
+    stroke-dashoffset: 0;
+    fill: transparent;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    fill: #FFFFFF;
+  }
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media (min-width: 768px) {
+  section .wrapper {
+    padding: 0;
+    width: 80%;
+    max-width: 740px;
+    margin: auto;
+  }
+
+  /* #about */
+  #about .desc .about-flex {
+    flex-direction: row;
+    align-items: center;
+  }
+  #about .desc .about-flex .text-box {
+    width: 70%;
+  }
+  #about .desc .about-flex .about-img {
+    width: 30%;
+  }
+}
+@media (min-width: 1024px) {
+  :root {
+    --font-size: 1.1vw;
+  }
+  .button a {
+    transition: all 0.5s;
+  }
+  .button a:hover {
+    background-color: var(--color-accent);
+  }
+  .mouse-stalker {
+    display: block;
+    pointer-events: none;
+    position: fixed;
+    top: -5px;
+    left: -5px;
+    width: 10px;
+    height: 10px;
+    background: var(--color-secondary);
+    border-radius: 50%;
+    transform: translate(0, 0);
+    transition: transform 0.1s;
+    transition-timing-function: ease-out;
+    z-index: 99999;
+    mix-blend-mode: difference;
+    transition: 0.2s;
+  }
+  .mouse-stalker.is_active {
+    top: -20px;
+    left: -20px;
+    width: 40px;
+    height: 40px;
+  }
+  .desc h2 {
+    font-size: 3rem;
+  }
+  .desc h3 {
+    font-size: 1.75rem;
+  }
+  header .logo a {
+    transition: all 0.5s;
+  }
+  header .logo a img {
+    width: 230px;
+  }
+  header .logo a:hover {
+    opacity: 0.7;
+  }
+
+  #mv .concept-box .concept h1 br {
+    display: none;
+  }
+  #mv .expanding-box {
+    width: 500px;
+    height: 500px;
+  }
+  section .wrapper {
+    min-width: 980px;
+    max-width: 1980px;
+    width: 80%;
+  }
+
+  /* #portfolio */
+  #portfolio .desc {
+    display: flex;
+  }
+  #portfolio .portfolio-mock {
+    width: 100%;
+    cursor: pointer;
+  }
+  #portfolio .portfolio-mock .mock-pc {
+    width: 54vw;
+  }
+  #portfolio .portfolio-mock .mock-sp {
+    top: 2rem;
+    width: 15vw;
+  }
+  #portfolio .portfolio-mock .portfolio-mock-img {
+    top: 2.25vw;
+  }
+  #portfolio .portfolio-mock .portfolio-mock-img .portfolio-works .works-pc {
+    width: 40.25vw;
+    height: 25.25vw;
+    margin-left: 2.95vw;
+  }
+  #portfolio .portfolio-mock .portfolio-mock-img .portfolio-works .works-sp {
+    top: 2rem;
+    width: 13vw;
+    height: 26.5vw;
+  }
+  .portfolio-select ul {
+    width: 60%;
+    gap: 1rem;
+  }
+  .portfolio-select ul li {
+    width: calc(20% - 1rem);
+  }
+  .portfolio-select ul li a img {
+    height: 20vw;
+  }
+
+  #contact .wrapper {
+    display: flex;
+    gap: 3rem;
+  }
+  #contact .wrapper form {
+    width: 100%;
+  }
+  #contact .wrapper form .form-block:nth-child(2) {
+    margin-top: 0;
+  }
+  #contact form .form-block.submit-btn:hover::before {
+    right: -15px;
+  }
+  #contact form .form-block.submit-btn:hover input[type=submit] {
+    background-color: var(--color-accent);
+  }
+  footer .copy {
+    padding: 1.25rem;
+  }
+}

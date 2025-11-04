@@ -516,7 +516,9 @@ footer .copy {
     background-color: var(--color-accent);
   }
   .mouse-stalker {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     pointer-events: none;
     position: fixed;
     top: -5px;
@@ -526,17 +528,29 @@ footer .copy {
     background: var(--color-secondary);
     border-radius: 50%;
     transform: translate(0, 0);
-    transition: transform 0.1s;
+    transition: transform 0.1s, width 0.2s, height 0.2s, top 0.2s, left 0.2s;
     transition-timing-function: ease-out;
     z-index: 99999;
     mix-blend-mode: difference;
-    transition: 0.2s;
   }
   .mouse-stalker.is_active {
-    top: -20px;
-    left: -20px;
-    width: 40px;
-    height: 40px;
+    /* サイズはJavaScriptで動的に設定される */
+    border-radius: 50px;
+  }
+  .mouse-stalker-text {
+    font-size: 0;
+    color: var(--color-primary);
+    font-family: var(--font-family-title);
+    font-weight: 700;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s ease, font-size 0.2s ease;
+    pointer-events: none;
+  }
+  .mouse-stalker.is_active .mouse-stalker-text {
+    font-size: 0.625rem;
+    opacity: 1;
   }
   .desc h2 {
     font-size: 3rem;

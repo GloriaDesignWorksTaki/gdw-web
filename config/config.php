@@ -9,4 +9,4 @@ return [
         'to' => 'gloriadesignworks@gmail.com',
         'subject' => 'お問い合わせがありました'
     ]
-]; 
+];

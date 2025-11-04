@@ -26,21 +26,37 @@ function check_csrf_token($token) {
   return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
 
+// 日本語文字が含まれているかチェック
+function contains_japanese($text) {
+  // ひらがな、カタカナ、漢字、日本語の句読点が含まれているかチェック
+  return preg_match('/[\x{3040}-\x{309F}\x{30A0}-\x{30FF}\x{4E00}-\x{9FAF}\x{3000}-\x{303F}]/u', $text);
+}
+
 // バリデーション関数
 function validate_input($name, $email, $message) {
   $errors = [];
   if (!$name) $errors[] = '名前を入力してください。';
   if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = '有効なメールアドレスを入力してください。';
   if (!$message) $errors[] = 'お問合せ内容を入力してください。';
+
+  // 英語のみのメールを検出（日本語が含まれていない場合）
+  $combinedText = $name . ' ' . $message;
+  if (!contains_japanese($combinedText)) {
+    // 原因不明のエラーとして返す（具体的な理由は表示しない）
+    $errors[] = 'エラーが発生しました。しばらく時間をおいてから再度お試しください。';
+  }
   return $errors;
 }
+
+// Ajaxリクエストかどうかを判定
+$isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
 // フォーム処理
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $name = escape(trim($_POST['name'] ?? ''));
   $email = escape(trim($_POST['email'] ?? ''));
   $message = escape(trim($_POST['message'] ?? ''));
-  
+
   if (!check_csrf_token($_POST['csrf_token'] ?? '')) {
       $errors[] = '不正なリクエストです。';
   } else {
@@ -48,7 +64,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if (empty($errors)) {
           $mailer = new Mailer();
           if ($mailer->sendContactMail($name, $email, $message)) {
-              // 出力バッファリングを開始
+              // Ajaxリクエストの場合はJSONレスポンスを返す
+              if ($isAjax) {
+                  header('Content-Type: application/json');
+                  echo json_encode(['success' => true, 'redirect' => 'thank-you.php']);
+                  exit;
+              }
+              // 通常のPOSTリクエストの場合はリダイレクト
               ob_start();
               header('Location: thank-you.php');
               exit;
@@ -57,9 +79,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           }
       }
   }
+  // Ajaxリクエストでエラーがある場合はJSONレスポンスを返す
+  if ($isAjax) {
+      header('Content-Type: application/json');
+      echo json_encode(['success' => false, 'errors' => $errors]);
+      exit;
+  }
 }
 
 require_once(__DIR__ . '/header.php');
+require_once(__DIR__ . '/include/dialog.php');
 ?>
 <!-- <div class="noise"></div> -->
 <main>
@@ -85,10 +114,17 @@ require_once(__DIR__ . '/header.php');
         </div>
         <div class="about-flex">
           <div class="text-box">
-            <div class="text target">
-              <p>千葉県柏市でGloria Design Worksというデザインプロジェクトをやっているタキと申します。</p>
-              <p>Webはもちろん、紙から広告、システムまで幅広く手掛けております。</p>
-              o
+            <div class="text-box">
+              <div class="text target is-show">
+                <p>Gloria Design Works is a creative project based in Kashiwa City, Chiba Prefecture.</p>
+                <p>We specialize in a wide range of design fields, from web design to DTP, logo design, and application UI/UX.</p>
+                <p>As active engineers and marketers, we provide not only beautiful design, beautiful code, and branding-conscious marketing strategies, but also designs that are full of attention as professionals in web and branding.</p>
+              </div>
+              <div class="text target is-show">
+                <p>Gloria Design Worksは千葉県柏市を中心に活動するクリエイティブプロジェクトです。</p>
+                <p>WebデザインをメインにDTP、ロゴデザイン、アプリケーションのUI/UXまで幅広いデザイン領域を得意としています。</p>
+                <p>現役エンジニアであり、現役マーケターでもある美しいデザイン、美しいコード、ブランディングを意識したマーケティング戦略までデザインのみならずWeb・ブランディングのプロとしてこだわりに満ち溢れたデザインを提供します。</p>
+              </div>
             </div>
           </div>
           <div class="about-img">
@@ -294,13 +330,6 @@ require_once(__DIR__ . '/header.php');
       </div>
       <form class="target" method="post" action="" id="contactForm">
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-        <?php if ($errors): ?>
-        <div class="error-messages">
-        <?php foreach ($errors as $error): ?>
-          <p><?php echo escape($error); ?></p>
-        <?php endforeach; ?>
-        </div>
-        <?php endif; ?>
         <div class="form-block">
           <label for="name">名前</label>
           <input type="text" id="name" name="name" required value="<?php echo escape($name ?? ''); ?>">

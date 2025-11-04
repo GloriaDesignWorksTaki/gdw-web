@@ -203,6 +203,9 @@ require_once(__DIR__ . '/include/dialog.php');
     </div>
   </section>
   <div class="portfolio-select">
+    <button class="portfolio-close-btn" aria-label="閉じる">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
     <ul>
       <?php foreach ($portfolioItems as $item): ?>
       <li>

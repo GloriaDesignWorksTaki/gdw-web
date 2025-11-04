@@ -48,9 +48,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const body = document.querySelector("body");
   // ポートフォリオリストの開閉
   portfolioMock.addEventListener("click", () => {
-    portfolioList.classList.toggle("active");
-    shadow.classList.toggle("active");
-    body.classList.toggle("fixed");
+    const isOpening = !portfolioList.classList.contains("active");
+    
+    if (isOpening) {
+      // 開く
+      portfolioList.classList.add("active");
+      shadow.classList.add("active");
+      body.classList.add("fixed");
+      
+      // GSAPアニメーション（animations.jsで処理）
+      if (window.animatePortfolioOpen) {
+        window.animatePortfolioOpen();
+      }
+    } else {
+      // 閉じる
+      if (window.animatePortfolioClose) {
+        window.animatePortfolioClose(() => {
+          portfolioList.classList.remove("active");
+          shadow.classList.remove("active");
+          body.classList.remove("fixed");
+        });
+      } else {
+        portfolioList.classList.remove("active");
+        shadow.classList.remove("active");
+        body.classList.remove("fixed");
+      }
+    }
   });
 
   // すべての作品と説明を非表示、最初の作品と説明を表示
@@ -87,17 +110,52 @@ document.addEventListener('DOMContentLoaded', () => {
       link.classList.add("active");
 
       // モックを閉じる
-      portfolioList.classList.remove("active");
-      shadow.classList.remove("active");
-      body.classList.remove("fixed");
+      if (window.animatePortfolioClose) {
+        window.animatePortfolioClose(() => {
+          portfolioList.classList.remove("active");
+          shadow.classList.remove("active");
+          body.classList.remove("fixed");
+        });
+      } else {
+        portfolioList.classList.remove("active");
+        shadow.classList.remove("active");
+        body.classList.remove("fixed");
+      }
     });
   });
 
   shadow.addEventListener("click", () => {
-    portfolioList.classList.remove("active");
-    shadow.classList.remove("active");
-    body.classList.remove("fixed");
+    if (window.animatePortfolioClose) {
+      window.animatePortfolioClose(() => {
+        portfolioList.classList.remove("active");
+        shadow.classList.remove("active");
+        body.classList.remove("fixed");
+      });
+    } else {
+      portfolioList.classList.remove("active");
+      shadow.classList.remove("active");
+      body.classList.remove("fixed");
+    }
   });
+
+  // ポートフォリオリスト閉じるボタン
+  const portfolioCloseBtn = document.querySelector(".portfolio-close-btn");
+  if (portfolioCloseBtn) {
+    portfolioCloseBtn.addEventListener("click", (e) => {
+      e.stopPropagation(); // 親要素へのイベント伝播を防止
+      if (window.animatePortfolioClose) {
+        window.animatePortfolioClose(() => {
+          portfolioList.classList.remove("active");
+          shadow.classList.remove("active");
+          body.classList.remove("fixed");
+        });
+      } else {
+        portfolioList.classList.remove("active");
+        shadow.classList.remove("active");
+        body.classList.remove("fixed");
+      }
+    });
+  }
 
   // mouse-stalker
   const stalker = document.querySelector('.mouse-stalker');

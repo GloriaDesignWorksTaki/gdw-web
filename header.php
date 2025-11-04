@@ -40,4 +40,6 @@ $url = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . $_SERVER['HTTP_HOST
       </a>
     </div>
   </header>
-  <div class="mouse-stalker"></div>
+  <div class="mouse-stalker">
+    <span class="mouse-stalker-text"></span>
+  </div>

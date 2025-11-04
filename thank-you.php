@@ -8,6 +8,10 @@ $form_data = isset($_SESSION['form_data']) ? $_SESSION['form_data'] : null;
 unset($_SESSION['form_data']);
 require_once(__DIR__ . '/header.php');
 ?>
+<script>
+// サンクスページにクラスを追加
+document.body.classList.add('page-thanks');
+</script>
 <main>
   <!-- #contact-thanks -->
    <section id="contact-thanks">

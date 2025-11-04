@@ -1,4 +1,213 @@
+// マウスストーカー初期化関数（全ページで動作するように）
+function initMouseStalker() {
+  const stalker = document.querySelector('.mouse-stalker');
+  const stalkerText = document.querySelector('.mouse-stalker-text');
+  
+  // マウスストーカーが存在する場合のみ初期化（全ページで動作）
+  if (!stalker || !stalkerText) {
+    return; // 要素が存在しない場合は終了
+  }
+
+  // 既に初期化済みの場合はスキップ（重複初期化を防ぐ）
+  if (stalker.dataset.initialized === 'true') {
+    return;
+  }
+  stalker.dataset.initialized = 'true';
+
+  // マウスストーカーを表示（全ページ、全画面サイズで動作するように）
+  // CSS変数を取得
+  const root = getComputedStyle(document.documentElement);
+  const secondaryColor = root.getPropertyValue('--color-secondary').trim() || '#ffffff';
+  
+  // インラインスタイルで確実に表示（CSSのdisplay: noneを上書き）
+  // すべてのスタイルを一度に設定して確実に適用
+  Object.assign(stalker.style, {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    pointerEvents: 'none',
+    position: 'fixed',
+    top: '-5px',
+    left: '-5px',
+    width: '10px',
+    height: '10px',
+    background: secondaryColor,
+    borderRadius: '50%',
+    zIndex: '99999',
+    mixBlendMode: 'difference',
+    transition: 'transform 0.1s, width 0.2s, height 0.2s, top 0.2s, left 0.2s',
+    transitionTimingFunction: 'ease-out'
+  });
+  
+  let mouseX = 0, mouseY = 0;
+  let stalkerX = 0, stalkerY = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+
+  const updateStalker = () => {
+    if (stalker && stalker.dataset.initialized === 'true') {
+      stalkerX += (mouseX - stalkerX) * 0.2;
+      stalkerY += (mouseY - stalkerY) * 0.2;
+      stalker.style.transform = `translate(${stalkerX}px, ${stalkerY}px)`;
+      requestAnimationFrame(updateStalker);
+    }
+  };
+  updateStalker();
+
+  // 各要素に応じたアクション文言を取得する関数
+  function getActionText(element) {
+    // ポートフォリオモック
+    if (element.classList.contains('portfolio-mock')) {
+      return 'VIEW PORTFOLIO';
+    }
+    // ボタン
+    if (element.tagName === 'BUTTON' || element.type === 'submit') {
+      const buttonText = element.textContent.trim();
+      if (buttonText.includes('SEND') || buttonText.includes('送信')) {
+        return 'SEND';
+      }
+      return 'CLICK';
+    }
+    // リンク（SNSアイコンなど）
+    if (element.tagName === 'A') {
+      const href = element.getAttribute('href');
+      
+      // SNSアイコン（Font Awesomeアイコンを含むリンク）
+      const icon = element.querySelector('i');
+      if (icon) {
+        if (icon.classList.contains('fa-github')) {
+          return 'Access to Github';
+        }
+        if (icon.classList.contains('fa-x-twitter')) {
+          return 'Access to Twitter';
+        }
+        if (icon.classList.contains('fa-instagram')) {
+          return 'Access to Instagram';
+        }
+      }
+      
+      // ポートフォリオリスト内のリンク（プロダクト名を表示）
+      if (href && href.startsWith('#')) {
+        // ポートフォリオリスト内のリンクかチェック
+        const portfolioSelect = element.closest('.portfolio-select');
+        if (portfolioSelect) {
+          const siteTitle = element.querySelector('.site-title');
+          if (siteTitle) {
+            const productName = siteTitle.textContent.trim();
+            return productName || 'VIEW';
+          }
+        }
+        return 'VIEW';
+      }
+      if (href && (href.startsWith('http') || href.startsWith('mailto:'))) {
+        return 'OPEN';
+      }
+      return 'CLICK';
+    }
+    // フォーム入力
+    if (element.tagName === 'INPUT') {
+      const inputId = element.getAttribute('id');
+      const inputName = element.getAttribute('name');
+      const inputType = element.getAttribute('type');
+      
+      if (inputId === 'name' || inputName === 'name') {
+        return 'Enter Your Name';
+      }
+      if (inputId === 'email' || inputName === 'email') {
+        return 'Enter Your Email';
+      }
+      return 'INPUT';
+    }
+    // テキストエリア
+    if (element.tagName === 'TEXTAREA') {
+      const textareaId = element.getAttribute('id');
+      const textareaName = element.getAttribute('name');
+      
+      if (textareaId === 'message' || textareaName === 'message') {
+        return 'Enter Your Message';
+      }
+      return 'INPUT';
+    }
+    // ラベル
+    if (element.tagName === 'LABEL') {
+      return 'SELECT';
+    }
+    // その他
+    return 'CLICK';
+  }
+
+  // テキストの幅を測定してマウスストーカーのサイズを調整する関数
+  function updateStalkerSize(text) {
+    if (!stalkerText || !text) return;
+    // テキストを設定
+    stalkerText.textContent = text;
+    // 一時的な要素を作成してテキストの幅を測定
+    // 実際のスタイルを適用（CSS変数ではなく計算済みの値を使用）
+    const measureElement = document.createElement('span');
+    measureElement.style.fontSize = '0.625rem'; // 10px
+    measureElement.style.fontFamily = '"Merriweather", serif';
+    measureElement.style.fontWeight = '700';
+    measureElement.style.letterSpacing = '1px';
+    measureElement.style.whiteSpace = 'nowrap';
+    measureElement.style.visibility = 'hidden';
+    measureElement.style.position = 'absolute';
+    measureElement.style.top = '-9999px';
+    measureElement.style.padding = '0';
+    measureElement.style.margin = '0';
+    measureElement.textContent = text;
+    document.body.appendChild(measureElement);
+    // テキストの幅と高さを取得
+    const textWidth = measureElement.offsetWidth;
+    const textHeight = measureElement.offsetHeight;
+    // 一時要素を削除
+    document.body.removeChild(measureElement);
+    // パディングを考慮したサイズを計算（左右に各10px、上下に各8px）
+    const padding = 20; // 左右のパディング
+    const verticalPadding = 16; // 上下のパディング
+    const minSize = 40; // 最小サイズ
+    const width = Math.max(minSize, textWidth + padding);
+    const height = Math.max(minSize, textHeight + verticalPadding);
+    // マウスストーカーのサイズを設定
+    stalker.style.width = `${width}px`;
+    stalker.style.height = `${height}px`;
+    stalker.style.top = `-${height / 2}px`;
+    stalker.style.left = `-${width / 2}px`;
+  }
+
+  // インタラクティブ要素にイベントリスナーを追加
+  document.querySelectorAll('a, input, label, button, .portfolio-mock, textarea').forEach((elem) => {
+    elem.addEventListener('mouseover', () => {
+      stalker.classList.add('is_active');
+      const actionText = getActionText(elem);
+      updateStalkerSize(actionText);
+    });
+    elem.addEventListener('mouseout', () => {
+      stalker.classList.remove('is_active');
+      stalkerText.textContent = '';
+      // サイズをリセット
+      stalker.style.width = '';
+      stalker.style.height = '';
+      stalker.style.top = '';
+      stalker.style.left = '';
+    });
+  });
+}
+
+// マウスストーカー初期化（全ページで動作）
+// 既にDOMが読み込まれている場合（スクリプトが後から読み込まれた場合）にも初期化
+if (document.readyState === 'loading') {
+  // DOMContentLoaded待ち
+  document.addEventListener('DOMContentLoaded', initMouseStalker);
+} else {
+  // DOMContentLoadedは既に発火済み（すぐに実行）
+  initMouseStalker();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+
   // スクロールアニメーション（使わないかも〜）
   const targets = document.querySelectorAll('.target');
   const observer = new IntersectionObserver(entries => {
@@ -156,165 +365,4 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-
-  // mouse-stalker
-  const stalker = document.querySelector('.mouse-stalker');
-  const stalkerText = document.querySelector('.mouse-stalker-text');
-  let mouseX = 0, mouseY = 0;
-  let stalkerX = 0, stalkerY = 0;
-
-  document.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  });
-
-  const updateStalker = () => {
-    stalkerX += (mouseX - stalkerX) * 0.2;
-    stalkerY += (mouseY - stalkerY) * 0.2;
-    stalker.style.transform = `translate(${stalkerX}px, ${stalkerY}px)`;
-    requestAnimationFrame(updateStalker);
-  };
-  updateStalker();
-
-  // 各要素に応じたアクション文言を取得する関数
-  function getActionText(element) {
-    // ポートフォリオモック
-    if (element.classList.contains('portfolio-mock')) {
-      return 'VIEW PORTFOLIO';
-    }
-    // ボタン
-    if (element.tagName === 'BUTTON' || element.type === 'submit') {
-      const buttonText = element.textContent.trim();
-      if (buttonText.includes('SEND') || buttonText.includes('送信')) {
-        return 'SEND';
-      }
-      return 'CLICK';
-    }
-    // リンク（SNSアイコンなど）
-    if (element.tagName === 'A') {
-      const href = element.getAttribute('href');
-      
-      // SNSアイコン（Font Awesomeアイコンを含むリンク）
-      const icon = element.querySelector('i');
-      if (icon) {
-        if (icon.classList.contains('fa-github')) {
-          return 'Access to Github';
-        }
-        if (icon.classList.contains('fa-x-twitter')) {
-          return 'Access to Twitter';
-        }
-        if (icon.classList.contains('fa-instagram')) {
-          return 'Access to Instagram';
-        }
-      }
-      
-      // ポートフォリオリスト内のリンク（プロダクト名を表示）
-      if (href && href.startsWith('#')) {
-        // ポートフォリオリスト内のリンクかチェック
-        const portfolioSelect = element.closest('.portfolio-select');
-        if (portfolioSelect) {
-          const siteTitle = element.querySelector('.site-title');
-          if (siteTitle) {
-            const productName = siteTitle.textContent.trim();
-            return productName || 'VIEW';
-          }
-        }
-        return 'VIEW';
-      }
-      if (href && (href.startsWith('http') || href.startsWith('mailto:'))) {
-        return 'OPEN';
-      }
-      return 'CLICK';
-    }
-    // フォーム入力
-    if (element.tagName === 'INPUT') {
-      const inputId = element.getAttribute('id');
-      const inputName = element.getAttribute('name');
-      const inputType = element.getAttribute('type');
-      
-      if (inputId === 'name' || inputName === 'name') {
-        return 'Enter Your Name';
-      }
-      if (inputId === 'email' || inputName === 'email') {
-        return 'Enter Your Email';
-      }
-      return 'INPUT';
-    }
-    // テキストエリア
-    if (element.tagName === 'TEXTAREA') {
-      const textareaId = element.getAttribute('id');
-      const textareaName = element.getAttribute('name');
-      
-      if (textareaId === 'message' || textareaName === 'message') {
-        return 'Enter Your Message';
-      }
-      return 'INPUT';
-    }
-    // ラベル
-    if (element.tagName === 'LABEL') {
-      return 'SELECT';
-    }
-    // その他
-    return 'CLICK';
-  }
-
-  // テキストの幅を測定してマウスストーカーのサイズを調整する関数
-  function updateStalkerSize(text) {
-    if (!stalkerText || !text) return;
-    // テキストを設定
-    stalkerText.textContent = text;
-    // 一時的な要素を作成してテキストの幅を測定
-    // 実際のスタイルを適用（CSS変数ではなく計算済みの値を使用）
-    const measureElement = document.createElement('span');
-    measureElement.style.fontSize = '0.625rem'; // 10px
-    measureElement.style.fontFamily = '"Merriweather", serif';
-    measureElement.style.fontWeight = '700';
-    measureElement.style.letterSpacing = '1px';
-    measureElement.style.whiteSpace = 'nowrap';
-    measureElement.style.visibility = 'hidden';
-    measureElement.style.position = 'absolute';
-    measureElement.style.top = '-9999px';
-    measureElement.style.padding = '0';
-    measureElement.style.margin = '0';
-    measureElement.textContent = text;
-    document.body.appendChild(measureElement);
-    // テキストの幅と高さを取得
-    const textWidth = measureElement.offsetWidth;
-    const textHeight = measureElement.offsetHeight;
-    // 一時要素を削除
-    document.body.removeChild(measureElement);
-    // パディングを考慮したサイズを計算（左右に各10px、上下に各8px）
-    const padding = 20; // 左右のパディング
-    const verticalPadding = 16; // 上下のパディング
-    const minSize = 40; // 最小サイズ
-    const width = Math.max(minSize, textWidth + padding);
-    const height = Math.max(minSize, textHeight + verticalPadding);
-    // マウスストーカーのサイズを設定
-    stalker.style.width = `${width}px`;
-    stalker.style.height = `${height}px`;
-    stalker.style.top = `-${height / 2}px`;
-    stalker.style.left = `-${width / 2}px`;
-  }
-
-  // インタラクティブ要素にイベントリスナーを追加
-  document.querySelectorAll('a, input, label, button, .portfolio-mock, textarea').forEach((elem) => {
-    elem.addEventListener('mouseover', () => {
-      stalker.classList.add('is_active');
-      const actionText = getActionText(elem);
-      if (stalkerText) {
-        updateStalkerSize(actionText);
-      }
-    });
-    elem.addEventListener('mouseout', () => {
-      stalker.classList.remove('is_active');
-      if (stalkerText) {
-        stalkerText.textContent = '';
-        // サイズをリセット
-        stalker.style.width = '';
-        stalker.style.height = '';
-        stalker.style.top = '';
-        stalker.style.left = '';
-      }
-    });
-  });
 });

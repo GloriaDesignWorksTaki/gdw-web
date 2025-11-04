@@ -422,8 +422,47 @@ section .wrapper {
   height: 16px;
   animation: spin 1s linear infinite;
 }
+/* サンクスページ専用のレイアウト */
+body.page-thanks {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+body.page-thanks main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0; /* flexboxで縮小を許可 */
+}
 #contact-thanks {
   background-color: var(--color-secondary);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  min-height: 0; /* flexboxで縮小を許可 */
+}
+#contact-thanks .wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+}
+#contact-thanks .desc {
+  margin-bottom: 2rem;
+}
+#contact-thanks .button {
+  margin-top: 2rem;
+}
+body.page-thanks footer {
+  flex-shrink: 0; /* フッターは縮小しない */
 }
 
 /* #shadow */

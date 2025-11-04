@@ -14,25 +14,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // Main Visual Animation gsap
   gsap.registerPlugin(ScrollTrigger);
   gsap.to(".expanding-box", {
-    width: "100vw", 
+    width: "100vw",
     height: "100vh",
     backgroundColor: "#1b86d4",
     duration: 1,
     ease: "power2.inOut",
     scrollTrigger: {
       trigger: "body",
-      start: "top top", 
+      start: "top top",
       end: "35% bottom",
       scrub: true,
       onUpdate: (self) => {
         const progress = self.progress;
         const startColor = {r: 255, g: 255, b: 255}; // 白
         const endColor = {r: 47, g: 44, b: 42}; // #2f2c2a
-        
         const currentR = Math.round(startColor.r + (endColor.r - startColor.r) * progress);
         const currentG = Math.round(startColor.g + (endColor.g - startColor.g) * progress);
         const currentB = Math.round(startColor.b + (endColor.b - startColor.b) * progress);
-        
         gsap.set(".expanding-box", {
           backgroundColor: `rgb(${currentR}, ${currentG}, ${currentB})`
         });
@@ -58,8 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // すべての作品と説明を非表示、最初の作品と説明を表示
   works.forEach(work => (work.style.display = "none"));
   descriptions.forEach(desc => (desc.style.display = "none"));
-  document.querySelector("#works01").style.display = "block";
-  document.querySelector(".portfolio-desc#works01").style.display = "block";
+  if (works.length > 0 && descriptions.length > 0) {
+    const firstWorkId = works[0].id;
+    const firstDesc = document.querySelector(`.portfolio-desc#${firstWorkId}`);
+    if (works[0]) works[0].style.display = "block";
+    if (firstDesc) firstDesc.style.display = "block";
+  }
 
   // ポートフォリオリンクのクリックイベント
   portfolioLinks.forEach(link => {

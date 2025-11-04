@@ -87,6 +87,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 
+// ポートフォリオ設定を読み込む
+$portfolioItems = require(__DIR__ . '/config/portfolio.php');
+
 require_once(__DIR__ . '/header.php');
 require_once(__DIR__ . '/include/dialog.php');
 ?>
@@ -173,91 +176,27 @@ require_once(__DIR__ . '/include/dialog.php');
             <img class="mock-sp" src="<?php echo $url; ?>/assets/images/portfolio/sp-mock.webp" alt="MOBILE">
           </div>
           <div class="portfolio-mock-img">
-            <div id="works01" class="portfolio-works">
-              <img class="works-pc" src="<?php echo $url; ?>/assets/images/works/01.webp" alt="1010bit Offical Corplate Site">
-              <img class="works-sp" src="<?php echo $url; ?>/assets/images/works/01-s.webp" alt="1010bit Offical Corplate Site">
+            <?php foreach ($portfolioItems as $item): ?>
+            <div id="<?php echo escape($item['id']); ?>" class="portfolio-works">
+              <img class="works-pc" src="<?php echo $url; ?>/assets/images/works/<?php echo escape($item['image_pc']); ?>" alt="<?php echo escape($item['alt']); ?>">
+              <img class="works-sp" src="<?php echo $url; ?>/assets/images/works/<?php echo escape($item['image_sp']); ?>" alt="<?php echo escape($item['alt']); ?>">
             </div>
-            <div id="works02" class="portfolio-works">
-              <img class="works-pc" src="<?php echo $url; ?>/assets/images/works/02.webp" alt="The Traveling Theory Artist Site">
-              <img class="works-sp" src="<?php echo $url; ?>/assets/images/works/02-s.webp" alt="The Traveling Theory Artist Site">
-            </div>
-            <div id="works03" class="portfolio-works">
-              <img class="works-pc" src="<?php echo $url; ?>/assets/images/works/03.webp" alt="Cotovia Clinic Offical Site">
-              <img class="works-sp" src="<?php echo $url; ?>/assets/images/works/03-s.webp" alt="Cotovia Clinic Offical Site">
-            </div>
-            <div id="works04" class="portfolio-works">
-              <img class="works-pc" src="<?php echo $url; ?>/assets/images/works/04.webp" alt="Nico Nico House Sendai Official Site">
-              <img class="works-sp" src="<?php echo $url; ?>/assets/images/works/04-s.webp" alt="Nico Nico House Sendai Official Site">
-            </div>
-            <div id="works05" class="portfolio-works">
-              <img class="works-pc" src="<?php echo $url; ?>/assets/images/works/05.webp" alt="Ken5.golf Official Site">
-              <img class="works-sp" src="<?php echo $url; ?>/assets/images/works/05-s.webp" alt="Ken5.golf Official Site">
-            </div>
+            <?php endforeach; ?>
           </div>
           <div class="portflio-mock-desc">
-            <div id="works01" class="portfolio-desc">
-              <h3>The Traveling Theory Artist Site</h3>
+            <?php foreach ($portfolioItems as $item): ?>
+            <div id="<?php echo escape($item['id']); ?>" class="portfolio-desc">
+              <h3><?php echo escape($item['title']); ?></h3>
               <div class="desc-detail">
-                <p>Design / Develop</p>
+                <p><?php echo escape($item['description']); ?></p>
                 <ul class="tech">
-                  <li><i class="fa-brands fa-html5"></i></li>
-                  <li><i class="fa-brands fa-css3-alt"></i></li>
-                  <li><i class="fa-brands fa-php"></i></li>
-                  <li><i class="fa-brands fa-js"></i></li>
-                  <li><i class="fa-brands fa-wordpress"></i></li>
+                  <?php foreach ($item['tech'] as $tech): ?>
+                  <li><i class="fa-brands fa-<?php echo escape($tech); ?>"></i></li>
+                  <?php endforeach; ?>
                 </ul>
               </div>
             </div>
-            <div id="works02" class="portfolio-desc">
-              <h3>1010bit Offical Corplate Site</h3>
-              <div class="desc-detail">
-                <p>Design / Develop</p>
-                <ul class="tech">
-                  <li><i class="fa-brands fa-html5"></i></li>
-                  <li><i class="fa-brands fa-css3-alt"></i></li>
-                  <li><i class="fa-brands fa-php"></i></li>
-                  <li><i class="fa-brands fa-js"></i></li>
-                </ul>
-              </div>
-            </div>
-            <div id="works03" class="portfolio-desc">
-              <h3>Cotovia Clinic Offical Site</h3>
-              <div class="desc-detail">
-                <p>Design / Develop</p>
-                <ul class="tech">
-                  <li><i class="fa-brands fa-html5"></i></li>
-                  <li><i class="fa-brands fa-css3-alt"></i></li>
-                  <li><i class="fa-brands fa-php"></i></li>
-                  <li><i class="fa-brands fa-js"></i></li>
-                  <li><i class="fa-brands fa-wordpress"></i></li>
-                </ul>
-              </div>
-            </div>
-            <div id="works04" class="portfolio-desc">
-              <h3>Nico Nico House Sendai Official Site</h3>
-              <div class="desc-detail">
-                <p>Design / Develop</p>
-                <ul class="tech">
-                  <li><i class="fa-brands fa-html5"></i></li>
-                  <li><i class="fa-brands fa-css3-alt"></i></li>
-                  <li><i class="fa-brands fa-php"></i></li>
-                  <li><i class="fa-brands fa-js"></i></li>
-                  <li><i class="fa-brands fa-wordpress"></i></li>
-                </ul>
-              </div>
-            </div>
-            <div id="works05" class="portfolio-desc">
-              <h3>Ken5.golf Official Site</h3>
-              <div class="desc-detail">
-                <p>Design / Develop</p>
-                <ul class="tech">
-                  <li><i class="fa-brands fa-react"></i></li>
-                  <li><i class="fa-brands fa-node-js"></i></li>
-                  <li><i class="fa-brands fa-css3-alt"></i></li>
-                  <li><i class="fa-brands fa-aws"></i></li>
-                </ul>
-              </div>
-            </div>
+            <?php endforeach; ?>
           </div>
         </div>
       </div>
@@ -265,36 +204,14 @@ require_once(__DIR__ . '/include/dialog.php');
   </section>
   <div class="portfolio-select">
     <ul>
+      <?php foreach ($portfolioItems as $item): ?>
       <li>
-        <a href="#works01">
-          <img src="<?php echo $url; ?>/assets/images/works/01-s.webp" alt="The Traveling Theory Artist Site">
-          <div class="site-title">The Traveling Theory Artist Site</div>
+        <a href="#<?php echo escape($item['id']); ?>">
+          <img src="<?php echo $url; ?>/assets/images/works/<?php echo escape($item['image_sp']); ?>" alt="<?php echo escape($item['alt']); ?>">
+          <div class="site-title"><?php echo escape($item['title']); ?></div>
         </a>
       </li>
-      <li>
-        <a href="#works02">
-          <img src="<?php echo $url; ?>/assets/images/works/02-s.webp" alt="1010bit Offical Corplate Site">
-          <div class="site-title">1010bit Offical Corplate Site</div>
-        </a>
-      </li>
-      <li>
-        <a href="#works03">
-          <img src="<?php echo $url; ?>/assets/images/works/03-s.webp" alt="Cotovia Clinic Offical Site">
-          <div class="site-title">Cotovia Clinic Offical Site</div>
-        </a>
-      </li>
-      <li>
-        <a href="#works04">
-          <img src="<?php echo $url; ?>/assets/images/works/04-s.webp" alt="Nico Nico House Sendai Official Site">
-          <div class="site-title">Nico Nico House Sendai Official Site</div>
-        </a>
-      </li>
-      <li>
-        <a href="#works05">
-          <img src="<?php echo $url; ?>/assets/images/works/05-s.webp" alt="Ken5.golf Official Site">
-          <div class="site-title">Ken5.golf Official Site</div>
-        </a>
-      </li>
+      <?php endforeach; ?>
     </ul>
   </div>
   <div id="shadow"></div>

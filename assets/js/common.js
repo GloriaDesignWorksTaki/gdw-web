@@ -190,10 +190,35 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       return 'CLICK';
     }
-    // リンク
+    // リンク（SNSアイコンなど）
     if (element.tagName === 'A') {
       const href = element.getAttribute('href');
+      
+      // SNSアイコン（Font Awesomeアイコンを含むリンク）
+      const icon = element.querySelector('i');
+      if (icon) {
+        if (icon.classList.contains('fa-github')) {
+          return 'Access to Github';
+        }
+        if (icon.classList.contains('fa-x-twitter')) {
+          return 'Access to Twitter';
+        }
+        if (icon.classList.contains('fa-instagram')) {
+          return 'Access to Instagram';
+        }
+      }
+      
+      // ポートフォリオリスト内のリンク（プロダクト名を表示）
       if (href && href.startsWith('#')) {
+        // ポートフォリオリスト内のリンクかチェック
+        const portfolioSelect = element.closest('.portfolio-select');
+        if (portfolioSelect) {
+          const siteTitle = element.querySelector('.site-title');
+          if (siteTitle) {
+            const productName = siteTitle.textContent.trim();
+            return productName || 'VIEW';
+          }
+        }
         return 'VIEW';
       }
       if (href && (href.startsWith('http') || href.startsWith('mailto:'))) {
@@ -202,7 +227,27 @@ document.addEventListener('DOMContentLoaded', () => {
       return 'CLICK';
     }
     // フォーム入力
-    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+    if (element.tagName === 'INPUT') {
+      const inputId = element.getAttribute('id');
+      const inputName = element.getAttribute('name');
+      const inputType = element.getAttribute('type');
+      
+      if (inputId === 'name' || inputName === 'name') {
+        return 'Enter Your Name';
+      }
+      if (inputId === 'email' || inputName === 'email') {
+        return 'Enter Your Email';
+      }
+      return 'INPUT';
+    }
+    // テキストエリア
+    if (element.tagName === 'TEXTAREA') {
+      const textareaId = element.getAttribute('id');
+      const textareaName = element.getAttribute('name');
+      
+      if (textareaId === 'message' || textareaName === 'message') {
+        return 'Enter Your Message';
+      }
       return 'INPUT';
     }
     // ラベル

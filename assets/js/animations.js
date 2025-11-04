@@ -360,81 +360,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================
-  // 4. フォームインタラクティブアニメーション
-  // ============================================
-  function initFormAnimations() {
-    if (typeof gsap === 'undefined') {
-      return;
-    }
-
-    const inputs = document.querySelectorAll('#contactForm input, #contactForm textarea');
-    inputs.forEach(input => {
-      // フォーカス時のアニメーション
-      input.addEventListener('focus', () => {
-        gsap.to(input, {
-          scale: 1.02,
-          duration: 0.3,
-          ease: 'power2.out'
-        });
-      });
-
-      input.addEventListener('blur', () => {
-        gsap.to(input, {
-          scale: 1,
-          duration: 0.3,
-          ease: 'power2.out'
-        });
-      });
-
-      // 入力時の波紋効果
-      input.addEventListener('input', () => {
-        const ripple = document.createElement('div');
-        ripple.style.position = 'absolute';
-        ripple.style.width = '20px';
-        ripple.style.height = '20px';
-        ripple.style.borderRadius = '50%';
-        ripple.style.background = 'rgba(27, 134, 212, 0.3)';
-        ripple.style.pointerEvents = 'none';
-        ripple.style.transform = 'scale(0)';
-        input.parentElement.style.position = 'relative';
-        input.parentElement.appendChild(ripple);
-
-        gsap.to(ripple, {
-          x: Math.random() * input.offsetWidth,
-          y: Math.random() * input.offsetHeight,
-          scale: 10,
-          opacity: 0,
-          duration: 0.6,
-          ease: 'power2.out',
-          onComplete: () => ripple.remove()
-        });
-      });
-    });
-
-    // 送信ボタンアニメーション
-    const submitBtn = document.querySelector('.submit-btn');
-    if (submitBtn) {
-      submitBtn.addEventListener('mouseenter', () => {
-        gsap.to(submitBtn, {
-          scale: 1.05,
-          boxShadow: '0 10px 30px rgba(27, 134, 212, 0.4)',
-          duration: 0.3,
-          ease: 'power2.out'
-        });
-      });
-
-      submitBtn.addEventListener('mouseleave', () => {
-        gsap.to(submitBtn, {
-          scale: 1,
-          boxShadow: '0 0 0 rgba(27, 134, 212, 0)',
-          duration: 0.3,
-          ease: 'power2.out'
-        });
-      });
-    }
-  }
-
-  // ============================================
   // 5. SVGアニメーション強化
   // ============================================
   function enhanceSVGAnimation() {
@@ -544,28 +469,29 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================
   // 8. フッターアイコンアニメーション
   // ============================================
-  function initFooterAnimations() {
-    const footerLinks = document.querySelectorAll('.footer-links a');
-    footerLinks.forEach((link, index) => {
-      link.addEventListener('mouseenter', () => {
-        gsap.to(link, {
-          scale: 1.3,
-          rotation: 360,
-          duration: 0.5,
-          ease: 'back.out(1.7)'
-        });
-      });
+  // フッターアイコンのホバーアニメーションは削除（不要）
+  // function initFooterAnimations() {
+  //   const footerLinks = document.querySelectorAll('.footer-links a');
+  //   footerLinks.forEach((link, index) => {
+  //     link.addEventListener('mouseenter', () => {
+  //       gsap.to(link, {
+  //         scale: 1.3,
+  //         rotation: 360,
+  //         duration: 0.5,
+  //         ease: 'back.out(1.7)'
+  //       });
+  //     });
 
-      link.addEventListener('mouseleave', () => {
-        gsap.to(link, {
-          scale: 1,
-          rotation: 0,
-          duration: 0.3,
-          ease: 'power2.out'
-        });
-      });
-    });
-  }
+  //     link.addEventListener('mouseleave', () => {
+  //       gsap.to(link, {
+  //         scale: 1,
+  //         rotation: 0,
+  //         duration: 0.3,
+  //         ease: 'power2.out'
+  //       });
+  //     });
+  //   });
+  // }
 
   // ============================================
   // 初期化
@@ -573,10 +499,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initParticleBackground();
   initMainVisualTextAnimation();
   initScrollAnimations();
-  initFormAnimations();
+  // initFormAnimations(); // インプットのホバーアニメーションは不要
   enhanceSVGAnimation();
   initLoadingAnimation();
   initHeaderAnimation();
-  initFooterAnimations();
+  // initFooterAnimations(); // フッターアイコンのホバーアニメーションは不要
 });
 

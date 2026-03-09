@@ -1,8 +1,6 @@
 <?php
 /**
  * お問い合わせフォームの受信・バリデーション・送信
- * POST 時のみ処理し、$errors / $name / $email / $message をセットする（Ajax 時は exit する）
- * 前提: bootstrap + helpers 読み込み済み。$errors, $name, $email, $message が定義済み
  */
 use App\Services\Mailer;
 use App\Services\SecurityService;

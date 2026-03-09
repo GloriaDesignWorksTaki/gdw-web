@@ -1,7 +1,6 @@
 <?php
 /**
  * アプリケーションの共通ブートストラップ
- * 全ページで require してから header 等を読み込む
  */
 require_once __DIR__ . '/../vendor/autoload.php';
 

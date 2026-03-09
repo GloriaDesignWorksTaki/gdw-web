@@ -3,6 +3,7 @@
 if (!isset($url)) {
   $url = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . ($_SERVER['HTTP_HOST'] ?? 'localhost');
 }
+$styleVersion = file_exists(__DIR__ . '/assets/css/style.css') ? filemtime(__DIR__ . '/assets/css/style.css') : time();
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -20,7 +21,7 @@ if (!isset($url)) {
   <!-- CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <link rel="stylesheet" href="<?php echo $url; ?>/assets/css/reset.css">
-  <link rel="stylesheet" href="<?php echo $url; ?>/assets/css/style.css">
+  <link rel="stylesheet" href="<?php echo $url; ?>/assets/css/style.css?v=<?php echo $styleVersion; ?>">
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],

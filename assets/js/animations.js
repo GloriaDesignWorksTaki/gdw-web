@@ -114,17 +114,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (concept.dataset.animated === 'true') return;
     concept.dataset.animated = 'true';
 
-    // h1全体を一度にアニメーション（シンプルで速い）
-    gsap.fromTo(concept,
-      { opacity: 0, y: 20 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.5,
-        delay: 0,
-        ease: 'power2.out'
-      }
-    );
+    // フェードインを無効化して即時表示
+    gsap.set(concept, { opacity: 1, y: 0 });
   }
 
   // ============================================
@@ -138,39 +129,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     gsap.registerPlugin(ScrollTrigger);
 
-    // セクションタイトルアニメーション
-    // 既に表示されている要素（.is-show）はスキップ
+    // セクションタイトルのフェードインを無効化して即時表示
     gsap.utils.toArray('.target').forEach((target, index) => {
-      // 既に表示されている場合は初期状態を設定しない
-      if (target.classList.contains('is-show')) {
-        gsap.set(target, { opacity: 1, y: 0 });
-        return;
-      }
-
-      // ビューポート内にある場合は即座に表示
-      const rect = target.getBoundingClientRect();
-      const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
-      if (isInViewport) {
-        // 既に表示エリアにある場合は即座に表示
-        gsap.set(target, { opacity: 1, y: 0 });
-        return;
-      }
-      // 初期状態を設定
-      gsap.set(target, { opacity: 0, y: 50 });
-      gsap.to(target, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: target,
-          start: 'top 85%',
-          end: 'top 50%',
-          toggleActions: 'play none none reverse',
-          // 一度実行されたら保持
-          once: false
-        }
-      });
+      gsap.set(target, { opacity: 1, y: 0 });
     });
 
     // ポートフォリオカードアニメーション
@@ -413,20 +374,95 @@ document.addEventListener('DOMContentLoaded', () => {
     loader.id = 'page-loader';
     loader.innerHTML = `
       <div class="loader-content">
-        <div class="loader-spinner"></div>
-        <div class="loader-text">Gloria Design Works</div>
+        <div class="loader-logo" id="loaderLogo" aria-label="Gloria Design Works logo"></div>
       </div>
     `;
     document.body.appendChild(loader);
 
-    window.addEventListener('load', () => {
+    const logoContainer = document.getElementById('loaderLogo');
+    const headerLogo = document.querySelector('header .logo img');
+    const logoSrc = headerLogo ? headerLogo.src : './assets/images/logo.svg';
+
+    const drawLogoAnimation = () => {
+      if (!logoContainer) {
+        return Promise.resolve();
+      }
+
+      return fetch(logoSrc)
+        .then((response) => response.text())
+        .then((svgText) => {
+          const parser = new DOMParser();
+          const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+          const svg = svgDoc.querySelector('svg');
+          if (!svg) {
+            throw new Error('SVG not found');
+          }
+
+          svg.classList.add('loader-logo-svg');
+          logoContainer.innerHTML = '';
+          logoContainer.appendChild(svg);
+
+          const drawableElements = svg.querySelectorAll('path, line, polyline, polygon, rect, circle, ellipse');
+          if (drawableElements.length === 0) {
+            return new Promise((resolve) => {
+              gsap.fromTo(svg, { opacity: 0 }, { opacity: 1, duration: 0.5, onComplete: resolve });
+            });
+          }
+
+          drawableElements.forEach((element) => {
+            const hasPathLength = typeof element.getTotalLength === 'function';
+            if (!hasPathLength) {
+              return;
+            }
+
+            const length = element.getTotalLength();
+            element.style.strokeDasharray = `${length}`;
+            element.style.strokeDashoffset = `${length}`;
+            element.style.stroke = 'var(--color-secondary)';
+            element.style.strokeWidth = '1.5';
+            element.style.fill = 'transparent';
+          });
+
+          return new Promise((resolve) => {
+            const timeline = gsap.timeline({ onComplete: resolve });
+            drawableElements.forEach((element, index) => {
+              timeline.to(element, {
+                strokeDashoffset: 0,
+                duration: 0.55,
+                ease: 'power2.out'
+              }, index * 0.04);
+            });
+            timeline.to(drawableElements, {
+              fill: 'var(--color-secondary)',
+              duration: 0.25,
+              stagger: 0.01
+            }, '-=0.15');
+          });
+        })
+        .catch(() => {
+          logoContainer.innerHTML = '<img src="' + logoSrc + '" alt="Gloria Design Works logo">';
+        });
+    };
+
+    const hideLoader = () => {
       gsap.to(loader, {
         opacity: 0,
-        duration: 0.5,
-        delay: 0.3,
+        duration: 0.45,
+        delay: 0.15,
         onComplete: () => loader.remove()
       });
-    });
+    };
+
+    Promise.all([
+      drawLogoAnimation(),
+      new Promise((resolve) => {
+        if (document.readyState === 'complete') {
+          resolve();
+          return;
+        }
+        window.addEventListener('load', resolve, { once: true });
+      })
+    ]).then(hideLoader);
   }
 
   // ============================================
@@ -436,34 +472,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const header = document.querySelector('header');
     if (!header) return;
 
-    let lastScroll = 0;
-    let ticking = false;
-
-    window.addEventListener('scroll', () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const currentScroll = window.pageYOffset;
-
-          if (currentScroll > lastScroll && currentScroll > 100) {
-            gsap.to(header, {
-              y: -100,
-              duration: 0.3,
-              ease: 'power2.in'
-            });
-          } else {
-            gsap.to(header, {
-              y: 0,
-              duration: 0.3,
-              ease: 'power2.out'
-            });
-          }
-
-          lastScroll = currentScroll;
-          ticking = false;
-        });
-        ticking = true;
-      }
-    });
+    // ロゴは常時表示にするため、スクロールで隠す処理は無効化
+    gsap.set(header, { y: 0 });
   }
 
   // ============================================

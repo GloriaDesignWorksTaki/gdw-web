@@ -93,9 +93,11 @@ header {
   overflow: hidden;
   z-index: 99999;
   background: none;
+  mix-blend-mode: difference;
 }
 header .logo a img {
   width: 180px;
+  filter: brightness(0) invert(1);
 }
 
 /* noise */
@@ -515,46 +517,6 @@ footer .copy {
   color: var(--color-primary-light);
 }
 
-/* Animation */
-.target {
-  opacity: 1; /* GSAPで制御するため、初期状態は表示 */
-  transition: all 2s;
-}
-.target.is-show {
-  opacity: 1;
-}
-/* GSAPアニメーション用の初期状態（JSで制御） */
-.target.animate-ready {
-  opacity: 0;
-}
-.target.is-show.draw {
-  animation: draw 3s ease forwards;
-}
-
-@keyframes draw {
-  0% {
-    stroke-dasharray: 2000;
-    stroke-dashoffset: 2000;
-    fill: transparent;
-  }
-  50% {
-    stroke-dashoffset: 0;
-    fill: transparent;
-  }
-  100% {
-    stroke-dashoffset: 0;
-    fill: #FFFFFF;
-  }
-}
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
 /* ローディングアニメーション */
 #page-loader {
   position: fixed;
@@ -570,6 +532,16 @@ footer .copy {
 }
 .loader-content {
   text-align: center;
+}
+.loader-logo {
+  width: min(88vw, 560px);
+  margin: 0 auto;
+}
+.loader-logo .loader-logo-svg,
+.loader-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 .loader-spinner {
   width: 60px;
@@ -779,7 +751,7 @@ header {
     align-items: center;
   }
   #about .desc .about-flex .text-box {
-    width: 70%;
+    width: 100%;
   }
   #about .desc .about-flex .about-img {
     width: 30%;

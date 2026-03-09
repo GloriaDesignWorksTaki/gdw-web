@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (contactForm) {
     contactForm.addEventListener('submit', function(e) {
       e.preventDefault(); // デフォルトの送信を防ぐ
-      
+
       const submitBtn = document.getElementById('submitBtn');
       const defaultText = submitBtn.querySelector('.default');
       const loadingText = submitBtn.querySelector('.loading');
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
         defaultText.style.display = '';
         loadingText.style.display = 'none';
         submitButton.disabled = false;
-        
+
         if (window.showDialog) {
           window.showDialog('通信エラーが発生しました。しばらく時間をおいてから再度お試しください。', 'error', 'エラー');
         }

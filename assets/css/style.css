@@ -93,9 +93,11 @@ header {
   overflow: hidden;
   z-index: 99999;
   background: none;
+  mix-blend-mode: difference;
 }
 header .logo a img {
   width: 180px;
+  filter: brightness(0) invert(1);
 }
 
 /* noise */
@@ -515,46 +517,6 @@ footer .copy {
   color: var(--color-primary-light);
 }
 
-/* Animation */
-.target {
-  opacity: 1; /* GSAPで制御するため、初期状態は表示 */
-  transition: all 2s;
-}
-.target.is-show {
-  opacity: 1;
-}
-/* GSAPアニメーション用の初期状態（JSで制御） */
-.target.animate-ready {
-  opacity: 0;
-}
-.target.is-show.draw {
-  animation: draw 3s ease forwards;
-}
-
-@keyframes draw {
-  0% {
-    stroke-dasharray: 2000;
-    stroke-dashoffset: 2000;
-    fill: transparent;
-  }
-  50% {
-    stroke-dashoffset: 0;
-    fill: transparent;
-  }
-  100% {
-    stroke-dashoffset: 0;
-    fill: #FFFFFF;
-  }
-}
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
 /* ローディングアニメーション */
 #page-loader {
   position: fixed;
@@ -570,6 +532,16 @@ footer .copy {
 }
 .loader-content {
   text-align: center;
+}
+.loader-logo {
+  width: min(88vw, 560px);
+  margin: 0 auto;
+}
+.loader-logo .loader-logo-svg,
+.loader-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 .loader-spinner {
   width: 60px;
@@ -625,7 +597,147 @@ header {
   perspective: 1000px;
 }
 
+/* dialog */
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  display: none;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.7);
+  animation: fadeIn 0.3s ease;
+}
+.dialog-overlay.is-open {
+  display: flex;
+}
+.dialog-container {
+  display: flex;
+  flex-direction: column;
+  width: 95%;
+  max-width: 95%;
+  max-height: 90vh;
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: var(--color-primary, #2f2c2a);
+  color: var(--color-secondary);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease;
+}
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-primary-light, #817e7c);
+}
+.dialog-title {
+  margin: 0;
+  color: var(--color-secondary);
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+.dialog-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-secondary);
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+.dialog-close:hover {
+  opacity: 0.7;
+}
+.dialog-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+.dialog-message {
+  color: var(--color-secondary);
+  line-height: 1.6;
+}
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem;
+  border-top: 1px solid var(--color-primary-light);
+}
+.dialog-button {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--color-accent);
+  color: var(--color-secondary);
+  font-family: var(--font-family-title);
+  font-size: 1rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.dialog-button:hover {
+  background-color: #1470b8;
+}
+.dialog-button:active {
+  transform: scale(0.98);
+}
+.dialog-container.dialog-error .dialog-title {
+  color: var(--color-accent);
+}
+.dialog-container.dialog-success .dialog-title {
+  color: var(--color-accent);
+}
+.dialog-container.dialog-info .dialog-title {
+  color: var(--color-accent);
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (min-width: 768px) {
+  .dialog-container {
+    width: 500px;
+    max-width: 90%;
+  }
+  .dialog-header,
+  .dialog-body,
+  .dialog-footer {
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+  }
+  .dialog-header,
+  .dialog-body {
+    padding-top: 1.5rem;
+  }
+  .dialog-footer {
+    padding-bottom: 1rem;
+  }
+
   section .wrapper {
     padding: 0;
     width: 80%;
@@ -639,7 +751,7 @@ header {
     align-items: center;
   }
   #about .desc .about-flex .text-box {
-    width: 70%;
+    width: 100%;
   }
   #about .desc .about-flex .about-img {
     width: 30%;

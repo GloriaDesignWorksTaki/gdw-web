@@ -1,8 +1,10 @@
 // マウスストーカー初期化関数（全ページで動作するように）
+const ENABLE_MOTION = typeof window.ENABLE_MOTION === 'boolean' ? window.ENABLE_MOTION : true;
+
 function initMouseStalker() {
   const stalker = document.querySelector('.mouse-stalker');
   const stalkerText = document.querySelector('.mouse-stalker-text');
-  
+
   // マウスストーカーが存在する場合のみ初期化（全ページで動作）
   if (!stalker || !stalkerText) {
     return; // 要素が存在しない場合は終了
@@ -18,7 +20,7 @@ function initMouseStalker() {
   // CSS変数を取得
   const root = getComputedStyle(document.documentElement);
   const secondaryColor = root.getPropertyValue('--color-secondary').trim() || '#ffffff';
-  
+
   // インラインスタイルで確実に表示（CSSのdisplay: noneを上書き）
   // すべてのスタイルを一度に設定して確実に適用
   Object.assign(stalker.style, {
@@ -38,7 +40,7 @@ function initMouseStalker() {
     transition: 'transform 0.1s, width 0.2s, height 0.2s, top 0.2s, left 0.2s',
     transitionTimingFunction: 'ease-out'
   });
-  
+
   let mouseX = 0, mouseY = 0;
   let stalkerX = 0, stalkerY = 0;
 
@@ -74,7 +76,7 @@ function initMouseStalker() {
     // リンク（SNSアイコンなど）
     if (element.tagName === 'A') {
       const href = element.getAttribute('href');
-      
+
       // SNSアイコン（Font Awesomeアイコンを含むリンク）
       const icon = element.querySelector('i');
       if (icon) {
@@ -88,7 +90,7 @@ function initMouseStalker() {
           return 'Access to Instagram';
         }
       }
-      
+
       // ポートフォリオリスト内のリンク（プロダクト名を表示）
       if (href && href.startsWith('#')) {
         // ポートフォリオリスト内のリンクかチェック
@@ -112,7 +114,7 @@ function initMouseStalker() {
       const inputId = element.getAttribute('id');
       const inputName = element.getAttribute('name');
       const inputType = element.getAttribute('type');
-      
+
       if (inputId === 'name' || inputName === 'name') {
         return 'Enter Your Name';
       }
@@ -125,7 +127,7 @@ function initMouseStalker() {
     if (element.tagName === 'TEXTAREA') {
       const textareaId = element.getAttribute('id');
       const textareaName = element.getAttribute('name');
-      
+
       if (textareaId === 'message' || textareaName === 'message') {
         return 'Enter Your Message';
       }
@@ -207,45 +209,34 @@ if (document.readyState === 'loading') {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-
-  // スクロールアニメーション（使わないかも〜）
-  const targets = document.querySelectorAll('.target');
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-show');
+  // Main Visual Animation gsap
+  if (ENABLE_MOTION && typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+    gsap.to(".expanding-box", {
+      width: "100vw",
+      height: "100vh",
+      backgroundColor: "#1b86d4",
+      duration: 1,
+      ease: "power2.inOut",
+      scrollTrigger: {
+        trigger: "body",
+        start: "top top",
+        end: "35% bottom",
+        scrub: true,
+        onUpdate: (self) => {
+          const progress = self.progress;
+          const startColor = {r: 255, g: 255, b: 255}; // 白
+          const endColor = {r: 47, g: 44, b: 42}; // #2f2c2a
+          const currentR = Math.round(startColor.r + (endColor.r - startColor.r) * progress);
+          const currentG = Math.round(startColor.g + (endColor.g - startColor.g) * progress);
+          const currentB = Math.round(startColor.b + (endColor.b - startColor.b) * progress);
+          gsap.set(".expanding-box", {
+            backgroundColor: `rgb(${currentR}, ${currentG}, ${currentB})`
+          });
+        }
       }
     });
-  }, { threshold: 0.75 });
-
-  targets.forEach(target => observer.observe(target));
-
-  // Main Visual Animation gsap
-  gsap.registerPlugin(ScrollTrigger);
-  gsap.to(".expanding-box", {
-    width: "100vw",
-    height: "100vh",
-    backgroundColor: "#1b86d4",
-    duration: 1,
-    ease: "power2.inOut",
-    scrollTrigger: {
-      trigger: "body",
-      start: "top top",
-      end: "35% bottom",
-      scrub: true,
-      onUpdate: (self) => {
-        const progress = self.progress;
-        const startColor = {r: 255, g: 255, b: 255}; // 白
-        const endColor = {r: 47, g: 44, b: 42}; // #2f2c2a
-        const currentR = Math.round(startColor.r + (endColor.r - startColor.r) * progress);
-        const currentG = Math.round(startColor.g + (endColor.g - startColor.g) * progress);
-        const currentB = Math.round(startColor.b + (endColor.b - startColor.b) * progress);
-        gsap.set(".expanding-box", {
-          backgroundColor: `rgb(${currentR}, ${currentG}, ${currentB})`
-        });
-      }
-    }
-  });
+  }
 
   // PORTFOLIO DATA
   const portfolioMock = document.querySelector(".portfolio-mock");
@@ -258,13 +249,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // ポートフォリオリストの開閉
   portfolioMock.addEventListener("click", () => {
     const isOpening = !portfolioList.classList.contains("active");
-    
+
     if (isOpening) {
       // 開く
       portfolioList.classList.add("active");
       shadow.classList.add("active");
       body.classList.add("fixed");
-      
+
       // GSAPアニメーション（animations.jsで処理）
       if (window.animatePortfolioOpen) {
         window.animatePortfolioOpen();

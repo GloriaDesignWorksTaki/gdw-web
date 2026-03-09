@@ -1,8 +1,9 @@
 <?php
-// 絶対パス取得（デバッグ時）
-// $url = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . $_SERVER['HTTP_HOST'] . '/gloria-design-works.com';
-// 絶対パス取得（本番時）
-$url = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . $_SERVER['HTTP_HOST'];
+// $url は config/bootstrap.php で設定済み（全ページで require すること）
+if (!isset($url)) {
+  $url = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+}
+$styleVersion = file_exists(__DIR__ . '/assets/css/style.css') ? filemtime(__DIR__ . '/assets/css/style.css') : time();
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -20,7 +21,7 @@ $url = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . $_SERVER['HTTP_HOST
   <!-- CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <link rel="stylesheet" href="<?php echo $url; ?>/assets/css/reset.css">
-  <link rel="stylesheet" href="<?php echo $url; ?>/assets/css/style.css">
+  <link rel="stylesheet" href="<?php echo $url; ?>/assets/css/style.css?v=<?php echo $styleVersion; ?>">
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -35,8 +36,8 @@ $url = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . $_SERVER['HTTP_HOST
   <!-- End Google Tag Manager (noscript) -->
   <header>
     <div class="logo">
-      <a href="<?php $url; ?>">
-        <img src="./assets/images/logo.svg" alt="Gloria Design Works LOGO">
+      <a href="<?php echo $url; ?>">
+        <img src="<?php echo $url; ?>/assets/images/logo.svg" alt="Gloria Design Works LOGO">
       </a>
     </div>
   </header>

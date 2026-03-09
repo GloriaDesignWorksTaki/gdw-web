@@ -1,97 +1,14 @@
 <?php
-require_once __DIR__ . '/vendor/autoload.php';
-
-use Dotenv\Dotenv;
-use App\Services\Mailer;
-
-$dotenv = Dotenv::createImmutable(__DIR__);
-$dotenv->load();
-
-session_start();
-
-// CSRFトークン生成
-if (empty($_SESSION['csrf_token'])) {
-  $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
+require_once __DIR__ . '/config/bootstrap.php';
 
 $errors = [];
+$name = $email = $message = '';
+require_once __DIR__ . '/include/contact_form.php';
 
-// HTMLエスケープ処理
-function escape($string) {
-  return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
-}
+$portfolioItems = require __DIR__ . '/config/portfolio.php';
 
-// CSRFトークンチェック
-function check_csrf_token($token) {
-  return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
-}
-
-// 日本語文字が含まれているかチェック
-function contains_japanese($text) {
-  // ひらがな、カタカナ、漢字、日本語の句読点が含まれているかチェック
-  return preg_match('/[\x{3040}-\x{309F}\x{30A0}-\x{30FF}\x{4E00}-\x{9FAF}\x{3000}-\x{303F}]/u', $text);
-}
-
-// バリデーション関数
-function validate_input($name, $email, $message) {
-  $errors = [];
-  if (!$name) $errors[] = '名前を入力してください。';
-  if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = '有効なメールアドレスを入力してください。';
-  if (!$message) $errors[] = 'お問合せ内容を入力してください。';
-
-  // 英語のみのメールを検出（日本語が含まれていない場合）
-  $combinedText = $name . ' ' . $message;
-  if (!contains_japanese($combinedText)) {
-    // 原因不明のエラーとして返す（具体的な理由は表示しない）
-    $errors[] = 'エラーが発生しました。しばらく時間をおいてから再度お試しください。';
-  }
-  return $errors;
-}
-
-// Ajaxリクエストかどうかを判定
-$isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
-
-// フォーム処理
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $name = escape(trim($_POST['name'] ?? ''));
-  $email = escape(trim($_POST['email'] ?? ''));
-  $message = escape(trim($_POST['message'] ?? ''));
-
-  if (!check_csrf_token($_POST['csrf_token'] ?? '')) {
-      $errors[] = '不正なリクエストです。';
-  } else {
-      $errors = validate_input($name, $email, $message);
-      if (empty($errors)) {
-          $mailer = new Mailer();
-          if ($mailer->sendContactMail($name, $email, $message)) {
-              // Ajaxリクエストの場合はJSONレスポンスを返す
-              if ($isAjax) {
-                  header('Content-Type: application/json');
-                  echo json_encode(['success' => true, 'redirect' => 'thank-you.php']);
-                  exit;
-              }
-              // 通常のPOSTリクエストの場合はリダイレクト
-              ob_start();
-              header('Location: thank-you.php');
-              exit;
-          } else {
-              $errors[] = 'メール送信に失敗しました。';
-          }
-      }
-  }
-  // Ajaxリクエストでエラーがある場合はJSONレスポンスを返す
-  if ($isAjax) {
-      header('Content-Type: application/json');
-      echo json_encode(['success' => false, 'errors' => $errors]);
-      exit;
-  }
-}
-
-// ポートフォリオ設定を読み込む
-$portfolioItems = require(__DIR__ . '/config/portfolio.php');
-
-require_once(__DIR__ . '/header.php');
-require_once(__DIR__ . '/include/dialog.php');
+require_once __DIR__ . '/header.php';
+require_once __DIR__ . '/include/dialog.php';
 ?>
 <!-- <div class="noise"></div> -->
 <main>

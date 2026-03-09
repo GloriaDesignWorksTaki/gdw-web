@@ -1,8 +1,8 @@
 <?php
-// 絶対パス取得（デバッグ時）
-// $url = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . $_SERVER['HTTP_HOST'] . '/gloria-design-works.com';
-// 絶対パス取得（本番時）
-$url = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . $_SERVER['HTTP_HOST'];
+// $url は config/bootstrap.php で設定済み（全ページで require すること）
+if (!isset($url)) {
+  $url = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+}
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -35,8 +35,8 @@ $url = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . $_SERVER['HTTP_HOST
   <!-- End Google Tag Manager (noscript) -->
   <header>
     <div class="logo">
-      <a href="<?php $url; ?>">
-        <img src="./assets/images/logo.svg" alt="Gloria Design Works LOGO">
+      <a href="<?php echo $url; ?>">
+        <img src="<?php echo $url; ?>/assets/images/logo.svg" alt="Gloria Design Works LOGO">
       </a>
     </div>
   </header>

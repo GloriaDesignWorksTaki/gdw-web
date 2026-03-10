@@ -370,16 +370,31 @@ document.addEventListener('DOMContentLoaded', () => {
   // 6. ローディングアニメーション
   // ============================================
   function initLoadingAnimation() {
-    const loader = document.createElement('div');
-    loader.id = 'page-loader';
-    loader.innerHTML = `
-      <div class="loader-content">
-        <div class="loader-logo" id="loaderLogo" aria-label="Gloria Design Works logo"></div>
-      </div>
-    `;
-    document.body.appendChild(loader);
+    let loader = document.getElementById('page-loader');
+    if (!loader) {
+      loader = document.createElement('div');
+      loader.id = 'page-loader';
+      loader.innerHTML = `
+        <div class="loader-content">
+          <div class="loader-logo" id="loaderLogo" aria-label="Gloria Design Works logo"></div>
+        </div>
+      `;
+      document.body.appendChild(loader);
+      document.body.classList.add('is-loading');
+    }
 
-    const logoContainer = document.getElementById('loaderLogo');
+    let logoContainer = loader.querySelector('#loaderLogo');
+    if (!logoContainer) {
+      const content = document.createElement('div');
+      content.className = 'loader-content';
+      logoContainer = document.createElement('div');
+      logoContainer.className = 'loader-logo';
+      logoContainer.id = 'loaderLogo';
+      logoContainer.setAttribute('aria-label', 'Gloria Design Works logo');
+      content.appendChild(logoContainer);
+      loader.appendChild(content);
+    }
+
     const headerLogo = document.querySelector('header .logo img');
     const logoSrc = headerLogo ? headerLogo.src : './assets/images/logo.svg';
 
@@ -445,11 +460,21 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const hideLoader = () => {
+      const cleanup = () => {
+        document.body.classList.remove('is-loading');
+        loader.remove();
+      };
+
+      if (typeof gsap === 'undefined') {
+        cleanup();
+        return;
+      }
+
       gsap.to(loader, {
         opacity: 0,
         duration: 0.45,
         delay: 0.15,
-        onComplete: () => loader.remove()
+        onComplete: cleanup
       });
     };
 
@@ -475,33 +500,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ロゴは常時表示にするため、スクロールで隠す処理は無効化
     gsap.set(header, { y: 0 });
   }
-
-  // ============================================
-  // 8. フッターアイコンアニメーション
-  // ============================================
-  // フッターアイコンのホバーアニメーションは削除（不要）
-  // function initFooterAnimations() {
-  //   const footerLinks = document.querySelectorAll('.footer-links a');
-  //   footerLinks.forEach((link, index) => {
-  //     link.addEventListener('mouseenter', () => {
-  //       gsap.to(link, {
-  //         scale: 1.3,
-  //         rotation: 360,
-  //         duration: 0.5,
-  //         ease: 'back.out(1.7)'
-  //       });
-  //     });
-
-  //     link.addEventListener('mouseleave', () => {
-  //       gsap.to(link, {
-  //         scale: 1,
-  //         rotation: 0,
-  //         duration: 0.3,
-  //         ease: 'power2.out'
-  //       });
-  //     });
-  //   });
-  // }
 
   // ============================================
   // 初期化

@@ -123,7 +123,7 @@ function initMouseStalker() {
     const measure = document.createElement('span');
     Object.assign(measure.style, {
       fontSize: '0.625rem',
-      fontFamily: '"Merriweather", serif',
+      fontFamily: '"Noto Serif JP", "Noto Serif", serif',
       fontWeight: '700',
       letterSpacing: '1px',
       whiteSpace: 'nowrap',

@@ -272,37 +272,6 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     }
 
-    // ポートフォリオモックの3D効果
-    const portfolioMock = document.querySelector('.portfolio-mock');
-    if (portfolioMock && window.innerWidth >= 1024) {
-      portfolioMock.addEventListener('mousemove', (e) => {
-        const rect = portfolioMock.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        const rotateX = (y - centerY) / 20;
-        const rotateY = (centerX - x) / 20;
-
-        gsap.to(portfolioMock, {
-          rotationX: rotateX,
-          rotationY: rotateY,
-          transformPerspective: 1000,
-          duration: 0.5,
-          ease: 'power2.out'
-        });
-      });
-
-      portfolioMock.addEventListener('mouseleave', () => {
-        gsap.to(portfolioMock, {
-          rotationX: 0,
-          rotationY: 0,
-          duration: 0.5,
-          ease: 'power2.out'
-        });
-      });
-    }
-
     // パララックス効果
     gsap.utils.toArray('section').forEach((section, index) => {
       if (index % 2 === 0) {
@@ -478,6 +447,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     };
 
+    const MIN_LOADER_MS = 3000;
+    const startTime = Date.now();
+
     Promise.all([
       drawLogoAnimation(),
       new Promise((resolve) => {
@@ -487,7 +459,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         window.addEventListener('load', resolve, { once: true });
       })
-    ]).then(hideLoader);
+    ]).then(() => {
+      const elapsed = Date.now() - startTime;
+      const waitMs = Math.max(0, MIN_LOADER_MS - elapsed);
+      if (waitMs > 0) {
+        setTimeout(hideLoader, waitMs);
+      } else {
+        hideLoader();
+      }
+    });
   }
 
   // ============================================

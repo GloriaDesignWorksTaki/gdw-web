@@ -591,11 +591,6 @@ header {
   display: inline-block;
 }
 
-/* ポートフォリオモック3D効果 */
-.portfolio-mock {
-  transform-style: preserve-3d;
-  perspective: 1000px;
-}
 
 /* dialog */
 .dialog-overlay {

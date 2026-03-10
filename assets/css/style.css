@@ -180,11 +180,6 @@ section .wrapper {
   flex-direction: column;
   gap: 1rem;
 }
-#about .desc .about-flex .about-img svg {
-  stroke: #FFFFFF; /* 線の色 */
-  stroke-width: 2; /* 線の太さ */
-  fill: none; /* 塗りつぶしを無効に */
-}
 
 /* #portfolio */
 #portfolio {
@@ -748,9 +743,6 @@ header {
   #about .desc .about-flex .text-box {
     width: 100%;
   }
-  #about .desc .about-flex .about-img {
-    width: 30%;
-  }
 }
 @media (min-width: 1024px) {
   :root {
@@ -781,7 +773,6 @@ header {
     mix-blend-mode: difference;
   }
   .mouse-stalker.is_active {
-    /* サイズはJavaScriptで動的に設定される */
     border-radius: 50px;
   }
   .mouse-stalker-text {

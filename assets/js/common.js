@@ -3,18 +3,21 @@
  * @file assets/js/common.js
  */
 
-/** @type {boolean} アニメーション有効フラグwindow.ENABLE_MOTION で上書き可能 */
+/** @type {boolean} アニメーション有効フラグ。window.ENABLE_MOTION で上書き可能。 */
 const ENABLE_MOTION = typeof window.ENABLE_MOTION === 'boolean' ? window.ENABLE_MOTION : true;
 
+/** マウスストーカーを表示する最小幅 */
+const STALKER_MIN_WIDTH = 1024;
+
 /**
- * マウスストーカーを初期化する
- * .mouse-stalker / .mouse-stalker-text に追従・ホバー時のラベル表示を行う
+ * マウスストーカーを初期化する。
  * @returns {void}
  */
 function initMouseStalker() {
   const stalker = document.querySelector('.mouse-stalker');
   const stalkerText = document.querySelector('.mouse-stalker-text');
   if (!stalker || !stalkerText) return;
+  if (!window.matchMedia(`(min-width: ${STALKER_MIN_WIDTH}px)`).matches) return;
   if (stalker.dataset.initialized === 'true') return;
   stalker.dataset.initialized = 'true';
 
@@ -54,6 +57,18 @@ function initMouseStalker() {
     }
   };
   updateStalker();
+
+  const mql = window.matchMedia(`(min-width: ${STALKER_MIN_WIDTH}px)`);
+  mql.addEventListener('change', () => {
+    if (mql.matches) {
+      stalker.style.display = 'flex';
+    } else {
+      stalker.style.display = 'none';
+      stalker.classList.remove('is_active');
+      stalkerText.textContent = '';
+      Object.assign(stalker.style, { width: '', height: '', top: '', left: '' });
+    }
+  });
 
   /**
    * 要素種別に応じたストーカー表示文言を返す

@@ -25,30 +25,26 @@ require_once __DIR__ . '/include/dialog.php';
   <section id="about">
     <div class="wrapper">
       <div class="desc">
-        <h2>ABOUT</h2>
         <div class="profile-box">
           <h3>
             <small>Designer・Developer</small>
-            <span>YUYA TAKI</span>
+            <span>TKBY</span>
           </h3>
         </div>
         <div class="about-flex">
           <div class="text-box">
             <div class="text-box">
-              <div class="text is-show">
-                <p>Gloria Design Works is a creative project based in Kashiwa City, Chiba Prefecture.</p>
-                <p>We specialize in a wide range of design fields, from web design to DTP, logo design, and application UI/UX.</p>
-                <p>As active engineers and marketers, we provide not only beautiful design, beautiful code, and branding-conscious marketing strategies, but also designs that are full of attention as professionals in web and branding.</p>
+              <div class="text">
+                <p>My work focuses on minimal and simple design, with a strong emphasis on the use of white space.</p>
+                <p>In today’s information-saturated world, I aim to reduce visual noise and make essential information clear and accessible.</p>
+                <p>By organizing elements and intentionally using space, I create visual flow that helps users understand information intuitively.</p>
               </div>
-              <div class="text is-show">
-                <p>Gloria Design Worksは千葉県柏市を中心に活動するクリエイティブプロジェクトです。</p>
-                <p>WebデザインをメインにDTP、ロゴデザイン、アプリケーションのUI/UXまで幅広いデザイン領域を得意としています。</p>
-                <p>現役エンジニアであり、現役マーケターでもある美しいデザイン、美しいコード、ブランディングを意識したマーケティング戦略までデザインのみならずWeb・ブランディングのプロとしてこだわりに満ち溢れたデザインを提供します。</p>
+              <div class="text">
+                <p>ミニマルでシンプル、余白を大切にしたデザインを軸に制作しています。</p>
+                <p>情報が溢れる現代において、視覚的なノイズを減らし、本当に必要な情報が見やすく伝わることを大切にしています。</p>
+                <p>要素を整理し、余白や空間を活かすことで視線の流れを設計し、直感的に理解できるデザインを心がけています。</p>
               </div>
             </div>
-          </div>
-          <div class="about-img">
-            <?php require __DIR__ . '/include/yuya_taki_svg.php'; ?>
           </div>
         </div>
       </div>

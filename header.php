@@ -12,6 +12,24 @@ $styleVersion = file_exists(__DIR__ . '/assets/css/style.css') ? filemtime(__DIR
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>デザイン×コード=Gloria Design Works|千葉県柏のWebデザインプロジェクト</title>
   <meta name="description" content="千葉県柏市を拠点に活動するWebデザインプロジェクトです。Webのみならずロゴやプロダクトデザインまで幅広く手がけます。マーケティング、ブランディングを意識したデザインをお届けします。">
+  <style>
+    #page-loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 9999999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      background: #2f2c2a;
+    }
+    #page-loader .loader-logo {
+      width: min(88vw, 560px);
+      margin: 0 auto;
+    }
+  </style>
   <!-- no cache -->
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Cache-Control" content="no-cache">
@@ -30,7 +48,12 @@ $styleVersion = file_exists(__DIR__ . '/assets/css/style.css') ? filemtime(__DIR
   })(window,document,'script','dataLayer','GTM-TQCN4897');</script>
   <!-- End Google Tag Manager -->
 </head>
-<body class="dark">
+<body class="dark is-loading">
+  <div id="page-loader">
+    <div class="loader-content">
+      <div class="loader-logo" id="loaderLogo" aria-label="Gloria Design Works logo"></div>
+    </div>
+  </div>
   <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TQCN4897" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->

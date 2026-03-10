@@ -1,31 +1,32 @@
 /**
- * リッチアニメーション実装
- * three.jsとGSAPを使用したインタラクティブアニメーション
+ * リッチアニメーション（Three.js / GSAP）
+ * @file assets/js/animations.js
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // ============================================
-  // 1. Main Visual 3Dパーティクル背景
-  // ============================================
+  /**
+   * Main Visual の 3D パーティクル背景を初期化する
+   * #mv 内に canvas を追加し、Three.js でパーティクルを描画する
+   * @returns {void}
+   */
   function initParticleBackground() {
-    if (typeof THREE === 'undefined') {
-      console.warn('Three.js is not loaded');
-      return;
-    }
+    if (typeof THREE === 'undefined') return;
 
     const mvSection = document.getElementById('mv');
     if (!mvSection) return;
 
     const canvas = document.createElement('canvas');
     canvas.id = 'particle-canvas';
-    canvas.style.position = 'absolute';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.style.zIndex = '1';
-    canvas.style.opacity = '0.3';
-    canvas.style.pointerEvents = 'none';
+    Object.assign(canvas.style, {
+      position: 'absolute',
+      top: '0',
+      left: '0',
+      width: '100%',
+      height: '100%',
+      zIndex: '1',
+      opacity: '0.3',
+      pointerEvents: 'none'
+    });
     mvSection.style.position = 'relative';
     mvSection.appendChild(canvas);
 
@@ -33,13 +34,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const width = mvSection.offsetWidth || window.innerWidth;
     const height = mvSection.offsetHeight || window.innerHeight;
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    // パーティクルシステム
     const particleCount = 2000;
-    const particles = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
 
@@ -47,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
       positions[i] = (Math.random() - 0.5) * 2000;
       positions[i + 1] = (Math.random() - 0.5) * 2000;
       positions[i + 2] = (Math.random() - 0.5) * 2000;
-
       const color = new THREE.Color();
       color.setHSL(0.6, 0.8, 0.5 + Math.random() * 0.3);
       colors[i] = color.r;
@@ -55,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
       colors[i + 2] = color.b;
     }
 
+    const particles = new THREE.BufferGeometry();
     particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
@@ -68,288 +67,159 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const particleSystem = new THREE.Points(particles, material);
     scene.add(particleSystem);
-
     camera.position.z = 1000;
 
-    // アニメーション
+    /**
+     * パーティクルのループアニメーション（回転・波打ち）
+     * @returns {void}
+     */
     function animate() {
       requestAnimationFrame(animate);
-
       particleSystem.rotation.x += 0.0005;
       particleSystem.rotation.y += 0.001;
-
-      const positions = particleSystem.geometry.attributes.position.array;
-      for (let i = 1; i < positions.length; i += 3) {
-        positions[i] += Math.sin(Date.now() * 0.001 + i) * 0.5;
+      const posAttr = particleSystem.geometry.attributes.position;
+      const posArray = posAttr.array;
+      for (let i = 1; i < posArray.length; i += 3) {
+        posArray[i] += Math.sin(Date.now() * 0.001 + i) * 0.5;
       }
-      particleSystem.geometry.attributes.position.needsUpdate = true;
-
+      posAttr.needsUpdate = true;
       renderer.render(scene, camera);
     }
 
-    // リサイズ処理
     window.addEventListener('resize', () => {
-      const newWidth = mvSection.offsetWidth || window.innerWidth;
-      const newHeight = mvSection.offsetHeight || window.innerHeight;
-      camera.aspect = newWidth / newHeight;
+      const w = mvSection.offsetWidth || window.innerWidth;
+      const h = mvSection.offsetHeight || window.innerHeight;
+      camera.aspect = w / h;
       camera.updateProjectionMatrix();
-      renderer.setSize(newWidth, newHeight);
+      renderer.setSize(w, h);
     });
 
     animate();
   }
 
-  // ============================================
-  // 2. Main Visual テキストアニメーション
-  // ============================================
-  function initMainVisualTextAnimation() {
-    if (typeof gsap === 'undefined') {
-      return;
-    }
-
+  /**
+   * Main Visual のコンセプト見出しを即時表示する
+   * GSAP の opacity / y を設定し、フェードをスキップする
+   * @returns {void}
+   */
+  function initMainVisualText() {
+    if (typeof gsap === 'undefined') return;
     const concept = document.querySelector('.concept h1');
-    if (!concept) return;
-
-    // 既にアニメーション済みの場合はスキップ
-    if (concept.dataset.animated === 'true') return;
+    if (!concept || concept.dataset.animated === 'true') return;
     concept.dataset.animated = 'true';
-
-    // フェードインを無効化して即時表示
     gsap.set(concept, { opacity: 1, y: 0 });
   }
 
-  // ============================================
-  // 3. スクロールアニメーション（GSAP）
-  // ============================================
+  /**
+   * スクロール用のターゲット表示とポートフォリオモーダルの開閉アニメーションを初期化する
+   * window.animatePortfolioOpen / animatePortfolioClose を定義する
+   * @returns {void}
+   */
   function initScrollAnimations() {
-    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
-      console.warn('GSAP or ScrollTrigger is not loaded');
-      return;
-    }
-
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
     gsap.registerPlugin(ScrollTrigger);
 
-    // セクションタイトルのフェードインを無効化して即時表示
-    gsap.utils.toArray('.target').forEach((target, index) => {
-      gsap.set(target, { opacity: 1, y: 0 });
+    gsap.utils.toArray('.target').forEach((el) => {
+      gsap.set(el, { opacity: 1, y: 0 });
     });
 
-    // ポートフォリオカードアニメーション
-    // 高品質なアニメーションを実装
     const portfolioSelect = document.querySelector('.portfolio-select');
     const shadow = document.querySelector('#shadow');
-    if (portfolioSelect && typeof gsap !== 'undefined') {
-      const cards = gsap.utils.toArray('.portfolio-select li');
-      const ul = portfolioSelect.querySelector('ul');
-      const closeBtn = portfolioSelect.querySelector('.portfolio-close-btn');
-      // 初期状態を設定（最適化）
-      gsap.set(portfolioSelect, {
-        opacity: 0,
-        scale: 0.96,
-        y: '-50%',
-        visibility: 'hidden'
-      });
-      gsap.set(shadow, { opacity: 0 });
-      if (closeBtn) {
-        // 初期状態を設定（pointer-eventsはCSSでautoに設定済み）
-        gsap.set(closeBtn, {
-          opacity: 0,
-          scale: 0,
-          rotation: -180,
-          transformOrigin: 'center center'
-        });
-        // 非表示時はクリックできないようにする
-        closeBtn.style.pointerEvents = 'none';
-      }
-      cards.forEach((card) => {
-        // 既存のスタイルをクリア
-        gsap.set(card, { clearProps: 'all' });
-        // 初期状態を設定
-        gsap.set(card, {
-          opacity: 0,
-          scale: 0.9,
-          y: 40,
-          transformOrigin: 'center center',
-          force3D: true
-        });
-      });
-      // 開くアニメーション（最適化版 - 超スムーズ）
-      window.animatePortfolioOpen = function() {
-        // 既存のアニメーションを完全にクリア
-        gsap.killTweensOf([portfolioSelect, shadow]);
-        cards.forEach(card => gsap.killTweensOf(card));
-        const tl = gsap.timeline({
-          defaults: { ease: 'power2.out' }
-        });
-        // visibilityを表示
-        gsap.set(portfolioSelect, { visibility: 'visible' });
-        // シャドウを先に表示
-        tl.to(shadow, {
-          opacity: 0.5,
-          duration: 0.3,
-          ease: 'power2.out'
-        }, 0)
-        // コンテナを滑らかに表示
-        .to(portfolioSelect, {
-          opacity: 1,
-          scale: 1,
-          duration: 0.4,
-          ease: 'power2.out'
-        }, 0.05)
-        // カードを順番に滑らかに表示（最適化）
+    if (!portfolioSelect || !shadow) return;
+
+    const cards = gsap.utils.toArray('.portfolio-select li');
+    const closeBtn = portfolioSelect.querySelector('.portfolio-close-btn');
+
+    gsap.set(portfolioSelect, { opacity: 0, scale: 0.96, y: '-50%', visibility: 'hidden' });
+    gsap.set(shadow, { opacity: 0 });
+    if (closeBtn) {
+      gsap.set(closeBtn, { opacity: 0, scale: 0, rotation: -180, transformOrigin: 'center center' });
+      closeBtn.style.pointerEvents = 'none';
+    }
+    cards.forEach((card) => {
+      gsap.set(card, { clearProps: 'all' });
+      gsap.set(card, { opacity: 0, scale: 0.9, y: 40, transformOrigin: 'center center', force3D: true });
+    });
+
+    /** ポートフォリオモーダルを開くアニメーション */
+    window.animatePortfolioOpen = () => {
+      gsap.killTweensOf([portfolioSelect, shadow]);
+      cards.forEach((c) => gsap.killTweensOf(c));
+      gsap.set(portfolioSelect, { visibility: 'visible' });
+      const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+      tl.to(shadow, { opacity: 0.5, duration: 0.3 }, 0)
+        .to(portfolioSelect, { opacity: 1, scale: 1, duration: 0.4 }, 0.05)
         .to(cards, {
           opacity: 1,
           scale: 1,
           y: 0,
           duration: 0.5,
-          stagger: {
-            each: 0.08,
-            from: 'start',
-            ease: 'power1.out'
-          },
+          stagger: { each: 0.08, from: 'start', ease: 'power1.out' },
           ease: 'power2.out',
           force3D: true,
           immediateRender: false
-        }, 0.15)
-        // 閉じるボタンを表示
-        if (closeBtn) {
-          // アニメーション開始時にpointer-eventsを有効化
-          closeBtn.style.pointerEvents = 'auto';
-          tl.to(closeBtn, {
-            opacity: 1,
-            scale: 1,
-            rotation: 0,
-            duration: 0.3,
-            ease: 'back.out(1.4)'
-          }, 0.3);
-        }
-      };
-      // 閉じるアニメーション（最適化版 - 超スムーズ）
-      window.animatePortfolioClose = function(callback) {
-        // 既存のアニメーションを完全にクリア
-        gsap.killTweensOf([portfolioSelect, shadow]);
-        cards.forEach(card => gsap.killTweensOf(card));
-        const tl = gsap.timeline({
-          defaults: { ease: 'power2.in' },
-          onComplete: () => {
-            gsap.set(portfolioSelect, { visibility: 'hidden' });
-            if (callback) callback();
-          }
-        });
-        // 閉じるボタンを先に非表示
-        if (closeBtn) {
-          closeBtn.style.pointerEvents = 'none';
-          tl.to(closeBtn, {
-            opacity: 0,
-            scale: 0,
-            rotation: 180,
-            duration: 0.2,
-            ease: 'power2.in'
-          }, 0);
-        }
-        // カードを滑らかに非表示（逆順）
-        tl.to(cards, {
-          opacity: 0,
-          scale: 0.9,
-          y: 40,
-          duration: 0.35,
-          stagger: {
-            each: 0.06,
-            from: 'end',
-            ease: 'power1.in'
-          },
-          ease: 'power2.in',
-          force3D: true,
-          immediateRender: false
-        }, 0.05)
-        // コンテナとシャドウを同時に非表示
-        .to([portfolioSelect, shadow], {
-          opacity: 0,
-          scale: 0.96,
-          duration: 0.25,
-          ease: 'power2.in'
         }, 0.15);
-      };
-    }
-
-    // ポートフォリオモックの3D効果
-    const portfolioMock = document.querySelector('.portfolio-mock');
-    if (portfolioMock && window.innerWidth >= 1024) {
-      portfolioMock.addEventListener('mousemove', (e) => {
-        const rect = portfolioMock.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        const rotateX = (y - centerY) / 20;
-        const rotateY = (centerX - x) / 20;
-
-        gsap.to(portfolioMock, {
-          rotationX: rotateX,
-          rotationY: rotateY,
-          transformPerspective: 1000,
-          duration: 0.5,
-          ease: 'power2.out'
-        });
-      });
-
-      portfolioMock.addEventListener('mouseleave', () => {
-        gsap.to(portfolioMock, {
-          rotationX: 0,
-          rotationY: 0,
-          duration: 0.5,
-          ease: 'power2.out'
-        });
-      });
-    }
-
-    // パララックス効果
-    gsap.utils.toArray('section').forEach((section, index) => {
-      if (index % 2 === 0) {
-        gsap.to(section, {
-          y: -100,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: true
-          }
-        });
+      if (closeBtn) {
+        closeBtn.style.pointerEvents = 'auto';
+        tl.to(closeBtn, { opacity: 1, scale: 1, rotation: 0, duration: 0.3, ease: 'back.out(1.4)' }, 0.3);
       }
-    });
+    };
+
+    /**
+     * ポートフォリオモーダルを閉じるアニメーション完了後に callback を実行する
+     * @param {function(): void} [callback] - 閉じた後に呼ぶ関数
+     * @returns {void}
+     */
+    window.animatePortfolioClose = (callback) => {
+      gsap.killTweensOf([portfolioSelect, shadow]);
+      cards.forEach((c) => gsap.killTweensOf(c));
+      const tl = gsap.timeline({
+        defaults: { ease: 'power2.in' },
+        onComplete: () => {
+          gsap.set(portfolioSelect, { visibility: 'hidden' });
+          callback?.();
+        }
+      });
+      if (closeBtn) {
+        closeBtn.style.pointerEvents = 'none';
+        tl.to(closeBtn, { opacity: 0, scale: 0, rotation: 180, duration: 0.2 }, 0);
+      }
+      tl.to(cards, {
+        opacity: 0,
+        scale: 0.9,
+        y: 40,
+        duration: 0.35,
+        stagger: { each: 0.06, from: 'end', ease: 'power1.in' },
+        ease: 'power2.in',
+        force3D: true,
+        immediateRender: false
+      }, 0.05)
+        .to([portfolioSelect, shadow], { opacity: 0, scale: 0.96, duration: 0.25, ease: 'power2.in' }, 0.15);
+    };
   }
 
-  // ============================================
-  // 5. SVGアニメーション強化
-  // ============================================
-  function enhanceSVGAnimation() {
-    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
-      return;
-    }
-
+  /**
+   * ABOUT セクションの #yuyaTaki SVG をスクロールで線描画する
+   * path の strokeDashoffset を ScrollTrigger で 0 にする
+   * @returns {void}
+   */
+  function initSVGAnimation() {
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
     const svg = document.querySelector('#yuyaTaki');
     if (!svg) return;
 
-    // 既にアニメーション済みの場合はスキップ
     if (svg.classList.contains('is-show')) {
-      const paths = svg.querySelectorAll('path');
-      paths.forEach(path => {
-        gsap.set(path, { opacity: 1 });
-      });
+      svg.querySelectorAll('path').forEach((path) => gsap.set(path, { opacity: 1 }));
       return;
     }
 
     const paths = svg.querySelectorAll('path');
     paths.forEach((path, index) => {
-      const pathLength = path.getTotalLength();
-      // 初期状態を設定（既存のdrawアニメーションと競合しないように）
+      const len = path.getTotalLength();
       if (!path.style.strokeDasharray) {
-        path.style.strokeDasharray = pathLength;
-        path.style.strokeDashoffset = pathLength;
+        path.style.strokeDasharray = len;
+        path.style.strokeDashoffset = len;
       }
-      // 透明度は既存のアニメーションに任せる
-
       ScrollTrigger.create({
         trigger: svg,
         start: 'top 80%',
@@ -366,153 +236,112 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ============================================
-  // 6. ローディングアニメーション
-  // ============================================
+  /**
+   * ローディング画面を初期化する
+   * ロゴ SVG の線描画を行い、load 完了と最低表示時間（3秒）後にフェードアウトする
+   * @returns {void}
+   */
   function initLoadingAnimation() {
-    const loader = document.createElement('div');
-    loader.id = 'page-loader';
-    loader.innerHTML = `
-      <div class="loader-content">
-        <div class="loader-logo" id="loaderLogo" aria-label="Gloria Design Works logo"></div>
-      </div>
-    `;
-    document.body.appendChild(loader);
+    let loader = document.getElementById('page-loader');
+    if (!loader) {
+      loader = document.createElement('div');
+      loader.id = 'page-loader';
+      loader.innerHTML = `
+        <div class="loader-content">
+          <div class="loader-logo" id="loaderLogo" aria-label="Gloria Design Works logo"></div>
+        </div>`;
+      document.body.appendChild(loader);
+      document.body.classList.add('is-loading');
+    }
 
-    const logoContainer = document.getElementById('loaderLogo');
-    const headerLogo = document.querySelector('header .logo img');
-    const logoSrc = headerLogo ? headerLogo.src : './assets/images/logo.svg';
+    const logoContainer = loader.querySelector('#loaderLogo') ?? (() => {
+      const wrap = document.createElement('div');
+      wrap.className = 'loader-content';
+      const logo = document.createElement('div');
+      logo.className = 'loader-logo';
+      logo.id = 'loaderLogo';
+      logo.setAttribute('aria-label', 'Gloria Design Works logo');
+      wrap.appendChild(logo);
+      loader.appendChild(wrap);
+      return logo;
+    })();
 
-    const drawLogoAnimation = () => {
-      if (!logoContainer) {
-        return Promise.resolve();
-      }
+    const logoSrc = document.querySelector('header .logo img')?.src ?? './assets/images/logo.svg';
 
+    /**
+     * ロゴ SVG を fetch して線描画アニメーションを実行する
+     * @returns {Promise<void>}
+     */
+    const drawLogo = () => {
+      if (!logoContainer) return Promise.resolve();
       return fetch(logoSrc)
-        .then((response) => response.text())
+        .then((res) => res.text())
         .then((svgText) => {
-          const parser = new DOMParser();
-          const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
-          const svg = svgDoc.querySelector('svg');
-          if (!svg) {
-            throw new Error('SVG not found');
-          }
-
+          const svg = new DOMParser().parseFromString(svgText, 'image/svg+xml').querySelector('svg');
+          if (!svg) throw new Error('SVG not found');
           svg.classList.add('loader-logo-svg');
           logoContainer.innerHTML = '';
           logoContainer.appendChild(svg);
 
-          const drawableElements = svg.querySelectorAll('path, line, polyline, polygon, rect, circle, ellipse');
-          if (drawableElements.length === 0) {
+          const elements = svg.querySelectorAll('path, line, polyline, polygon, rect, circle, ellipse');
+          if (elements.length === 0) {
             return new Promise((resolve) => {
               gsap.fromTo(svg, { opacity: 0 }, { opacity: 1, duration: 0.5, onComplete: resolve });
             });
           }
 
-          drawableElements.forEach((element) => {
-            const hasPathLength = typeof element.getTotalLength === 'function';
-            if (!hasPathLength) {
-              return;
-            }
-
-            const length = element.getTotalLength();
-            element.style.strokeDasharray = `${length}`;
-            element.style.strokeDashoffset = `${length}`;
-            element.style.stroke = 'var(--color-secondary)';
-            element.style.strokeWidth = '1.5';
-            element.style.fill = 'transparent';
+          elements.forEach((el) => {
+            if (typeof el.getTotalLength !== 'function') return;
+            const len = el.getTotalLength();
+            el.style.strokeDasharray = `${len}`;
+            el.style.strokeDashoffset = `${len}`;
+            el.style.stroke = 'var(--color-secondary)';
+            el.style.strokeWidth = '1.5';
+            el.style.fill = 'transparent';
           });
 
           return new Promise((resolve) => {
-            const timeline = gsap.timeline({ onComplete: resolve });
-            drawableElements.forEach((element, index) => {
-              timeline.to(element, {
-                strokeDashoffset: 0,
-                duration: 0.55,
-                ease: 'power2.out'
-              }, index * 0.04);
+            const tl = gsap.timeline({ onComplete: resolve });
+            elements.forEach((el, i) => {
+              tl.to(el, { strokeDashoffset: 0, duration: 0.55, ease: 'power2.out' }, i * 0.04);
             });
-            timeline.to(drawableElements, {
-              fill: 'var(--color-secondary)',
-              duration: 0.25,
-              stagger: 0.01
-            }, '-=0.15');
+            tl.to(elements, { fill: 'var(--color-secondary)', duration: 0.25, stagger: 0.01 }, '-=0.15');
           });
         })
         .catch(() => {
-          logoContainer.innerHTML = '<img src="' + logoSrc + '" alt="Gloria Design Works logo">';
+          logoContainer.innerHTML = `<img src="${logoSrc}" alt="Gloria Design Works logo">`;
         });
     };
 
+    /** ローダーをフェードアウトして DOM から削除する */
     const hideLoader = () => {
-      gsap.to(loader, {
-        opacity: 0,
-        duration: 0.45,
-        delay: 0.15,
-        onComplete: () => loader.remove()
-      });
+      const cleanup = () => {
+        document.body.classList.remove('is-loading');
+        loader.remove();
+      };
+      if (typeof gsap === 'undefined') {
+        cleanup();
+        return;
+      }
+      gsap.to(loader, { opacity: 0, duration: 0.45, delay: 0.15, onComplete: cleanup });
     };
 
+    const MIN_LOADER_MS = 3000;
+    const start = Date.now();
+
     Promise.all([
-      drawLogoAnimation(),
-      new Promise((resolve) => {
-        if (document.readyState === 'complete') {
-          resolve();
-          return;
-        }
-        window.addEventListener('load', resolve, { once: true });
-      })
-    ]).then(hideLoader);
+      drawLogo(),
+      document.readyState === 'complete' ? Promise.resolve() : new Promise((r) => window.addEventListener('load', r, { once: true }))
+    ]).then(() => {
+      const wait = Math.max(0, MIN_LOADER_MS - (Date.now() - start));
+      wait > 0 ? setTimeout(hideLoader, wait) : hideLoader();
+    });
   }
 
-  // ============================================
-  // 7. ヘッダーアニメーション
-  // ============================================
-  function initHeaderAnimation() {
-    const header = document.querySelector('header');
-    if (!header) return;
-
-    // ロゴは常時表示にするため、スクロールで隠す処理は無効化
-    gsap.set(header, { y: 0 });
-  }
-
-  // ============================================
-  // 8. フッターアイコンアニメーション
-  // ============================================
-  // フッターアイコンのホバーアニメーションは削除（不要）
-  // function initFooterAnimations() {
-  //   const footerLinks = document.querySelectorAll('.footer-links a');
-  //   footerLinks.forEach((link, index) => {
-  //     link.addEventListener('mouseenter', () => {
-  //       gsap.to(link, {
-  //         scale: 1.3,
-  //         rotation: 360,
-  //         duration: 0.5,
-  //         ease: 'back.out(1.7)'
-  //       });
-  //     });
-
-  //     link.addEventListener('mouseleave', () => {
-  //       gsap.to(link, {
-  //         scale: 1,
-  //         rotation: 0,
-  //         duration: 0.3,
-  //         ease: 'power2.out'
-  //       });
-  //     });
-  //   });
-  // }
-
-  // ============================================
-  // 初期化
-  // ============================================
+  /** 初期化: パーティクル / MV テキスト / スクロール・モーダル / SVG / ローディング */
   initParticleBackground();
-  initMainVisualTextAnimation();
+  initMainVisualText();
   initScrollAnimations();
-  // initFormAnimations(); // インプットのホバーアニメーションは不要
-  enhanceSVGAnimation();
+  initSVGAnimation();
   initLoadingAnimation();
-  initHeaderAnimation();
-  // initFooterAnimations(); // フッターアイコンのホバーアニメーションは不要
 });
-

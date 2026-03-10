@@ -24,7 +24,7 @@
     </ul>
   </div>
   <div class="copy">
-    <p>&copy; Gloria Design Works</p>
+    <p>&copy; <?php echo date('Y'); ?> Gloria Design Works</p>
   </div>
 </footer>
 <!-- JS -->

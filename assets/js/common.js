@@ -1,28 +1,27 @@
-// マウスストーカー初期化関数（全ページで動作するように）
+/**
+ * 共通UI: マウスストーカー・ポートフォリオモーダル・GSAPスクロール
+ * @file assets/js/common.js
+ */
+
+/** @type {boolean} アニメーション有効フラグ。window.ENABLE_MOTION で上書き可能。 */
 const ENABLE_MOTION = typeof window.ENABLE_MOTION === 'boolean' ? window.ENABLE_MOTION : true;
 
+/** マウスストーカーを表示する最小幅 */
+const STALKER_MIN_WIDTH = 1024;
+
+/**
+ * マウスストーカーを初期化する。
+ * @returns {void}
+ */
 function initMouseStalker() {
   const stalker = document.querySelector('.mouse-stalker');
   const stalkerText = document.querySelector('.mouse-stalker-text');
-
-  // マウスストーカーが存在する場合のみ初期化（全ページで動作）
-  if (!stalker || !stalkerText) {
-    return; // 要素が存在しない場合は終了
-  }
-
-  // 既に初期化済みの場合はスキップ（重複初期化を防ぐ）
-  if (stalker.dataset.initialized === 'true') {
-    return;
-  }
+  if (!stalker || !stalkerText) return;
+  if (!window.matchMedia(`(min-width: ${STALKER_MIN_WIDTH}px)`).matches) return;
+  if (stalker.dataset.initialized === 'true') return;
   stalker.dataset.initialized = 'true';
 
-  // マウスストーカーを表示（全ページ、全画面サイズで動作するように）
-  // CSS変数を取得
-  const root = getComputedStyle(document.documentElement);
-  const secondaryColor = root.getPropertyValue('--color-secondary').trim() || '#ffffff';
-
-  // インラインスタイルで確実に表示（CSSのdisplay: noneを上書き）
-  // すべてのスタイルを一度に設定して確実に適用
+  const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--color-secondary').trim() || '#ffffff';
   Object.assign(stalker.style, {
     display: 'flex',
     alignItems: 'center',
@@ -50,7 +49,7 @@ function initMouseStalker() {
   });
 
   const updateStalker = () => {
-    if (stalker && stalker.dataset.initialized === 'true') {
+    if (stalker?.dataset.initialized === 'true') {
       stalkerX += (mouseX - stalkerX) * 0.2;
       stalkerY += (mouseY - stalkerY) * 0.2;
       stalker.style.transform = `translate(${stalkerX}px, ${stalkerY}px)`;
@@ -59,301 +58,217 @@ function initMouseStalker() {
   };
   updateStalker();
 
-  // 各要素に応じたアクション文言を取得する関数
-  function getActionText(element) {
-    // ポートフォリオモック
-    if (element.classList.contains('portfolio-mock')) {
-      return 'VIEW PORTFOLIO';
+  const mql = window.matchMedia(`(min-width: ${STALKER_MIN_WIDTH}px)`);
+  mql.addEventListener('change', () => {
+    if (mql.matches) {
+      stalker.style.display = 'flex';
+    } else {
+      stalker.style.display = 'none';
+      stalker.classList.remove('is_active');
+      stalkerText.textContent = '';
+      Object.assign(stalker.style, { width: '', height: '', top: '', left: '' });
     }
-    // ボタン
-    if (element.tagName === 'BUTTON' || element.type === 'submit') {
-      const buttonText = element.textContent.trim();
-      if (buttonText.includes('SEND') || buttonText.includes('送信')) {
-        return 'SEND';
-      }
-      return 'CLICK';
-    }
-    // リンク（SNSアイコンなど）
-    if (element.tagName === 'A') {
-      const href = element.getAttribute('href');
+  });
 
-      // SNSアイコン（Font Awesomeアイコンを含むリンク）
-      const icon = element.querySelector('i');
+  /**
+   * 要素種別に応じたストーカー表示文言を返す
+   * @param {Element} el - ホバーした要素（a, button, input など）
+   * @returns {string}
+   */
+  function getActionText(el) {
+    if (el.classList.contains('portfolio-mock')) return 'VIEW PORTFOLIO';
+    if (el.tagName === 'BUTTON' || el.type === 'submit') {
+      const t = el.textContent.trim();
+      return (t.includes('SEND') || t.includes('送信')) ? 'SEND' : 'CLICK';
+    }
+    if (el.tagName === 'A') {
+      const href = el.getAttribute('href') ?? '';
+      const icon = el.querySelector('i');
       if (icon) {
-        if (icon.classList.contains('fa-github')) {
-          return 'Access to Github';
-        }
-        if (icon.classList.contains('fa-x-twitter')) {
-          return 'Access to Twitter';
-        }
-        if (icon.classList.contains('fa-instagram')) {
-          return 'Access to Instagram';
-        }
+        if (icon.classList.contains('fa-github')) return 'Access to Github';
+        if (icon.classList.contains('fa-x-twitter')) return 'Access to Twitter';
+        if (icon.classList.contains('fa-instagram')) return 'Access to Instagram';
       }
-
-      // ポートフォリオリスト内のリンク（プロダクト名を表示）
-      if (href && href.startsWith('#')) {
-        // ポートフォリオリスト内のリンクかチェック
-        const portfolioSelect = element.closest('.portfolio-select');
-        if (portfolioSelect) {
-          const siteTitle = element.querySelector('.site-title');
-          if (siteTitle) {
-            const productName = siteTitle.textContent.trim();
-            return productName || 'VIEW';
-          }
-        }
-        return 'VIEW';
+      if (href.startsWith('#')) {
+        const title = el.closest('.portfolio-select') && el.querySelector('.site-title');
+        return title?.textContent.trim() || 'VIEW';
       }
-      if (href && (href.startsWith('http') || href.startsWith('mailto:'))) {
-        return 'OPEN';
-      }
+      if (href.startsWith('http') || href.startsWith('mailto:')) return 'OPEN';
       return 'CLICK';
     }
-    // フォーム入力
-    if (element.tagName === 'INPUT') {
-      const inputId = element.getAttribute('id');
-      const inputName = element.getAttribute('name');
-      const inputType = element.getAttribute('type');
-
-      if (inputId === 'name' || inputName === 'name') {
-        return 'Enter Your Name';
-      }
-      if (inputId === 'email' || inputName === 'email') {
-        return 'Enter Your Email';
-      }
+    if (el.tagName === 'INPUT') {
+      const id = el.getAttribute('id') ?? '';
+      const name = el.getAttribute('name') ?? '';
+      if (id === 'name' || name === 'name') return 'Enter Your Name';
+      if (id === 'email' || name === 'email') return 'Enter Your Email';
       return 'INPUT';
     }
-    // テキストエリア
-    if (element.tagName === 'TEXTAREA') {
-      const textareaId = element.getAttribute('id');
-      const textareaName = element.getAttribute('name');
-
-      if (textareaId === 'message' || textareaName === 'message') {
-        return 'Enter Your Message';
-      }
-      return 'INPUT';
+    if (el.tagName === 'TEXTAREA') {
+      const id = el.getAttribute('id') ?? '';
+      const name = el.getAttribute('name') ?? '';
+      return (id === 'message' || name === 'message') ? 'Enter Your Message' : 'INPUT';
     }
-    // ラベル
-    if (element.tagName === 'LABEL') {
-      return 'SELECT';
-    }
-    // その他
+    if (el.tagName === 'LABEL') return 'SELECT';
     return 'CLICK';
   }
 
-  // テキストの幅を測定してマウスストーカーのサイズを調整する関数
+  /**
+   * ストーカーのサイズをテキスト幅に合わせて更新する
+   * @param {string} text - 表示するラベル文字列
+   * @returns {void}
+   */
   function updateStalkerSize(text) {
     if (!stalkerText || !text) return;
-    // テキストを設定
     stalkerText.textContent = text;
-    // 一時的な要素を作成してテキストの幅を測定
-    // 実際のスタイルを適用（CSS変数ではなく計算済みの値を使用）
-    const measureElement = document.createElement('span');
-    measureElement.style.fontSize = '0.625rem'; // 10px
-    measureElement.style.fontFamily = '"Merriweather", serif';
-    measureElement.style.fontWeight = '700';
-    measureElement.style.letterSpacing = '1px';
-    measureElement.style.whiteSpace = 'nowrap';
-    measureElement.style.visibility = 'hidden';
-    measureElement.style.position = 'absolute';
-    measureElement.style.top = '-9999px';
-    measureElement.style.padding = '0';
-    measureElement.style.margin = '0';
-    measureElement.textContent = text;
-    document.body.appendChild(measureElement);
-    // テキストの幅と高さを取得
-    const textWidth = measureElement.offsetWidth;
-    const textHeight = measureElement.offsetHeight;
-    // 一時要素を削除
-    document.body.removeChild(measureElement);
-    // パディングを考慮したサイズを計算（左右に各10px、上下に各8px）
-    const padding = 20; // 左右のパディング
-    const verticalPadding = 16; // 上下のパディング
-    const minSize = 40; // 最小サイズ
-    const width = Math.max(minSize, textWidth + padding);
-    const height = Math.max(minSize, textHeight + verticalPadding);
-    // マウスストーカーのサイズを設定
-    stalker.style.width = `${width}px`;
-    stalker.style.height = `${height}px`;
-    stalker.style.top = `-${height / 2}px`;
-    stalker.style.left = `-${width / 2}px`;
+    const measure = document.createElement('span');
+    Object.assign(measure.style, {
+      fontSize: '0.625rem',
+      fontFamily: '"Noto Serif JP", "Noto Serif", serif',
+      fontWeight: '700',
+      letterSpacing: '1px',
+      whiteSpace: 'nowrap',
+      visibility: 'hidden',
+      position: 'absolute',
+      top: '-9999px',
+      padding: '0',
+      margin: '0'
+    });
+    measure.textContent = text;
+    document.body.appendChild(measure);
+    const w = Math.max(40, measure.offsetWidth + 20);
+    const h = Math.max(40, measure.offsetHeight + 16);
+    document.body.removeChild(measure);
+    stalker.style.width = `${w}px`;
+    stalker.style.height = `${h}px`;
+    stalker.style.top = `-${h / 2}px`;
+    stalker.style.left = `-${w / 2}px`;
   }
 
-  // インタラクティブ要素にイベントリスナーを追加
-  document.querySelectorAll('a, input, label, button, .portfolio-mock, textarea').forEach((elem) => {
+  const selector = 'a, input, label, button, .portfolio-mock, textarea';
+  document.querySelectorAll(selector).forEach((elem) => {
     elem.addEventListener('mouseover', () => {
       stalker.classList.add('is_active');
-      const actionText = getActionText(elem);
-      updateStalkerSize(actionText);
+      updateStalkerSize(getActionText(elem));
     });
     elem.addEventListener('mouseout', () => {
       stalker.classList.remove('is_active');
       stalkerText.textContent = '';
-      // サイズをリセット
-      stalker.style.width = '';
-      stalker.style.height = '';
-      stalker.style.top = '';
-      stalker.style.left = '';
+      Object.assign(stalker.style, { width: '', height: '', top: '', left: '' });
     });
   });
 }
 
-// マウスストーカー初期化（全ページで動作）
-// 既にDOMが読み込まれている場合（スクリプトが後から読み込まれた場合）にも初期化
 if (document.readyState === 'loading') {
-  // DOMContentLoaded待ち
   document.addEventListener('DOMContentLoaded', initMouseStalker);
 } else {
-  // DOMContentLoadedは既に発火済み（すぐに実行）
   initMouseStalker();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Main Visual Animation gsap
+  /** expanding-box のスクロール連動背景色（ENABLE_MOTION 時のみ） */
   if (ENABLE_MOTION && typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     gsap.registerPlugin(ScrollTrigger);
-    gsap.to(".expanding-box", {
-      width: "100vw",
-      height: "100vh",
-      backgroundColor: "#1b86d4",
+    gsap.to('.expanding-box', {
+      width: '100vw',
+      height: '100vh',
+      backgroundColor: '#1b86d4',
       duration: 1,
-      ease: "power2.inOut",
+      ease: 'power2.inOut',
       scrollTrigger: {
-        trigger: "body",
-        start: "top top",
-        end: "35% bottom",
+        trigger: 'body',
+        start: 'top top',
+        end: '35% bottom',
         scrub: true,
         onUpdate: (self) => {
-          const progress = self.progress;
-          const startColor = {r: 255, g: 255, b: 255}; // 白
-          const endColor = {r: 47, g: 44, b: 42}; // #2f2c2a
-          const currentR = Math.round(startColor.r + (endColor.r - startColor.r) * progress);
-          const currentG = Math.round(startColor.g + (endColor.g - startColor.g) * progress);
-          const currentB = Math.round(startColor.b + (endColor.b - startColor.b) * progress);
-          gsap.set(".expanding-box", {
-            backgroundColor: `rgb(${currentR}, ${currentG}, ${currentB})`
-          });
+          const p = self.progress;
+          const s = { r: 255, g: 255, b: 255 };
+          const e = { r: 47, g: 44, b: 42 };
+          const r = Math.round(s.r + (e.r - s.r) * p);
+          const g = Math.round(s.g + (e.g - s.g) * p);
+          const b = Math.round(s.b + (e.b - s.b) * p);
+          gsap.set('.expanding-box', { backgroundColor: `rgb(${r}, ${g}, ${b})` });
         }
       }
     });
   }
 
-  // PORTFOLIO DATA
-  const portfolioMock = document.querySelector(".portfolio-mock");
-  const portfolioList = document.querySelector(".portfolio-select");
-  const portfolioLinks = document.querySelectorAll(".portfolio-select a");
-  const works = document.querySelectorAll(".portfolio-works");
-  const descriptions = document.querySelectorAll(".portfolio-desc");
-  const shadow = document.querySelector("#shadow");
-  const body = document.querySelector("body");
-  // ポートフォリオリストの開閉
-  portfolioMock.addEventListener("click", () => {
-    const isOpening = !portfolioList.classList.contains("active");
+  const portfolioMock = document.querySelector('.portfolio-mock');
+  const portfolioList = document.querySelector('.portfolio-select');
+  const shadow = document.querySelector('#shadow');
 
-    if (isOpening) {
-      // 開く
-      portfolioList.classList.add("active");
-      shadow.classList.add("active");
-      body.classList.add("fixed");
+  if (!portfolioMock || !portfolioList || !shadow) return;
 
-      // GSAPアニメーション（animations.jsで処理）
-      if (window.animatePortfolioOpen) {
-        window.animatePortfolioOpen();
-      }
+  const portfolioLinks = document.querySelectorAll('.portfolio-select a');
+  const works = document.querySelectorAll('.portfolio-works');
+  const descriptions = document.querySelectorAll('.portfolio-desc');
+
+  /**
+   * ポートフォリオモーダルを閉じ、クラスを外して callback を実行する
+   * @param {function(): void} [callback] - 閉じた後に呼ぶ関数
+   * @returns {void}
+   */
+  const closePortfolio = (callback) => {
+    if (typeof window.animatePortfolioClose === 'function') {
+      window.animatePortfolioClose(() => {
+        portfolioList.classList.remove('active');
+        shadow.classList.remove('active');
+        document.body.classList.remove('fixed');
+        callback?.();
+      });
     } else {
-      // 閉じる
-      if (window.animatePortfolioClose) {
-        window.animatePortfolioClose(() => {
-          portfolioList.classList.remove("active");
-          shadow.classList.remove("active");
-          body.classList.remove("fixed");
-        });
-      } else {
-        portfolioList.classList.remove("active");
-        shadow.classList.remove("active");
-        body.classList.remove("fixed");
-      }
+      portfolioList.classList.remove('active');
+      shadow.classList.remove('active');
+      document.body.classList.remove('fixed');
+      callback?.();
+    }
+  };
+
+  portfolioMock.addEventListener('click', () => {
+    const isOpening = !portfolioList.classList.contains('active');
+    if (isOpening) {
+      portfolioList.classList.add('active');
+      shadow.classList.add('active');
+      document.body.classList.add('fixed');
+      if (typeof window.animatePortfolioOpen === 'function') window.animatePortfolioOpen();
+    } else {
+      closePortfolio();
     }
   });
 
-  // すべての作品と説明を非表示、最初の作品と説明を表示
-  works.forEach(work => (work.style.display = "none"));
-  descriptions.forEach(desc => (desc.style.display = "none"));
+  works.forEach((w) => { w.style.display = 'none'; });
+  descriptions.forEach((d) => { d.style.display = 'none'; });
   if (works.length > 0 && descriptions.length > 0) {
-    const firstWorkId = works[0].id;
-    const firstDesc = document.querySelector(`.portfolio-desc#${firstWorkId}`);
-    if (works[0]) works[0].style.display = "block";
-    if (firstDesc) firstDesc.style.display = "block";
+    const firstId = works[0].id;
+    works[0].style.display = 'block';
+    const firstDesc = document.querySelector(`.portfolio-desc#${firstId}`);
+    if (firstDesc) firstDesc.style.display = 'block';
   }
 
-  // ポートフォリオリンクのクリックイベント
-  portfolioLinks.forEach(link => {
-    link.addEventListener("click", event => {
-      event.preventDefault(); // ページ遷移を防ぐ
-
-      const targetId = link.getAttribute("href").replace("#", "");
+  portfolioLinks.forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = link.getAttribute('href')?.replace('#', '') ?? '';
       const targetWork = document.querySelector(`#${targetId}`);
       const targetDesc = document.querySelector(`.portfolio-desc#${targetId}`);
 
       if (targetWork && targetDesc) {
-        // すべての作品と説明を非表示
-        works.forEach(work => (work.style.display = "none"));
-        descriptions.forEach(desc => (desc.style.display = "none"));
-
-        // 選択された作品と説明を表示
-        targetWork.style.display = "block";
-        targetDesc.style.display = "block";
+        works.forEach((w) => { w.style.display = 'none'; });
+        descriptions.forEach((d) => { d.style.display = 'none'; });
+        targetWork.style.display = 'block';
+        targetDesc.style.display = 'block';
       }
 
-      // 選択状態のスタイル変更
-      portfolioLinks.forEach(l => l.classList.remove("active"));
-      link.classList.add("active");
-
-      // モックを閉じる
-      if (window.animatePortfolioClose) {
-        window.animatePortfolioClose(() => {
-          portfolioList.classList.remove("active");
-          shadow.classList.remove("active");
-          body.classList.remove("fixed");
-        });
-      } else {
-        portfolioList.classList.remove("active");
-        shadow.classList.remove("active");
-        body.classList.remove("fixed");
-      }
+      portfolioLinks.forEach((l) => l.classList.remove('active'));
+      link.classList.add('active');
+      closePortfolio();
     });
   });
 
-  shadow.addEventListener("click", () => {
-    if (window.animatePortfolioClose) {
-      window.animatePortfolioClose(() => {
-        portfolioList.classList.remove("active");
-        shadow.classList.remove("active");
-        body.classList.remove("fixed");
-      });
-    } else {
-      portfolioList.classList.remove("active");
-      shadow.classList.remove("active");
-      body.classList.remove("fixed");
-    }
-  });
+  shadow.addEventListener('click', () => closePortfolio());
 
-  // ポートフォリオリスト閉じるボタン
-  const portfolioCloseBtn = document.querySelector(".portfolio-close-btn");
-  if (portfolioCloseBtn) {
-    portfolioCloseBtn.addEventListener("click", (e) => {
-      e.stopPropagation(); // 親要素へのイベント伝播を防止
-      if (window.animatePortfolioClose) {
-        window.animatePortfolioClose(() => {
-          portfolioList.classList.remove("active");
-          shadow.classList.remove("active");
-          body.classList.remove("fixed");
-        });
-      } else {
-        portfolioList.classList.remove("active");
-        shadow.classList.remove("active");
-        body.classList.remove("fixed");
-      }
-    });
-  }
+  const closeBtn = document.querySelector('.portfolio-close-btn');
+  closeBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closePortfolio();
+  });
 });

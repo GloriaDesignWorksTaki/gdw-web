@@ -51,61 +51,6 @@ require_once __DIR__ . '/include/dialog.php';
     </div>
   </section>
   <!-- #portfolio -->
-  <section id="portfolio">
-    <div class="wrapper">
-      <div class="desc">
-        <div class="title">
-          <h2>PORTFOLIO</h2>
-          <p>モックをクリックすると選択画面が開きます</p>
-        </div>
-        <div class="portfolio-mock">
-          <div class="mock-base">
-            <img class="mock-pc" src="<?php echo $url; ?>/assets/images/portfolio/pc-mock.webp" alt="PC">
-            <img class="mock-sp" src="<?php echo $url; ?>/assets/images/portfolio/sp-mock.webp" alt="MOBILE">
-          </div>
-          <div class="portfolio-mock-img">
-            <?php foreach ($portfolioItems as $item): ?>
-            <div id="<?php echo escape($item['id']); ?>" class="portfolio-works">
-              <img class="works-pc" src="<?php echo $url; ?>/assets/images/works/<?php echo escape($item['image_pc']); ?>" alt="<?php echo escape($item['alt']); ?>">
-              <img class="works-sp" src="<?php echo $url; ?>/assets/images/works/<?php echo escape($item['image_sp']); ?>" alt="<?php echo escape($item['alt']); ?>">
-            </div>
-            <?php endforeach; ?>
-          </div>
-          <div class="portflio-mock-desc">
-            <?php foreach ($portfolioItems as $item): ?>
-            <div id="<?php echo escape($item['id']); ?>" class="portfolio-desc">
-              <h3><?php echo escape($item['title']); ?></h3>
-              <div class="desc-detail">
-                <p><?php echo escape($item['description']); ?></p>
-                <ul class="tech">
-                  <?php foreach ($item['tech'] as $tech): ?>
-                  <li><i class="fa-brands fa-<?php echo escape($tech); ?>"></i></li>
-                  <?php endforeach; ?>
-                </ul>
-              </div>
-            </div>
-            <?php endforeach; ?>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  <div class="portfolio-select">
-    <button class="portfolio-close-btn" aria-label="閉じる">
-      <i class="fa-solid fa-xmark"></i>
-    </button>
-    <ul>
-      <?php foreach ($portfolioItems as $item): ?>
-      <li>
-        <a href="#<?php echo escape($item['id']); ?>">
-          <img src="<?php echo $url; ?>/assets/images/works/<?php echo escape($item['image_sp']); ?>" alt="<?php echo escape($item['alt']); ?>">
-          <div class="site-title"><?php echo escape($item['title']); ?></div>
-        </a>
-      </li>
-      <?php endforeach; ?>
-    </ul>
-  </div>
-  <div id="shadow"></div>
   <!-- #skills -->
   <section id="skills" class="rightScroll">
     <div class="wrapper">

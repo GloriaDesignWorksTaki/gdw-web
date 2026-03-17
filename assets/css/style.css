@@ -1,11 +1,15 @@
 @charset "UTF-8";
 @import url("https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap");
 :root {
+  /* primary color */
   --color-primary: #2f2c2a;
   --color-primary-light: #817e7c;
   --color-primary-pale: #b4b3b3;
+  /* secondary color */
   --color-secondary: #ffffff;
+  /* accent color */
   --color-accent: #1b86d4;
+  --color-accent2: #d4521b;
   --header-height: 50px;
   --font-family: "Objective", "游ゴシック体", "Yu Gothic", YuGothic, "ヒラギノ角ゴ Pro", "Hiragino Kaku Gothic Pro", "メイリオ", "Meiryo", sans-serif;
   --font-family-title: "Noto Serif JP", "Noto Serif", serif;
@@ -95,6 +99,7 @@ header {
   z-index: 99999;
   background: none;
   mix-blend-mode: difference;
+  transition: transform 0.3s ease;
 }
 header .logo a img {
   width: 180px;
@@ -145,7 +150,7 @@ header .logo a img {
   line-height: normal;
 }
 #mv .concept-box .concept h1 strong {
-  color: #d4521b;
+  color: var(--color-accent2);
 }
 #mv .expanding-box {
   position: fixed;
@@ -154,9 +159,9 @@ header .logo a img {
   transform: translate(-50%, -50%);
   width: 100px;
   height: 100px;
-  /* background-color: var(--color-primary); */
 }
 
+/* section common */
 section {
   position: relative;
   padding: 5rem 0;
@@ -166,6 +171,7 @@ section .wrapper {
   padding: 0 1.25rem;
 }
 
+/* #about */
 #about {
   color: var(--color-secondary);
 }
@@ -180,156 +186,6 @@ section .wrapper {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-
-/* #portfolio */
-#portfolio .title h2 {
-  margin-bottom: 1rem;
-}
-#portfolio .portfolio-mock {
-  position: relative;
-  margin-top: 3rem;
-  overflow: hidden;
-  z-index: 999;
-}
-#portfolio .portfolio-mock .mock-pc {
-  width: 73.25vw;
-  height: auto;
-}
-#portfolio .portfolio-mock .mock-sp {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 22vw;
-  height: auto;
-  z-index: 99;
-}
-#portfolio .portfolio-mock .portfolio-mock-img {
-  position: absolute;
-  top: 3.25vw;
-  left: 4vw;
-  width: 100%;
-}
-#portfolio .portfolio-mock .portfolio-mock-img .portfolio-works > * {
-  -o-object-fit: cover;
-     object-fit: cover;
-  -o-object-position: top;
-     object-position: top;
-}
-#portfolio .portfolio-mock .portfolio-mock-img .portfolio-works .works-pc {
-  width: clamp(200px, 54.5vw, 1000px);
-  aspect-ratio: 16/10;
-  height: 34vw;
-  margin-left: clamp(20px, 5.5vw, 75px);
-}
-#portfolio .portfolio-mock .portfolio-mock-img .portfolio-works .works-sp {
-  position: absolute;
-  right: 5vw;
-  width: 19.5vw;
-  height: 39.5vw;
-}
-#portfolio .portfolio-mock .portflio-mock-desc .portfolio-desc {
-  color: var(--color-secondary);
-  margin-top: 1rem;
-}
-#portfolio .portfolio-mock .portflio-mock-desc .portfolio-desc h3 {
-  font-size: 1rem;
-  text-align: center;
-  line-height: normal;
-}
-#portfolio .portfolio-mock .portflio-mock-desc .portfolio-desc .desc-detail {
-  text-align: center;
-  padding: .25rem;
-  margin-top: .5rem;
-}
-#portfolio .portfolio-mock .portflio-mock-desc .portfolio-desc .tech {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: .5rem;
-  margin-top: 1rem;
-}
-#portfolio .portfolio-mock .portflio-mock-desc .portfolio-desc .tech li {
-  list-style: none;
-}
-#portfolio .portfolio-mock .portflio-mock-desc .portfolio-desc .tech li i {
-  font-size: 1.5rem;
-}
-.portfolio-select {
-  position: fixed;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: auto;
-  transition: none; /* GSAPで制御 */
-  pointer-events: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  /* 初期状態はGSAPで設定 */
-}
-.portfolio-select.active {
-  pointer-events: auto;
-}
-.portfolio-close-btn {
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
-  width: 50px;
-  height: 50px;
-  background: rgba(47, 44, 42, 0.9);
-  border: 2px solid var(--color-secondary);
-  border-radius: 50%;
-  color: var(--color-secondary);
-  font-size: 1.5rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  transition: none; /* GSAPで制御 */
-  pointer-events: auto; /* クリック可能にする */
-}
-.portfolio-close-btn:hover {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-}
-.portfolio-close-btn i {
-  pointer-events: none;
-}
-.portfolio-select ul {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 0.5rem;
-  width: 100%;
-  perspective: 1000px;
-}
-.portfolio-select ul li {
-  list-style: none;
-  width: calc(25% - 0.5rem);
-  box-shadow: 0 0 10px rgba(1, 1, 1, 1);
-  transform-style: preserve-3d;
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transform: translateZ(0); /* GPUアクセラレーション */
-}
-.portfolio-select ul li a {
-  overflow: hidden;
-}
-.portfolio-select ul li a img {
-  width: 100%;
-  height: 45vw;
-  -o-object-fit: cover;
-     object-fit: cover;
-  -o-object-position: top;
-     object-position: top;
-}
-.portfolio-select ul li a .site-title {
-  display: none;
 }
 
 /* #skills */
@@ -378,8 +234,8 @@ section .wrapper {
   display: inline-block;
   width: fit-content;
   padding: 0.5rem 3rem;
-  background-color: var(--color-primary);
-  color: var(--color-secondary);
+  background-color: var(--color-secondary);
+  color: var(--color-primary);
   border: none;
   font-size: var(--font-size);
   letter-spacing: 2px;
@@ -417,7 +273,8 @@ section .wrapper {
   height: 16px;
   animation: spin 1s linear infinite;
 }
-/* サンクスページ専用のレイアウト */
+
+/* Contact Thanks Page */
 body.page-thanks {
   display: flex;
   flex-direction: column;
@@ -430,8 +287,10 @@ body.page-thanks main {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  min-height: 0; /* flexboxで縮小を許可 */
+  min-height: 0;
 }
+
+/* #contact-thanks */
 #contact-thanks {
   background-color: var(--color-secondary);
   flex: 1;
@@ -440,7 +299,7 @@ body.page-thanks main {
   justify-content: center;
   padding: 0;
   margin: 0;
-  min-height: 0; /* flexboxで縮小を許可 */
+  min-height: 0;
 }
 #contact-thanks .wrapper {
   display: flex;
@@ -457,60 +316,10 @@ body.page-thanks main {
   margin-top: 2rem;
 }
 body.page-thanks footer {
-  flex-shrink: 0; /* フッターは縮小しない */
+  flex-shrink: 0;
 }
 
-/* #shadow */
-#shadow {
-  width: 100%;
-  height: 100svh;
-  background-color: var(--color-secondary);
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 999;
-  opacity: .5;
-}
-#shadow.active {
-  display: block;
-}
-
-/* footer */
-footer {
-  position: relative;
-  background-color: var(--color-primary);
-  color: var(--color-secondary);
-  bottom: 0;
-  z-index: 99;
-}
-footer .footer-logo a img {
-  width: 100%;
-}
-footer .footer-links {
-  margin-top: 2rem;
-}
-footer .footer-links ul {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-}
-footer .footer-links ul li {
-  list-style: none;
-}
-footer .footer-links ul li a {
-  color: var(--color-secondary);
-  font-size: 2rem;
-}
-footer .copy {
-  margin-top: 2rem;
-  padding: 1rem;
-  text-align: center;
-  color: var(--color-primary-light);
-}
-
-/* ローディングアニメーション */
+/* #page-loader */
 #page-loader {
   position: fixed;
   top: 0;
@@ -523,20 +332,20 @@ footer .copy {
   align-items: center;
   justify-content: center;
 }
-.loader-content {
+#page-loader .loader-content {
   text-align: center;
 }
-.loader-logo {
+#page-loader .loader-logo {
   width: min(88vw, 560px);
   margin: 0 auto;
 }
-.loader-logo .loader-logo-svg,
-.loader-logo img {
+#page-loader .loader-logo .loader-logo-svg,
+#page-loader .loader-logo img {
   display: block;
   width: 100%;
   height: auto;
 }
-.loader-spinner {
+#page-loader .loader-spinner {
   width: 60px;
   height: 60px;
   border: 4px solid rgba(255, 255, 255, 0.2);
@@ -545,45 +354,19 @@ footer .copy {
   animation: spin 1s linear infinite;
   margin: 0 auto 2rem;
 }
-.loader-text {
+#page-loader .loader-text {
   color: var(--color-secondary);
   font-family: var(--font-family-title);
   font-size: 1.5rem;
   letter-spacing: 3px;
   animation: pulse 2s ease-in-out infinite;
 }
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
 
-/* ポートフォリオカード3D効果 */
-.portfolio-select li {
-  transition: none; /* GSAPで制御 */
-  transform-style: preserve-3d;
-}
-
-/* フォーム入力アニメーション */
+/* #contactForm */
 #contactForm input:focus,
 #contactForm textarea:focus {
   transition: transform 0.3s ease;
 }
-
-/* ヘッダーアニメーション */
-header {
-  transition: transform 0.3s ease;
-}
-
-/* フッターアイコンアニメーション */
-.footer-links a {
-  transition: transform 0.3s ease;
-  display: inline-block;
-}
-
 
 /* dialog */
 .dialog-overlay {
@@ -674,7 +457,7 @@ header {
   transition: background-color 0.3s ease;
 }
 .dialog-button:hover {
-  background-color: #1470b8;
+  background-color: var(--color-accent);
 }
 .dialog-button:active {
   transform: scale(0.98);
@@ -688,26 +471,44 @@ header {
 .dialog-container.dialog-info .dialog-title {
   color: var(--color-accent);
 }
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+
+/* footer */
+footer {
+  position: relative;
+  background-color: var(--color-primary);
+  color: var(--color-secondary);
+  bottom: 0;
+  z-index: 99;
 }
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+footer .footer-logo a img {
+  width: 100%;
+}
+footer .footer-links {
+  margin-top: 2rem;
+}
+footer .footer-links ul {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+footer .footer-links ul li {
+  list-style: none;
+}
+footer .footer-links ul li a {
+  color: var(--color-secondary);
+  font-size: 2rem;
+}
+footer .copy {
+  margin-top: 2rem;
+  padding: 1rem;
+  text-align: center;
+  color: var(--color-primary-light);
 }
 
+/* Responsive Tablet */
 @media (min-width: 768px) {
+  /* dialog */
   .dialog-container {
     width: 500px;
     max-width: 90%;
@@ -726,6 +527,7 @@ header {
     padding-bottom: 1rem;
   }
 
+  /* section common */
   section .wrapper {
     padding: 0;
     width: 80%;
@@ -742,16 +544,23 @@ header {
     width: 100%;
   }
 }
+
+/* Responsive Desktop */
 @media (min-width: 1024px) {
+  /* Variables */
   :root {
     --font-size: 1.2vw;
   }
+
+  /* button */
   .button a {
     transition: all 0.5s;
   }
   .button a:hover {
     background-color: var(--color-accent);
   }
+
+  /* mouse stalker */
   .mouse-stalker {
     display: flex;
     align-items: center;
@@ -788,12 +597,16 @@ header {
     font-size: 0.625rem;
     opacity: 1;
   }
+
+  /* desc */
   .desc h2 {
     font-size: 3rem;
   }
   .desc h3 {
     font-size: 1.75rem;
   }
+
+  /* header */
   header .logo a {
     transition: all 0.5s;
   }
@@ -804,6 +617,7 @@ header {
     opacity: 0.7;
   }
 
+  /* #mv */
   #mv .concept-box .concept h1 br {
     display: none;
   }
@@ -812,6 +626,7 @@ header {
     height: 500px;
   }
 
+  /* section common */
   section {
     padding: 10rem 0;
   }
@@ -821,52 +636,7 @@ header {
     width: 80%;
   }
 
-  /* #portfolio */
-  #portfolio .desc {
-    display: flex;
-  }
-  #portfolio .portfolio-mock {
-    width: 100%;
-    cursor: pointer;
-  }
-  #portfolio .portfolio-mock .mock-pc {
-    width: 54vw;
-  }
-  #portfolio .portfolio-mock .mock-sp {
-    top: 2rem;
-    width: 15vw;
-  }
-  #portfolio .portfolio-mock .portfolio-mock-img {
-    top: 2.25vw;
-  }
-  #portfolio .portfolio-mock .portfolio-mock-img .portfolio-works .works-pc {
-    width: 40.25vw;
-    height: 25.25vw;
-    margin-left: 2.95vw;
-  }
-  #portfolio .portfolio-mock .portfolio-mock-img .portfolio-works .works-sp {
-    top: 2rem;
-    width: 13vw;
-    height: 26.5vw;
-  }
-  .portfolio-select ul {
-    width: 60%;
-    gap: 1rem;
-  }
-  .portfolio-select ul li {
-    width: calc(20% - 1rem);
-  }
-  .portfolio-select ul li a img {
-    height: 20vw;
-  }
-  .portfolio-close-btn {
-    top: 1.5rem;
-    right: 1.5rem;
-    width: 45px;
-    height: 45px;
-    font-size: 1.3rem;
-  }
-
+  /* #contact */
   #contact .wrapper {
     display: flex;
     gap: 3rem;
@@ -885,5 +655,36 @@ header {
   }
   footer .copy {
     padding: 1.25rem;
+  }
+}
+
+/* Animation Keyframes */
+/* Fade In */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/* Slide In */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* Pulse */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
   }
 }

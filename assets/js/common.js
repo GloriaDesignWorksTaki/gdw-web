@@ -1,125 +1,89 @@
 /**
- * 共通UI: マウスストーカー・ポートフォリオモーダル・GSAPスクロール
+ * Common JS
  * @file assets/js/common.js
+ * @version 1.00.000
+ * @author Gloria Design Works
+ * @see https://gloria-design-works.com/
  */
-
-/** @type {boolean} アニメーション有効フラグ。window.ENABLE_MOTION で上書き可能。 */
-const ENABLE_MOTION = typeof window.ENABLE_MOTION === 'boolean' ? window.ENABLE_MOTION : true;
-
-/** マウスストーカーを表示する最小幅 */
-const STALKER_MIN_WIDTH = 1024;
 
 /**
- * マウスストーカーを初期化する。
- * @returns {void}
+ * モーション有効/無効フラグ
+ * @type {boolean}
  */
-function initMouseStalker() {
-  const stalker = document.querySelector('.mouse-stalker');
-  const stalkerText = document.querySelector('.mouse-stalker-text');
-  if (!stalker || !stalkerText) return;
-  if (!window.matchMedia(`(min-width: ${STALKER_MIN_WIDTH}px)`).matches) return;
-  if (stalker.dataset.initialized === 'true') return;
-  stalker.dataset.initialized = 'true';
+const ENABLE_MOTION =
+  typeof window.ENABLE_MOTION === 'boolean' ? window.ENABLE_MOTION : true;
 
-  const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--color-secondary').trim() || '#ffffff';
-  Object.assign(stalker.style, {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    pointerEvents: 'none',
-    position: 'fixed',
-    top: '-5px',
-    left: '-5px',
-    width: '10px',
-    height: '10px',
-    background: secondaryColor,
-    borderRadius: '50%',
-    zIndex: '99999',
-    mixBlendMode: 'difference',
-    transition: 'transform 0.1s, width 0.2s, height 0.2s, top 0.2s, left 0.2s',
-    transitionTimingFunction: 'ease-out'
-  });
+/**
+ * マウスストーカー用クラス
+ * @type {class}
+ */
+class MouseStalker {
+  // マウスストーカーを表示させるブレークポイント
+  static MIN_WIDTH = 1024;
 
-  let mouseX = 0, mouseY = 0;
-  let stalkerX = 0, stalkerY = 0;
+  // ホバー対象のセレクタ
+  static SELECTOR = 'a, input, label, button, .portfolio-mock, textarea';
 
-  document.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  });
-
-  const updateStalker = () => {
-    if (stalker?.dataset.initialized === 'true') {
-      stalkerX += (mouseX - stalkerX) * 0.2;
-      stalkerY += (mouseY - stalkerY) * 0.2;
-      stalker.style.transform = `translate(${stalkerX}px, ${stalkerY}px)`;
-      requestAnimationFrame(updateStalker);
+  // マウスオーバー時の表示テキスト
+  static TEXT_MAP = {
+    iconText: {
+      'fa-github': 'Open Github',
+      'fa-x-twitter': 'Open X',
+      'fa-instagram': 'Open Instagram'
+    },
+    inputText: {
+      name: 'Enter Your Name',
+      email: 'Enter Your Email',
+      message: 'Enter Your Message'
     }
   };
-  updateStalker();
 
-  const mql = window.matchMedia(`(min-width: ${STALKER_MIN_WIDTH}px)`);
-  mql.addEventListener('change', () => {
-    if (mql.matches) {
-      stalker.style.display = 'flex';
-    } else {
-      stalker.style.display = 'none';
-      stalker.classList.remove('is_active');
-      stalkerText.textContent = '';
-      Object.assign(stalker.style, { width: '', height: '', top: '', left: '' });
-    }
-  });
-
-  /**
-   * 要素種別に応じたストーカー表示文言を返す
-   * @param {Element} el - ホバーした要素（a, button, input など）
-   * @returns {string}
-   */
-  function getActionText(el) {
-    if (el.classList.contains('portfolio-mock')) return 'VIEW PORTFOLIO';
-    if (el.tagName === 'BUTTON' || el.type === 'submit') {
-      const t = el.textContent.trim();
-      return (t.includes('SEND') || t.includes('送信')) ? 'SEND' : 'CLICK';
-    }
-    if (el.tagName === 'A') {
-      const href = el.getAttribute('href') ?? '';
-      const icon = el.querySelector('i');
-      if (icon) {
-        if (icon.classList.contains('fa-github')) return 'Access to Github';
-        if (icon.classList.contains('fa-x-twitter')) return 'Access to Twitter';
-        if (icon.classList.contains('fa-instagram')) return 'Access to Instagram';
-      }
-      if (href.startsWith('#')) {
-        const title = el.closest('.portfolio-select') && el.querySelector('.site-title');
-        return title?.textContent.trim() || 'VIEW';
-      }
-      if (href.startsWith('http') || href.startsWith('mailto:')) return 'OPEN';
-      return 'CLICK';
-    }
-    if (el.tagName === 'INPUT') {
-      const id = el.getAttribute('id') ?? '';
-      const name = el.getAttribute('name') ?? '';
-      if (id === 'name' || name === 'name') return 'Enter Your Name';
-      if (id === 'email' || name === 'email') return 'Enter Your Email';
-      return 'INPUT';
-    }
-    if (el.tagName === 'TEXTAREA') {
-      const id = el.getAttribute('id') ?? '';
-      const name = el.getAttribute('name') ?? '';
-      return (id === 'message' || name === 'message') ? 'Enter Your Message' : 'INPUT';
-    }
-    if (el.tagName === 'LABEL') return 'SELECT';
-    return 'CLICK';
+  // マウスストーカーのコンストラクタ
+  constructor() {
+    this.stalker = document.querySelector('.mouse-stalker'); // ストーカー要素
+    this.stalkerText = document.querySelector('.mouse-stalker-text'); // ストーカー内テキスト要素
+    this.mouseX = 0; // マウスX座標
+    this.mouseY = 0; // マウスY座標
+    this.stalkerX = 0; // 補間済みX座標
+    this.stalkerY = 0; // 補間済みY座標
   }
 
-  /**
-   * ストーカーのサイズをテキスト幅に合わせて更新する
-   * @param {string} text - 表示するラベル文字列
-   * @returns {void}
-   */
-  function updateStalkerSize(text) {
-    if (!stalkerText || !text) return;
-    stalkerText.textContent = text;
+  // 対象要素に応じたアクション文言を返す
+  getActionText(el) {
+    // ポートフォリオモックの場合はポートフォリオを表示
+    if (el.classList.contains('portfolio-mock')) return 'VIEW PORTFOLIO';
+    // ボタンの場合はクリック
+    const tag = el.tagName;
+    if (tag === 'BUTTON') {
+      return /SEND|送信/.test(el.textContent.trim()) ? 'SEND' : 'CLICK';
+    }
+    // リンクの場合はクリック
+    if (tag === 'A') {
+      const href = el.getAttribute('href') ?? '';
+      const icon = el.querySelector('i');
+      for (const [cls, text] of Object.entries(MouseStalker.TEXT_MAP.iconText)) {
+        if (icon?.classList.contains(cls)) return text;
+      }
+      if (href.startsWith('#')) return el.querySelector('.site-title')?.textContent.trim() || 'VIEW';
+      if (/^(https?:|mailto:)/.test(href)) return 'OPEN';
+      return 'CLICK';
+    }
+    // 入力フォームの場合は送信
+    if (tag === 'INPUT' || tag === 'TEXTAREA') {
+      if (el.type === 'submit') return 'SEND';
+      const key = el.getAttribute('id') || el.getAttribute('name') || '';
+      return MouseStalker.TEXT_MAP.inputText[key] || 'INPUT';
+    }
+    // ラベルの場合は選択
+    return tag === 'LABEL' ? 'SELECT' : 'CLICK';
+  }
+
+  // 表示テキストに応じてストーカーのサイズを更新する
+  updateSize(text) {
+    if (!this.stalker || !this.stalkerText || !text) return;
+
+    this.stalkerText.textContent = text;
+
     const measure = document.createElement('span');
     Object.assign(measure.style, {
       fontSize: '0.625rem',
@@ -133,41 +97,126 @@ function initMouseStalker() {
       padding: '0',
       margin: '0'
     });
+
     measure.textContent = text;
     document.body.appendChild(measure);
+
     const w = Math.max(40, measure.offsetWidth + 20);
     const h = Math.max(40, measure.offsetHeight + 16);
+
     document.body.removeChild(measure);
-    stalker.style.width = `${w}px`;
-    stalker.style.height = `${h}px`;
-    stalker.style.top = `-${h / 2}px`;
-    stalker.style.left = `-${w / 2}px`;
+
+    this.stalker.style.width = `${w}px`;
+    this.stalker.style.height = `${h}px`;
+    this.stalker.style.top = `-${h / 2}px`;
+    this.stalker.style.left = `-${w / 2}px`;
   }
 
-  const selector = 'a, input, label, button, .portfolio-mock, textarea';
-  document.querySelectorAll(selector).forEach((elem) => {
-    elem.addEventListener('mouseover', () => {
-      stalker.classList.add('is_active');
-      updateStalkerSize(getActionText(elem));
+  // ストーカーの表示スタイルを初期状態に戻す
+  resetStyle() {
+    if (!this.stalker || !this.stalkerText) return;
+
+    this.stalkerText.textContent = '';
+    Object.assign(this.stalker.style, {
+      width: '',
+      height: '',
+      top: '',
+      left: ''
     });
-    elem.addEventListener('mouseout', () => {
-      stalker.classList.remove('is_active');
-      stalkerText.textContent = '';
-      Object.assign(stalker.style, { width: '', height: '', top: '', left: '' });
+  }
+
+  // MouseStalkerを初期化
+  init() {
+    if (!this.stalker || !this.stalkerText) return;
+    if (!window.matchMedia(`(min-width: ${MouseStalker.MIN_WIDTH}px)`).matches) return;
+    if (this.stalker.dataset.initialized === 'true') return;
+
+    this.stalker.dataset.initialized = 'true';
+
+    const bg =
+      getComputedStyle(document.documentElement)
+        .getPropertyValue('--color-secondary')
+        .trim() || '#ffffff';
+
+    Object.assign(this.stalker.style, {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      pointerEvents: 'none',
+      position: 'fixed',
+      top: '-5px',
+      left: '-5px',
+      width: '10px',
+      height: '10px',
+      background: bg,
+      borderRadius: '50%',
+      zIndex: '99999',
+      mixBlendMode: 'difference',
+      transition: 'transform 0.1s, width 0.2s, height 0.2s, top 0.2s, left 0.2s',
+      transitionTimingFunction: 'ease-out'
     });
-  });
+
+    document.addEventListener('mousemove', (e) => {
+      this.mouseX = e.clientX;
+      this.mouseY = e.clientY;
+    });
+
+    const tick = () => {
+      if (this.stalker?.dataset.initialized === 'true') {
+        this.stalkerX += (this.mouseX - this.stalkerX) * 0.2;
+        this.stalkerY += (this.mouseY - this.stalkerY) * 0.2;
+        this.stalker.style.transform = `translate(${this.stalkerX}px, ${this.stalkerY}px)`;
+        requestAnimationFrame(tick);
+      }
+    };
+
+    tick();
+
+    const mql = window.matchMedia(`(min-width: ${MouseStalker.MIN_WIDTH}px)`);
+
+    mql.addEventListener('change', () => {
+      if (mql.matches) {
+        this.stalker.style.display = 'flex';
+      } else {
+        this.stalker.style.display = 'none';
+        this.stalker.classList.remove('is_active');
+        this.resetStyle();
+      }
+    });
+
+    document.querySelectorAll(MouseStalker.SELECTOR).forEach((elem) => {
+      elem.addEventListener('mouseover', () => {
+        this.stalker.classList.add('is_active');
+        this.updateSize(this.getActionText(elem));
+      });
+
+      elem.addEventListener('mouseout', () => {
+        this.stalker.classList.remove('is_active');
+        this.resetStyle();
+      });
+    });
+  }
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initMouseStalker);
-} else {
-  initMouseStalker();
-}
+/**
+ * スクロールに応じてボックスを拡大・背景色を変化させるクラス（GSAP使用）
+ * @type {class}
+ */
+class ExpandingBoxScroll {
+  // 背景色補間用の開始色・終了色
+  static COLOR = {
+    start: { r: 255, g: 255, b: 255 },
+    end: { r: 47, g: 44, b: 42 }
+  };
 
-document.addEventListener('DOMContentLoaded', () => {
-  /** expanding-box のスクロール連動背景色（ENABLE_MOTION 時のみ） */
-  if (ENABLE_MOTION && typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+  // スクロールアニメーションを初期化
+  static init() {
+    if (!ENABLE_MOTION || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+      return;
+    }
+
     gsap.registerPlugin(ScrollTrigger);
+
     gsap.to('.expanding-box', {
       width: '100vw',
       height: '100vh',
@@ -181,94 +230,180 @@ document.addEventListener('DOMContentLoaded', () => {
         scrub: true,
         onUpdate: (self) => {
           const p = self.progress;
-          const s = { r: 255, g: 255, b: 255 };
-          const e = { r: 47, g: 44, b: 42 };
+          const s = ExpandingBoxScroll.COLOR.start;
+          const e = ExpandingBoxScroll.COLOR.end;
           const r = Math.round(s.r + (e.r - s.r) * p);
           const g = Math.round(s.g + (e.g - s.g) * p);
           const b = Math.round(s.b + (e.b - s.b) * p);
-          gsap.set('.expanding-box', { backgroundColor: `rgb(${r}, ${g}, ${b})` });
+
+          gsap.set('.expanding-box', {
+            backgroundColor: `rgb(${r}, ${g}, ${b})`
+          });
         }
       }
     });
   }
+}
 
-  const portfolioMock = document.querySelector('.portfolio-mock');
-  const portfolioList = document.querySelector('.portfolio-select');
-  const shadow = document.querySelector('#shadow');
-
-  if (!portfolioMock || !portfolioList || !shadow) return;
-
-  const portfolioLinks = document.querySelectorAll('.portfolio-select a');
-  const works = document.querySelectorAll('.portfolio-works');
-  const descriptions = document.querySelectorAll('.portfolio-desc');
-
+/** TODO:消す
+ * ポートフォリオのモーダル表示・切り替えを制御するクラス
+ *
+ * `.portfolio-mock` のクリックでモーダルを開閉し、
+ * リスト内のリンククリックで対象作品と説明を切り替える。
+ *
+ * @example
+ * new PortfolioModal().init();
+ */
+class PortfolioModal {
   /**
-   * ポートフォリオモーダルを閉じ、クラスを外して callback を実行する
-   * @param {function(): void} [callback] - 閉じた後に呼ぶ関数
-   * @returns {void}
+   * PortfolioModal インスタンスを生成する
    */
-  const closePortfolio = (callback) => {
-    if (typeof window.animatePortfolioClose === 'function') {
-      window.animatePortfolioClose(() => {
-        portfolioList.classList.remove('active');
-        shadow.classList.remove('active');
-        document.body.classList.remove('fixed');
-        callback?.();
-      });
-    } else {
-      portfolioList.classList.remove('active');
-      shadow.classList.remove('active');
-      document.body.classList.remove('fixed');
-      callback?.();
-    }
-  };
+  constructor() {
+    /**
+     * モーダル開閉トリガー要素
+     * @type {HTMLElement | null}
+     */
+    this.mock = document.querySelector('.portfolio-mock');
 
-  portfolioMock.addEventListener('click', () => {
-    const isOpening = !portfolioList.classList.contains('active');
-    if (isOpening) {
-      portfolioList.classList.add('active');
-      shadow.classList.add('active');
-      document.body.classList.add('fixed');
-      if (typeof window.animatePortfolioOpen === 'function') window.animatePortfolioOpen();
-    } else {
-      closePortfolio();
-    }
-  });
+    /**
+     * ポートフォリオ選択リスト要素
+     * @type {HTMLElement | null}
+     */
+    this.list = document.querySelector('.portfolio-select');
 
-  works.forEach((w) => { w.style.display = 'none'; });
-  descriptions.forEach((d) => { d.style.display = 'none'; });
-  if (works.length > 0 && descriptions.length > 0) {
-    const firstId = works[0].id;
-    works[0].style.display = 'block';
-    const firstDesc = document.querySelector(`.portfolio-desc#${firstId}`);
-    if (firstDesc) firstDesc.style.display = 'block';
+    /**
+     * オーバーレイ要素
+     * @type {HTMLElement | null}
+     */
+    this.shadow = document.querySelector('#shadow');
+
+    /**
+     * 作品切り替えリンク一覧
+     * @type {NodeListOf<HTMLAnchorElement>}
+     */
+    this.links = document.querySelectorAll('.portfolio-select a');
+
+    /**
+     * 作品要素一覧
+     * @type {NodeListOf<HTMLElement>}
+     */
+    this.works = document.querySelectorAll('.portfolio-works');
+
+    /**
+     * 説明要素一覧
+     * @type {NodeListOf<HTMLElement>}
+     */
+    this.descriptions = document.querySelectorAll('.portfolio-desc');
   }
 
-  portfolioLinks.forEach((link) => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const targetId = link.getAttribute('href')?.replace('#', '') ?? '';
-      const targetWork = document.querySelector(`#${targetId}`);
-      const targetDesc = document.querySelector(`.portfolio-desc#${targetId}`);
+  /**
+   * モーダルを閉じる
+   *
+   * `window.animatePortfolioClose` が定義されている場合は
+   * その完了後にクローズ処理を実行する。
+   *
+   * @param {() => void} [callback] クローズ完了後に実行するコールバック
+   * @returns {void}
+   */
+  close(callback) {
+    const done = () => {
+      if (!this.list || !this.shadow) return;
 
-      if (targetWork && targetDesc) {
-        works.forEach((w) => { w.style.display = 'none'; });
-        descriptions.forEach((d) => { d.style.display = 'none'; });
-        targetWork.style.display = 'block';
-        targetDesc.style.display = 'block';
+      this.list.classList.remove('active');
+      this.shadow.classList.remove('active');
+      document.body.classList.remove('fixed');
+      callback?.();
+    };
+
+    if (typeof window.animatePortfolioClose === 'function') {
+      window.animatePortfolioClose(done);
+    } else {
+      done();
+    }
+  }
+
+  /**
+   * PortfolioModal を初期化する
+   *
+   * @returns {void}
+   */
+  init() {
+    if (!this.mock || !this.list || !this.shadow) return;
+
+    this.mock.addEventListener('click', () => {
+      const isOpening = !this.list.classList.contains('active');
+
+      if (isOpening) {
+        this.list.classList.add('active');
+        this.shadow.classList.add('active');
+        document.body.classList.add('fixed');
+
+        if (typeof window.animatePortfolioOpen === 'function') {
+          window.animatePortfolioOpen();
+        }
+      } else {
+        this.close();
       }
-
-      portfolioLinks.forEach((l) => l.classList.remove('active'));
-      link.classList.add('active');
-      closePortfolio();
     });
-  });
 
-  shadow.addEventListener('click', () => closePortfolio());
+    this.works.forEach((w) => {
+      w.style.display = 'none';
+    });
 
-  const closeBtn = document.querySelector('.portfolio-close-btn');
-  closeBtn?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    closePortfolio();
-  });
-});
+    this.descriptions.forEach((d) => {
+      d.style.display = 'none';
+    });
+
+    if (this.works.length > 0 && this.descriptions.length > 0) {
+      const firstId = this.works[0].id;
+      this.works[0].style.display = 'block';
+
+      const firstDesc = document.querySelector(`.portfolio-desc#${firstId}`);
+      if (firstDesc) firstDesc.style.display = 'block';
+    }
+
+    this.links.forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        const targetId = link.getAttribute('href')?.replace('#', '') ?? '';
+        const targetWork = document.querySelector(`#${targetId}`);
+        const targetDesc = document.querySelector(`.portfolio-desc#${targetId}`);
+
+        if (targetWork && targetDesc) {
+          this.works.forEach((w) => {
+            w.style.display = 'none';
+          });
+
+          this.descriptions.forEach((d) => {
+            d.style.display = 'none';
+          });
+
+          targetWork.style.display = 'block';
+          targetDesc.style.display = 'block';
+        }
+
+        this.links.forEach((l) => l.classList.remove('active'));
+        link.classList.add('active');
+        this.close();
+      });
+    });
+
+    this.shadow.addEventListener('click', () => this.close());
+
+    document.querySelector('.portfolio-close-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.close();
+    });
+  }
+}
+
+// 共通JSを初期化
+const init = () => {
+  new MouseStalker().init();
+  ExpandingBoxScroll.init();
+  new PortfolioModal().init();
+};
+
+// ドキュメントが読み込まれたら共通JSを初期化
+document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();

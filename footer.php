@@ -1,7 +1,7 @@
 <footer>
   <div class="footer-logo">
     <a href="<?php echo $url; ?>">
-      <img src="<?php echo $url; ?>/assets/images/logo-white.svg" alt="Gloria Design Works LOGO">
+      <img src="<?php echo $url; ?>/assets/images/common/logo-white.svg" alt="Gloria Design Works LOGO">
     </a>
   </div>
   <div class="footer-links">

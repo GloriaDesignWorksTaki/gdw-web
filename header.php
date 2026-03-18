@@ -60,7 +60,7 @@ $styleVersion = file_exists(__DIR__ . '/assets/css/style.css') ? filemtime(__DIR
   <header>
     <div class="logo">
       <a href="<?php echo $url; ?>">
-        <img src="<?php echo $url; ?>/assets/images/logo.svg" alt="Gloria Design Works LOGO">
+        <img src="<?php echo $url; ?>/assets/images/common/logo.svg" alt="Gloria Design Works LOGO">
       </a>
     </div>
   </header>

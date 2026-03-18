@@ -6,6 +6,7 @@ $name = $email = $message = '';
 require_once __DIR__ . '/include/contact_form.php';
 
 $portfolioItems = require __DIR__ . '/config/portfolio.php';
+$skills = require __DIR__ . '/config/skills.php';
 
 require_once __DIR__ . '/header.php';
 require_once __DIR__ . '/include/dialog.php';
@@ -25,62 +26,40 @@ require_once __DIR__ . '/include/dialog.php';
   <section id="about">
     <div class="wrapper">
       <div class="desc">
-        <div class="profile-box">
-          <h3>
-            <small>Designer・Developer</small>
-            <span>TKBY</span>
-          </h3>
+        <div class="text">
+          <p>My work focuses on minimal and simple design, with a strong emphasis on the use of white space.</p>
+          <p>In today’s information-saturated world, I aim to reduce visual noise and make essential information clear and accessible.</p>
+          <p>By organizing elements and intentionally using space, I create visual flow that helps users understand information intuitively.</p>
         </div>
-        <div class="about-flex">
-          <div class="text-box">
-            <div class="text-box">
-              <div class="text">
-                <p>My work focuses on minimal and simple design, with a strong emphasis on the use of white space.</p>
-                <p>In today’s information-saturated world, I aim to reduce visual noise and make essential information clear and accessible.</p>
-                <p>By organizing elements and intentionally using space, I create visual flow that helps users understand information intuitively.</p>
-              </div>
-              <div class="text">
-                <p>ミニマルでシンプル、余白を大切にしたデザインを軸に制作しています。</p>
-                <p>情報が溢れる現代において、視覚的なノイズを減らし、本当に必要な情報が見やすく伝わることを大切にしています。</p>
-                <p>要素を整理し、余白や空間を活かすことで視線の流れを設計し、直感的に理解できるデザインを心がけています。</p>
-              </div>
-            </div>
-          </div>
+        <div class="text">
+          <p>ミニマルでシンプル、余白を大切にしたデザインを軸に制作しています。</p>
+          <p>情報が溢れる現代において、視覚的なノイズを減らし、本当に必要な情報が見やすく伝わることを大切にしています。</p>
+          <p>要素を整理し、余白や空間を活かすことで視線の流れを設計し、直感的に理解できるデザインを心がけています。</p>
         </div>
       </div>
     </div>
   </section>
   <!-- #portfolio -->
   <!-- #skills -->
-  <section id="skills" class="rightScroll">
+  <section id="skills">
     <div class="wrapper">
-      <div class="desc">
-        <h2>SKILLS</h2>
-        <div class="text">
-          <p>Web Design・UI/UX Design・Development・Branding・Marketing</p>
-        </div>
-        <div class="text">
-          <p>Webデザインを中心に、ユーザーエクスペリエンス（UX）を重視したUI/UXデザイン、堅牢で効率的な開発、ブランドイメージの構築を支援するブランディング、そしてマーケティング戦略を駆使して、オンラインの効果的なプレゼンスを作り上げるお手伝いをしています。</p>
-          <p>これらのスキルを融合させ、クライアント様のビジネスの成長と成功をサポートしています。</p>
-        </div>
-      </div>
-      <div class="desc">
-        <h3>Using Skills</h3>
-        <div class="text">
-          <p>HTML / CSS / PHP / JavaScript / TypeScript / Python</p>
-          <p>React / Node.js / AWS / Git / WordPress</p>
-          <p>Figma / Adobe Photoshop / Adobe Illustrator / Adobe InDesign / Affinity</p>
-          <p>Google Analytics / Google Tag Manager / Google Search Console / Google Ads / Facebook Ads / Press Release</p>
-        </div>
+      <div class="desc-lists">
+        <?php foreach ($skills as $skill): ?>
+          <dl>
+            <dt><?php echo escape($skill['title'] ?? ''); ?></dt>
+            <dd>
+              <?php foreach (($skill['items'] ?? []) as $item): ?>
+                <span><?php echo escape($item); ?></span>
+              <?php endforeach; ?>
+            </dd>
+          </dl>
+        <?php endforeach; ?>
       </div>
     </div>
   </section>
   <!-- #contact -->
   <section id="contact">
     <div class="wrapper">
-      <div class="desc">
-        <h2>CONTACT</h2>
-      </div>
       <form method="post" action="" id="contactForm">
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
         <div class="form-block">

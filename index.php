@@ -11,9 +11,8 @@ $skills = require __DIR__ . '/config/skills.php';
 require_once __DIR__ . '/header.php';
 require_once __DIR__ . '/include/dialog.php';
 ?>
-<!-- <div class="noise"></div> -->
+<div class="noise"></div>
 <main>
-  <!-- #mv -->
   <div id="mv">
     <div class="concept-box">
       <div class="concept">
@@ -39,8 +38,6 @@ require_once __DIR__ . '/include/dialog.php';
       </div>
     </div>
   </section>
-  <!-- #portfolio -->
-  <!-- #skills -->
   <section id="skills">
     <div class="wrapper">
       <div class="desc-lists">
@@ -57,7 +54,6 @@ require_once __DIR__ . '/include/dialog.php';
       </div>
     </div>
   </section>
-  <!-- #contact -->
   <section id="contact">
     <div class="wrapper">
       <form method="post" action="" id="contactForm">

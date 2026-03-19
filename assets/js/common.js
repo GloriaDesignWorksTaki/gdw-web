@@ -398,11 +398,72 @@ class PortfolioModal {
   }
 }
 
+/**
+ * FLIP gallery modal
+ * @type {class}
+ */
+class WorksFlipModal {
+  init() {
+    if (typeof gsap === 'undefined' || typeof Flip === 'undefined') return;
+
+    gsap.registerPlugin(Flip);
+
+    const modal        = document.querySelector('.works-flip-modal');
+    const modalContent = modal.querySelector('.works-flip-modal-content');
+    const modalOverlay = modal.querySelector('.works-flip-modal-overlay');
+    const slots        = gsap.utils.toArray('#works .works-lists .works-slot');
+    const images       = gsap.utils.toArray('#works .works-lists .works-image');
+    let boxIndex = undefined;
+
+    images.forEach((image, i) => {
+      image.addEventListener('click', () => {
+        if (boxIndex !== undefined) {
+
+          // 閉じる
+          const state = Flip.getState(image);
+          slots[boxIndex].appendChild(image);
+          boxIndex = undefined;
+
+          // slot ごと前面に出す
+          gsap.set(slots[i], { zIndex: 1002, position: 'relative' });
+
+          gsap.to([modal, modalOverlay], {
+            autoAlpha: 0,
+            ease: 'power1.inOut',
+            duration: 0.35,
+          });
+          Flip.from(state, {
+            duration: 0.7,
+            ease: 'power1.inOut',
+            absolute: true,
+            onComplete: () => {
+              gsap.set(slots[i], { zIndex: 'auto' });
+              gsap.set(image, { zIndex: 'auto' });
+            },
+          });
+        } else {
+          // --- 開く ---
+          const state = Flip.getState(image);
+          modalContent.appendChild(image);
+          boxIndex = i;
+          gsap.set(modal, { autoAlpha: 1 });
+          Flip.from(state, {
+            duration: 0.7,
+            ease: 'power1.inOut',
+          });
+          gsap.to(modalOverlay, { autoAlpha: 0.65, duration: 0.35 });
+        }
+      });
+    });
+  }
+}
+
 // 共通JSを初期化
 const init = () => {
   new MouseStalker().init();
   ExpandingBoxScroll.init();
   new PortfolioModal().init();
+  new WorksFlipModal().init();
 };
 
 // ドキュメントが読み込まれたら共通JSを初期化

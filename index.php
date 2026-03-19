@@ -42,13 +42,21 @@ require_once __DIR__ . '/include/dialog.php';
     <div class="wrapper">
       <div class="works-lists">
         <?php foreach ($worksItems as $workItem): ?>
-          <div class="works-image image scroll-trigger scroll-blur">
-            <img src="<?php echo $url; ?>/assets/images/works/<?php echo $workItem['image']; ?>" alt="<?php echo $workItem['title']; ?>">
+          <div class="works-slot scroll-trigger scroll-blur" data-work-id="<?php echo escape($workItem['id'] ?? ''); ?>">
+            <div class="works-image image">
+              <img src="<?php echo $url; ?>/assets/images/works/<?php echo escape($workItem['image'] ?? ''); ?>" alt="<?php echo escape($workItem['title'] ?? ''); ?>">
+            </div>
           </div>
         <?php endforeach; ?>
       </div>
     </div>
   </section>
+
+  <div class="works-flip-modal" aria-hidden="true">
+    <div class="works-flip-modal-overlay"></div>
+    <div class="works-flip-modal-content" aria-label="Works gallery"></div>
+  </div>
+
   <section id="skills">
     <div class="wrapper">
       <div class="desc-lists">

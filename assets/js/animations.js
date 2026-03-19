@@ -127,6 +127,11 @@ class LoadingAnimation {
   }
 
   static init() {
+    const loader = document.getElementById('page-loader');
+    if (!loader) {
+      document.body.classList.remove('is-loading');
+      return;
+    }
     // リロード時はページの先頭へ
     try {
       if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
@@ -136,14 +141,6 @@ class LoadingAnimation {
     window.scrollTo(0, 0);
     LoadingAnimation.lockScroll();
 
-    let loader = document.getElementById('page-loader');
-    if (!loader) {
-      loader = document.createElement('div');
-      loader.id = 'page-loader';
-      loader.innerHTML = '<div class="loader-content"><div class="loader-logo" id="loaderLogo" aria-label="Gloria Design Works logo"></div></div>';
-      document.body.appendChild(loader);
-      document.body.classList.add('is-loading');
-    }
     const logoContainer = loader.querySelector('#loaderLogo');
     const logoSrc = document.querySelector('header .logo img')?.src ?? './assets/images/logo.svg';
 

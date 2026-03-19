@@ -3,12 +3,14 @@ require_once __DIR__ . '/config/bootstrap.php';
 
 $form_data = isset($_SESSION['form_data']) ? $_SESSION['form_data'] : null;
 unset($_SESSION['form_data']);
+
+$page_meta_robots = 'noindex';
+$body_class_extra = 'page-thanks';
+$show_page_loader = false;
+
 require_once __DIR__ . '/header.php';
 ?>
-<script>
-// サンクスページにクラスを追加
-document.body.classList.add('page-thanks');
-</script>
+<div class="noise"></div>
 <main>
   <!-- #contact-thanks -->
    <section id="contact-thanks">
@@ -16,7 +18,7 @@ document.body.classList.add('page-thanks');
       <div class="desc">
         <h2>CONTACT THANKS!</h2>
         <div class="text">
-          <p>お問合せありがとうございます。</p>
+          <p>お問い合わせありがとうございます。</p>
           <p>メールの内容を確認後、ご返信いたします。</p>
         </div>
       </div>

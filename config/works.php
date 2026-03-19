@@ -13,7 +13,7 @@ return [
   ],
   [
     'id' => 'works02',
-    'title' => '1010bit Offical Corporate Site',
+    'title' => '1010bit Official Corporate Site',
     'year' => '2023',
     'charge' => 'Design / Develop',
     'tech' => ['html5', 'css3-alt', 'php', 'js'],
@@ -21,7 +21,7 @@ return [
   ],
   [
     'id' => 'works03',
-    'title' => 'Cotovia Clinic Offical Site',
+    'title' => 'Cotovia Clinic Official Site',
     'year' => '2024',
     'charge' => 'Design / Develop',
     'tech' => ['html5', 'css3-alt', 'php', 'js', 'wordpress'],
@@ -47,7 +47,7 @@ return [
     'id' => 'works06',
     'title' => 'Set List Tool',
     'year' => '2024',
-    'charge' => 'UIDesign / Develop',
+    'charge' => 'UI Design / Develop',
     'tech' => ['react', 'node-js', 'css3-alt', 'aws'],
     'image' => 'set-list-tool.webp',
   ],

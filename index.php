@@ -105,7 +105,7 @@ require_once __DIR__ . '/include/dialog.php';
           <input type="email" id="email" name="email" required value="<?php echo escape($email ?? ''); ?>">
         </div>
         <div class="form-block scroll-trigger scroll-blur">
-          <label for="message">お問合せ内容</label>
+          <label for="message">お問い合わせ内容</label>
           <textarea id="message" name="message" required><?php echo escape($message ?? ''); ?></textarea>
         </div>
         <div class="form-block send-button scroll-trigger scroll-blur">

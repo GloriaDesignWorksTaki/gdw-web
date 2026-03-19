@@ -27,7 +27,7 @@ class MouseStalker {
   // マウスオーバー時の表示テキスト
   static TEXT_MAP = {
     iconText: {
-      'fa-github': 'Open Github',
+      'fa-github': 'Open GitHub',
       'fa-x-twitter': 'Open X',
       'fa-instagram': 'Open Instagram'
     },

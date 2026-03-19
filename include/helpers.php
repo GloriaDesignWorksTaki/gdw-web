@@ -29,7 +29,7 @@ function validate_input($name, $email, $message) {
     $errors[] = '有効なメールアドレスを入力してください。';
   }
   if (!$message) {
-    $errors[] = 'お問合せ内容を入力してください。';
+    $errors[] = 'お問い合わせ内容を入力してください。';
   }
   $combinedText = $name . ' ' . $message;
   if (!contains_japanese($combinedText)) {

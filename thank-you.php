@@ -18,7 +18,7 @@ require_once __DIR__ . '/header.php';
       <div class="desc">
         <h2>CONTACT THANKS!</h2>
         <div class="text">
-          <p>お問合せありがとうございます。</p>
+          <p>お問い合わせありがとうございます。</p>
           <p>メールの内容を確認後、ご返信いたします。</p>
         </div>
       </div>

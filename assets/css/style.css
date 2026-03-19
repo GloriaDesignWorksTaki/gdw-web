@@ -238,7 +238,7 @@ section .wrapper {
   left: 0;
   right: 0;
   background-color: transparent;
-  z-index: 1000;
+  z-index: 100010;
   opacity: 0;
   visibility: hidden;
 }
@@ -252,6 +252,7 @@ section .wrapper {
   background-color: black;
   opacity: 0;
   z-index: 0;
+  will-change: opacity, filter;
 }
 .works-flip-modal-body {
   position: absolute;
@@ -300,9 +301,10 @@ section .wrapper {
 .works-flip-modal-meta-shade {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(0, 0, 0, 0.45);
   opacity: 0;
   pointer-events: none;
+  will-change: opacity, filter;
 }
 .works-flip-modal-meta-inner {
   position: relative;
@@ -741,6 +743,52 @@ footer .copy {
     white-space: normal;
     max-width: min(15em, 240px);
     opacity: 1;
+  }
+
+  /* Z-index */
+  body.works-modal-open .mouse-stalker {
+    z-index: 100100;
+  }
+
+  /* Close Mouse Stalker */
+  .mouse-stalker.is-works-modal-close {
+    position: fixed;
+    width: 72px;
+    height: 72px;
+    top: -36px;
+    left: -36px;
+    border-radius: 0;
+    background: transparent !important;
+    border: none !important;
+    mix-blend-mode: difference;
+  }
+  .mouse-stalker.is-works-modal-close .mouse-stalker-text {
+    display: none;
+    opacity: 0;
+    font-size: 0;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+  .mouse-stalker.is-works-modal-close::before,
+  .mouse-stalker.is-works-modal-close::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2px;
+    height: 80px;
+    margin: 0;
+    background: var(--color-secondary);
+    border-radius: 2px;
+    pointer-events: none;
+    transform-origin: center center;
+  }
+  .mouse-stalker.is-works-modal-close::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+  .mouse-stalker.is-works-modal-close::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
   }
 
   /* desc */

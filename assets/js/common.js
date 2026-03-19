@@ -48,6 +48,8 @@ class MouseStalker {
     this.stalkerY = 0; // 補間済みY座標
     /** @type {string} 非ホバー時のドット塗り（mix-blend 用） */
     this._idleFill = '#ffffff';
+    /** works モーダル表示中はバツカーソル */
+    this._worksModalCursor = false;
   }
 
   // 対象要素に応じたアクション文言を返す
@@ -147,9 +149,9 @@ class MouseStalker {
     });
   }
 
-  /** 非ホバー時：小さな追従ドット */
   applyIdleVisual() {
     if (!this.stalker) return;
+    this.stalker.classList.remove('is-works-modal-close');
     const s = 12;
     Object.assign(this.stalker.style, {
       width: `${s}px`,
@@ -161,6 +163,29 @@ class MouseStalker {
       borderRadius: '50%',
       mixBlendMode: 'difference'
     });
+  }
+
+  /** Modal Colse Mouse Stalker */
+  applyWorksModalCloseCursor() {
+    if (!this.stalker) return;
+    this.stalker.classList.remove('is_active');
+    this.resetStyle();
+    this.stalker.classList.add('is-works-modal-close');
+    if (this.stalkerText) this.stalkerText.textContent = '';
+    Object.assign(this.stalker.style, {
+      background: 'transparent',
+      border: 'none',
+      borderRadius: '0',
+      mixBlendMode: 'difference',
+      boxSizing: 'border-box'
+    });
+  }
+
+  clearWorksModalCursor() {
+    if (!this.stalker) return;
+    this.stalker.classList.remove('is-works-modal-close');
+    this.resetStyle();
+    this.applyIdleVisual();
   }
 
   // MouseStalkerを初期化
@@ -184,7 +209,7 @@ class MouseStalker {
       position: 'fixed',
       top: '-6px',
       left: '-6px',
-      zIndex: '99999',
+      /* z-index は CSS 側（通常 99999 / works モーダル時はモーダルより上） */
       transition: 'transform 0.1s, width 0.22s, height 0.22s, top 0.22s, left 0.22s, background 0.2s, border 0.2s, mix-blend-mode 0.2s',
       transitionTimingFunction: 'ease-out'
     });
@@ -200,6 +225,17 @@ class MouseStalker {
         this.stalkerX += (this.mouseX - this.stalkerX) * 0.2;
         this.stalkerY += (this.mouseY - this.stalkerY) * 0.2;
         this.stalker.style.transform = `translate(${this.stalkerX}px, ${this.stalkerY}px)`;
+
+        if (document.body.classList.contains('works-modal-open')) {
+          if (!this._worksModalCursor) {
+            this.applyWorksModalCloseCursor();
+            this._worksModalCursor = true;
+          }
+        } else if (this._worksModalCursor) {
+          this.clearWorksModalCursor();
+          this._worksModalCursor = false;
+        }
+
         requestAnimationFrame(tick);
       }
     };
@@ -342,10 +378,6 @@ class PortfolioModal {
 
   /**
    * モーダルを閉じる
-   *
-   * `window.animatePortfolioClose` が定義されている場合は
-   * その完了後にクローズ処理を実行する。
-   *
    * @param {() => void} [callback] クローズ完了後に実行するコールバック
    * @returns {void}
    */
@@ -368,7 +400,6 @@ class PortfolioModal {
 
   /**
    * PortfolioModal を初期化する
-   *
    * @returns {void}
    */
   init() {
@@ -471,6 +502,7 @@ class WorksFlipModal {
     const slots = gsap.utils.toArray('#works .works-lists .works-slot');
     const images = gsap.utils.toArray('#works .works-lists .works-image');
     let boxIndex = undefined;
+    let isClosing = false;
 
     const resetMetaDom = () => {
       metaTitle.textContent = '';
@@ -499,7 +531,7 @@ class WorksFlipModal {
     const showMetaAfterFlip = () => {
       gsap.killTweensOf([meta, metaShade, metaInner]);
       gsap.set(meta, { visibility: 'visible', autoAlpha: 1 });
-      gsap.set(metaShade, { opacity: 0 });
+      gsap.set(metaShade, { opacity: 0, filter: 'blur(0px)' });
       gsap.set(metaInner, { opacity: 0, filter: 'blur(14px)' });
       meta.setAttribute('aria-hidden', 'false');
 
@@ -515,24 +547,27 @@ class WorksFlipModal {
 
     const hideMetaThen = (onDone) => {
       gsap.killTweensOf([meta, metaShade, metaInner]);
+      gsap.set(metaShade, { filter: 'blur(0px)' });
       gsap
         .timeline()
         .to(metaInner, {
           opacity: 0,
-          filter: 'blur(12px)',
-          duration: 0.25,
-          ease: 'power1.in',
+          filter: 'blur(14px)',
+          duration: 0.35,
+          ease: 'power2.in',
         })
         .to(
           metaShade,
           {
             opacity: 0,
-            duration: 0.25,
-            ease: 'power1.in',
+            filter: 'blur(22px)',
+            duration: 0.55,
+            ease: 'power2.inOut',
           },
-          0
+          '-=0.2'
         )
         .set(meta, { autoAlpha: 0, visibility: 'hidden' })
+        .set(metaShade, { clearProps: 'filter' })
         .add(() => {
           meta.setAttribute('aria-hidden', 'true');
           onDone();
@@ -540,61 +575,109 @@ class WorksFlipModal {
     };
 
     gsap.set(meta, { autoAlpha: 0, visibility: 'hidden' });
-    gsap.set(metaShade, { opacity: 0 });
+    gsap.set(metaShade, { opacity: 0, filter: 'blur(0px)' });
     gsap.set(metaInner, { opacity: 0, filter: 'blur(14px)' });
+    gsap.set(modalOverlay, { opacity: 0, filter: 'blur(0px)' });
+
+    const unlockScrollAndStalker = () => {
+      document.body.classList.remove('fixed', 'works-modal-open');
+    };
+
+    const runClose = () => {
+      if (boxIndex === undefined || isClosing) return;
+      isClosing = true;
+      const closedIndex = boxIndex;
+      const image = images[closedIndex];
+      const slot = slots[closedIndex];
+
+      hideMetaThen(() => {
+        const state = Flip.getState(image);
+        slot.appendChild(image);
+        boxIndex = undefined;
+
+        gsap.set(slot, { zIndex: 1002, position: 'relative' });
+
+        gsap.killTweensOf([modal, modalOverlay]);
+        gsap.set(modalOverlay, { filter: 'blur(0px)' });
+        gsap
+          .timeline()
+          .to(modalOverlay, {
+            opacity: 0,
+            filter: 'blur(22px)',
+            duration: 0.55,
+            ease: 'power2.inOut',
+          })
+          .to(
+            modal,
+            {
+              autoAlpha: 0,
+              duration: 0.45,
+              ease: 'power2.inOut',
+            },
+            0.08
+          );
+        Flip.from(state, {
+          duration: 0.7,
+          ease: 'power1.inOut',
+          absolute: true,
+          onComplete: () => {
+            gsap.set(slot, { zIndex: 'auto' });
+            gsap.set(image, { zIndex: 'auto' });
+            gsap.set(modalOverlay, { clearProps: 'filter', opacity: 0 });
+            modal.setAttribute('aria-hidden', 'true');
+            resetMetaDom();
+            unlockScrollAndStalker();
+            isClosing = false;
+          },
+        });
+      });
+    };
+
+    modal.addEventListener(
+      'click',
+      (e) => {
+        if (boxIndex === undefined) return;
+        e.preventDefault();
+        e.stopPropagation();
+        runClose();
+      },
+      true
+    );
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      if (boxIndex === undefined) return;
+      e.preventDefault();
+      runClose();
+    });
 
     images.forEach((image, i) => {
-      image.addEventListener('click', () => {
-        if (boxIndex !== undefined) {
-          if (i !== boxIndex) return;
+      image.addEventListener('click', (e) => {
+        if (boxIndex !== undefined) return;
+        e.stopPropagation();
 
-          hideMetaThen(() => {
-            const state = Flip.getState(image);
-            const closedIndex = boxIndex;
-            const slot = slots[closedIndex];
-            slot.appendChild(image);
-            boxIndex = undefined;
+        fillMetaFromSlot(slots[i]);
+        gsap.killTweensOf([modal, modalOverlay, meta, metaShade, metaInner]);
+        gsap.set(meta, { autoAlpha: 0, visibility: 'hidden' });
+        gsap.set(metaShade, { opacity: 0, filter: 'blur(0px)' });
+        gsap.set(metaInner, { opacity: 0, filter: 'blur(14px)' });
+        gsap.set(modalOverlay, { opacity: 0, filter: 'blur(0px)' });
+        meta.setAttribute('aria-hidden', 'true');
 
-            gsap.set(slot, { zIndex: 1002, position: 'relative' });
+        document.body.classList.add('fixed', 'works-modal-open');
 
-            gsap.to([modal, modalOverlay], {
-              autoAlpha: 0,
-              ease: 'power1.inOut',
-              duration: 0.35,
-            });
-            Flip.from(state, {
-              duration: 0.7,
-              ease: 'power1.inOut',
-              absolute: true,
-              onComplete: () => {
-                gsap.set(slot, { zIndex: 'auto' });
-                gsap.set(image, { zIndex: 'auto' });
-                modal.setAttribute('aria-hidden', 'true');
-                resetMetaDom();
-              },
-            });
-          });
-        } else {
-          fillMetaFromSlot(slots[i]);
-          gsap.killTweensOf([meta, metaShade, metaInner]);
-          gsap.set(meta, { autoAlpha: 0, visibility: 'hidden' });
-          gsap.set(metaShade, { opacity: 0 });
-          gsap.set(metaInner, { opacity: 0, filter: 'blur(14px)' });
-          meta.setAttribute('aria-hidden', 'true');
+        const state = Flip.getState(image);
+        mount.appendChild(image);
+        boxIndex = i;
+        gsap.set(modal, { autoAlpha: 1 });
+        modal.setAttribute('aria-hidden', 'false');
 
-          const state = Flip.getState(image);
-          mount.appendChild(image);
-          boxIndex = i;
-          gsap.set(modal, { autoAlpha: 1 });
-          modal.setAttribute('aria-hidden', 'false');
-
-          Flip.from(state, {
-            duration: 0.7,
-            ease: 'power1.inOut',
-            onComplete: showMetaAfterFlip,
-          });
-          gsap.to(modalOverlay, { autoAlpha: 0.65, duration: 0.35 });
-        }
+        Flip.from(state, {
+          duration: 0.7,
+          ease: 'power1.inOut',
+          onComplete: showMetaAfterFlip,
+        });
+        gsap.to(modalOverlay, { opacity: 0.65, duration: 0.35, ease: 'power2.out' });
       });
     });
   }

@@ -35,13 +35,17 @@ $styleVersion = file_exists(__DIR__ . '/assets/css/style.css') ? filemtime(__DIR
 </head>
 <?php
 $body_class_extra = isset($body_class_extra) ? trim((string) $body_class_extra) : '';
+$show_page_loader = isset($show_page_loader) ? (bool) $show_page_loader : true;
+$body_loading_class = $show_page_loader ? ' is-loading' : '';
 ?>
-<body class="dark is-loading<?php echo $body_class_extra !== '' ? ' ' . escape($body_class_extra) : ''; ?>">
+<body class="dark<?php echo $body_loading_class; ?><?php echo $body_class_extra !== '' ? ' ' . escape($body_class_extra) : ''; ?>">
+  <?php if ($show_page_loader): ?>
   <div id="page-loader">
     <div class="loader-content">
       <div class="loader-logo" id="loaderLogo" aria-label="Gloria Design Works logo"></div>
     </div>
   </div>
+  <?php endif; ?>
   <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TQCN4897" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->

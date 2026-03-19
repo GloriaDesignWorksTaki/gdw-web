@@ -6,6 +6,7 @@ unset($_SESSION['form_data']);
 
 $page_meta_robots = 'noindex';
 $body_class_extra = 'page-thanks';
+$show_page_loader = false;
 
 require_once __DIR__ . '/header.php';
 ?>

@@ -22,7 +22,7 @@ class MouseStalker {
   static MIN_WIDTH = 1024;
 
   // ホバー対象のセレクタ
-  static SELECTOR = 'a, input, label, button, .portfolio-mock, textarea';
+  static SELECTOR = 'a, input, label, button, .portfolio-mock, textarea, .works-slot';
 
   // マウスオーバー時の表示テキスト
   static TEXT_MAP = {
@@ -46,10 +46,14 @@ class MouseStalker {
     this.mouseY = 0; // マウスY座標
     this.stalkerX = 0; // 補間済みX座標
     this.stalkerY = 0; // 補間済みY座標
+    /** @type {string} 非ホバー時のドット塗り（mix-blend 用） */
+    this._idleFill = '#ffffff';
   }
 
   // 対象要素に応じたアクション文言を返す
   getActionText(el) {
+    const stalkerTitle = el.dataset?.stalkerTitle?.trim();
+    if (stalkerTitle) return stalkerTitle;
     // ポートフォリオモックの場合はポートフォリオを表示
     if (el.classList.contains('portfolio-mock')) return 'VIEW PORTFOLIO';
     // ボタンの場合はクリック
@@ -78,38 +82,53 @@ class MouseStalker {
     return tag === 'LABEL' ? 'SELECT' : 'CLICK';
   }
 
-  // 表示テキストに応じてストーカーのサイズを更新する
+  // 正円の最小直径
+  static MIN_DIAM = 152;
+  static TEXT_MAX_W = 240;
+
+  // 表示テキストに応じてストーカー正円の直径を更新する
   updateSize(text) {
     if (!this.stalker || !this.stalkerText || !text) return;
 
     this.stalkerText.textContent = text;
 
-    const measure = document.createElement('span');
+    const measure = document.createElement('div');
     Object.assign(measure.style, {
-      fontSize: '0.625rem',
+      position: 'absolute',
+      left: '-9999px',
+      top: '0',
+      visibility: 'hidden',
+      pointerEvents: 'none',
+      maxWidth: `${MouseStalker.TEXT_MAX_W}px`,
+      whiteSpace: 'normal',
+      textAlign: 'center',
+      lineHeight: '1.35',
+      fontSize: '0.8125rem',
       fontFamily: '"Noto Serif JP", "Noto Serif", serif',
       fontWeight: '700',
-      letterSpacing: '1px',
-      whiteSpace: 'nowrap',
-      visibility: 'hidden',
-      position: 'absolute',
-      top: '-9999px',
+      letterSpacing: '0.06em',
       padding: '0',
-      margin: '0'
+      margin: '0',
+      boxSizing: 'border-box'
     });
 
     measure.textContent = text;
     document.body.appendChild(measure);
 
-    const w = Math.max(40, measure.offsetWidth + 20);
-    const h = Math.max(40, measure.offsetHeight + 16);
-
+    const pad = 44;
+    const innerW = measure.offsetWidth;
+    const innerH = measure.offsetHeight;
     document.body.removeChild(measure);
 
-    this.stalker.style.width = `${w}px`;
-    this.stalker.style.height = `${h}px`;
-    this.stalker.style.top = `-${h / 2}px`;
-    this.stalker.style.left = `-${w / 2}px`;
+    const d = Math.max(
+      MouseStalker.MIN_DIAM,
+      Math.ceil(Math.max(innerW, innerH) + pad)
+    );
+
+    this.stalker.style.width = `${d}px`;
+    this.stalker.style.height = `${d}px`;
+    this.stalker.style.top = `-${d / 2}px`;
+    this.stalker.style.left = `-${d / 2}px`;
   }
 
   // ストーカーの表示スタイルを初期状態に戻す
@@ -121,7 +140,26 @@ class MouseStalker {
       width: '',
       height: '',
       top: '',
-      left: ''
+      left: '',
+      background: '',
+      border: '',
+      mixBlendMode: ''
+    });
+  }
+
+  /** 非ホバー時：小さな追従ドット */
+  applyIdleVisual() {
+    if (!this.stalker) return;
+    const s = 12;
+    Object.assign(this.stalker.style, {
+      width: `${s}px`,
+      height: `${s}px`,
+      top: `-${s / 2}px`,
+      left: `-${s / 2}px`,
+      background: this._idleFill,
+      border: 'none',
+      borderRadius: '50%',
+      mixBlendMode: 'difference'
     });
   }
 
@@ -133,7 +171,7 @@ class MouseStalker {
 
     this.stalker.dataset.initialized = 'true';
 
-    const bg =
+    this._idleFill =
       getComputedStyle(document.documentElement)
         .getPropertyValue('--color-secondary')
         .trim() || '#ffffff';
@@ -144,17 +182,13 @@ class MouseStalker {
       justifyContent: 'center',
       pointerEvents: 'none',
       position: 'fixed',
-      top: '-5px',
-      left: '-5px',
-      width: '10px',
-      height: '10px',
-      background: bg,
-      borderRadius: '50%',
+      top: '-6px',
+      left: '-6px',
       zIndex: '99999',
-      mixBlendMode: 'difference',
-      transition: 'transform 0.1s, width 0.2s, height 0.2s, top 0.2s, left 0.2s',
+      transition: 'transform 0.1s, width 0.22s, height 0.22s, top 0.22s, left 0.22s, background 0.2s, border 0.2s, mix-blend-mode 0.2s',
       transitionTimingFunction: 'ease-out'
     });
+    this.applyIdleVisual();
 
     document.addEventListener('mousemove', (e) => {
       this.mouseX = e.clientX;
@@ -181,18 +215,28 @@ class MouseStalker {
         this.stalker.style.display = 'none';
         this.stalker.classList.remove('is_active');
         this.resetStyle();
+        this.applyIdleVisual();
       }
     });
 
     document.querySelectorAll(MouseStalker.SELECTOR).forEach((elem) => {
       elem.addEventListener('mouseover', () => {
         this.stalker.classList.add('is_active');
-        this.updateSize(this.getActionText(elem));
+        const txt = this.getActionText(elem);
+        this.updateSize(txt);
+        // 非ホバー時と同様 mix-blend-mode: difference（背景と似た色でも反転して見える）
+        Object.assign(this.stalker.style, {
+          background: 'transparent',
+          border: `2px solid ${this._idleFill}`,
+          mixBlendMode: 'difference',
+          boxSizing: 'border-box'
+        });
       });
 
       elem.addEventListener('mouseout', () => {
         this.stalker.classList.remove('is_active');
         this.resetStyle();
+        this.applyIdleVisual();
       });
     });
   }

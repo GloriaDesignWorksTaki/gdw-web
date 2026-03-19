@@ -42,7 +42,11 @@ require_once __DIR__ . '/include/dialog.php';
     <div class="wrapper">
       <div class="works-lists">
         <?php foreach ($worksItems as $workItem): ?>
-          <div class="works-slot scroll-trigger scroll-blur" data-work-id="<?php echo escape($workItem['id'] ?? ''); ?>">
+          <div
+            class="works-slot scroll-trigger scroll-blur"
+            data-work-id="<?php echo escape($workItem['id'] ?? ''); ?>"
+            data-stalker-title="<?php echo escape($workItem['title'] ?? ''); ?>"
+          >
             <div class="works-image image">
               <img src="<?php echo $url; ?>/assets/images/works/<?php echo escape($workItem['image'] ?? ''); ?>" alt="<?php echo escape($workItem['title'] ?? ''); ?>">
             </div>

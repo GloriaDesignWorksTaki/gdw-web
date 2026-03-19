@@ -645,21 +645,30 @@ footer .copy {
     mix-blend-mode: difference;
   }
   .mouse-stalker.is_active {
-    border-radius: 50px;
+    border-radius: 50%;
+    box-sizing: border-box;
+    mix-blend-mode: difference;
   }
   .mouse-stalker-text {
     font-size: 0;
-    color: var(--color-primary);
+    color: var(--color-secondary);
     font-family: var(--font-family-title);
     font-weight: 700;
-    letter-spacing: 1px;
+    letter-spacing: 0.06em;
+    line-height: 1.35;
     white-space: nowrap;
+    text-align: center;
+    max-width: 12em;
     opacity: 0;
     transition: opacity 0.2s ease, font-size 0.2s ease;
     pointer-events: none;
+    padding: 0 0.65rem;
+    box-sizing: border-box;
   }
   .mouse-stalker.is_active .mouse-stalker-text {
-    font-size: 0.625rem;
+    font-size: 0.8125rem;
+    white-space: normal;
+    max-width: min(15em, 240px);
     opacity: 1;
   }
 
@@ -701,6 +710,7 @@ footer .copy {
     grid-template-columns: repeat(3, 1fr);
   }
 
+  /* flip modal */
   .works-flip-modal-content .works-image {
     width: 60vw;
   }

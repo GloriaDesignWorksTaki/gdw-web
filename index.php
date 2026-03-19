@@ -5,14 +5,14 @@ $errors = [];
 $name = $email = $message = '';
 require_once __DIR__ . '/include/contact_form.php';
 
-$portfolioItems = require __DIR__ . '/config/portfolio.php';
+$worksItems = require __DIR__ . '/config/works.php';
+$skills = require __DIR__ . '/config/skills.php';
 
 require_once __DIR__ . '/header.php';
 require_once __DIR__ . '/include/dialog.php';
 ?>
-<!-- <div class="noise"></div> -->
+<div class="noise"></div>
 <main>
-  <!-- #mv -->
   <div id="mv">
     <div class="concept-box">
       <div class="concept">
@@ -25,132 +25,90 @@ require_once __DIR__ . '/include/dialog.php';
   <section id="about">
     <div class="wrapper">
       <div class="desc">
-        <div class="profile-box">
-          <h3>
-            <small>Designer・Developer</small>
-            <span>TKBY</span>
-          </h3>
+        <div class="text scroll-trigger scroll-blur">
+          <p>My work focuses on minimal and simple design, with a strong emphasis on the use of white space.</p>
+          <p>In today’s information-saturated world, I aim to reduce visual noise and make essential information clear and accessible.</p>
+          <p>By organizing elements and intentionally using space, I create visual flow that helps users understand information intuitively.</p>
         </div>
-        <div class="about-flex">
-          <div class="text-box">
-            <div class="text-box">
-              <div class="text">
-                <p>My work focuses on minimal and simple design, with a strong emphasis on the use of white space.</p>
-                <p>In today’s information-saturated world, I aim to reduce visual noise and make essential information clear and accessible.</p>
-                <p>By organizing elements and intentionally using space, I create visual flow that helps users understand information intuitively.</p>
-              </div>
-              <div class="text">
-                <p>ミニマルでシンプル、余白を大切にしたデザインを軸に制作しています。</p>
-                <p>情報が溢れる現代において、視覚的なノイズを減らし、本当に必要な情報が見やすく伝わることを大切にしています。</p>
-                <p>要素を整理し、余白や空間を活かすことで視線の流れを設計し、直感的に理解できるデザインを心がけています。</p>
-              </div>
-            </div>
-          </div>
+        <div class="text scroll-trigger scroll-blur">
+          <p>ミニマルでシンプル、余白を大切にしたデザインを軸に制作しています。</p>
+          <p>情報が溢れる現代において、視覚的なノイズを減らし、本当に必要な情報が見やすく伝わることを大切にしています。</p>
+          <p>要素を整理し、余白や空間を活かすことで視線の流れを設計し、直感的に理解できるデザインを心がけています。</p>
         </div>
       </div>
     </div>
   </section>
-  <!-- #portfolio -->
-  <section id="portfolio">
+  <section id="works">
     <div class="wrapper">
-      <div class="desc">
-        <div class="title">
-          <h2>PORTFOLIO</h2>
-          <p>モックをクリックすると選択画面が開きます</p>
-        </div>
-        <div class="portfolio-mock">
-          <div class="mock-base">
-            <img class="mock-pc" src="<?php echo $url; ?>/assets/images/portfolio/pc-mock.webp" alt="PC">
-            <img class="mock-sp" src="<?php echo $url; ?>/assets/images/portfolio/sp-mock.webp" alt="MOBILE">
-          </div>
-          <div class="portfolio-mock-img">
-            <?php foreach ($portfolioItems as $item): ?>
-            <div id="<?php echo escape($item['id']); ?>" class="portfolio-works">
-              <img class="works-pc" src="<?php echo $url; ?>/assets/images/works/<?php echo escape($item['image_pc']); ?>" alt="<?php echo escape($item['alt']); ?>">
-              <img class="works-sp" src="<?php echo $url; ?>/assets/images/works/<?php echo escape($item['image_sp']); ?>" alt="<?php echo escape($item['alt']); ?>">
+      <div class="works-lists">
+        <?php foreach ($worksItems as $workItem): ?>
+          <div
+            class="works-slot scroll-trigger scroll-blur"
+            data-work-id="<?php echo escape($workItem['id'] ?? ''); ?>"
+            data-stalker-title="<?php echo escape($workItem['title'] ?? ''); ?>"
+            data-work-title="<?php echo escape($workItem['title'] ?? ''); ?>"
+            data-work-year="<?php echo escape($workItem['year'] ?? ''); ?>"
+            data-work-tech="<?php echo escape(implode(',', $workItem['tech'] ?? [])); ?>"
+          >
+            <div class="works-image image">
+              <img src="<?php echo $url; ?>/assets/images/works/<?php echo escape($workItem['image'] ?? ''); ?>" alt="<?php echo escape($workItem['title'] ?? ''); ?>">
             </div>
-            <?php endforeach; ?>
           </div>
-          <div class="portflio-mock-desc">
-            <?php foreach ($portfolioItems as $item): ?>
-            <div id="<?php echo escape($item['id']); ?>" class="portfolio-desc">
-              <h3><?php echo escape($item['title']); ?></h3>
-              <div class="desc-detail">
-                <p><?php echo escape($item['description']); ?></p>
-                <ul class="tech">
-                  <?php foreach ($item['tech'] as $tech): ?>
-                  <li><i class="fa-brands fa-<?php echo escape($tech); ?>"></i></li>
-                  <?php endforeach; ?>
-                </ul>
-              </div>
-            </div>
-            <?php endforeach; ?>
+        <?php endforeach; ?>
+      </div>
+    </div>
+  </section>
+
+  <div class="works-flip-modal" aria-hidden="true">
+    <div class="works-flip-modal-overlay"></div>
+    <div class="works-flip-modal-body">
+      <div class="works-flip-modal-content" aria-label="Works gallery">
+        <div class="works-flip-modal-image-mount"></div>
+        <div class="works-flip-modal-meta" aria-hidden="true">
+          <div class="works-flip-modal-meta-shade" aria-hidden="true"></div>
+          <div class="works-flip-modal-meta-inner">
+            <p class="works-flip-modal-meta-year en"></p>
+            <h2 class="works-flip-modal-meta-title en"></h2>
+            <ul class="works-flip-modal-meta-tech"></ul>
           </div>
         </div>
       </div>
     </div>
-  </section>
-  <div class="portfolio-select">
-    <button class="portfolio-close-btn" aria-label="閉じる">
-      <i class="fa-solid fa-xmark"></i>
-    </button>
-    <ul>
-      <?php foreach ($portfolioItems as $item): ?>
-      <li>
-        <a href="#<?php echo escape($item['id']); ?>">
-          <img src="<?php echo $url; ?>/assets/images/works/<?php echo escape($item['image_sp']); ?>" alt="<?php echo escape($item['alt']); ?>">
-          <div class="site-title"><?php echo escape($item['title']); ?></div>
-        </a>
-      </li>
-      <?php endforeach; ?>
-    </ul>
   </div>
-  <div id="shadow"></div>
-  <!-- #skills -->
-  <section id="skills" class="rightScroll">
+
+  <section id="skills">
     <div class="wrapper">
-      <div class="desc">
-        <h2>SKILLS</h2>
-        <div class="text">
-          <p>Web Design・UI/UX Design・Development・Branding・Marketing</p>
-        </div>
-        <div class="text">
-          <p>Webデザインを中心に、ユーザーエクスペリエンス（UX）を重視したUI/UXデザイン、堅牢で効率的な開発、ブランドイメージの構築を支援するブランディング、そしてマーケティング戦略を駆使して、オンラインの効果的なプレゼンスを作り上げるお手伝いをしています。</p>
-          <p>これらのスキルを融合させ、クライアント様のビジネスの成長と成功をサポートしています。</p>
-        </div>
-      </div>
-      <div class="desc">
-        <h3>Using Skills</h3>
-        <div class="text">
-          <p>HTML / CSS / PHP / JavaScript / TypeScript / Python</p>
-          <p>React / Node.js / AWS / Git / WordPress</p>
-          <p>Figma / Adobe Photoshop / Adobe Illustrator / Adobe InDesign / Affinity</p>
-          <p>Google Analytics / Google Tag Manager / Google Search Console / Google Ads / Facebook Ads / Press Release</p>
-        </div>
+      <div class="desc-lists">
+        <?php foreach ($skills as $skill): ?>
+          <dl class="scroll-trigger scroll-blur">
+            <dt><?php echo escape($skill['title'] ?? ''); ?></dt>
+            <dd>
+              <?php foreach (($skill['items'] ?? []) as $item): ?>
+                <span><?php echo escape($item); ?></span>
+              <?php endforeach; ?>
+            </dd>
+          </dl>
+        <?php endforeach; ?>
       </div>
     </div>
   </section>
-  <!-- #contact -->
   <section id="contact">
     <div class="wrapper">
-      <div class="desc">
-        <h2>CONTACT</h2>
-      </div>
       <form method="post" action="" id="contactForm">
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-        <div class="form-block">
+        <div class="form-block scroll-trigger scroll-blur">
           <label for="name">名前</label>
           <input type="text" id="name" name="name" required value="<?php echo escape($name ?? ''); ?>">
         </div>
-        <div class="form-block">
+        <div class="form-block scroll-trigger scroll-blur">
           <label for="email">メールアドレス</label>
           <input type="email" id="email" name="email" required value="<?php echo escape($email ?? ''); ?>">
         </div>
-        <div class="form-block">
+        <div class="form-block scroll-trigger scroll-blur">
           <label for="message">お問合せ内容</label>
           <textarea id="message" name="message" required><?php echo escape($message ?? ''); ?></textarea>
         </div>
-        <div class="form-block send-button">
+        <div class="form-block send-button scroll-trigger scroll-blur">
           <button type="submit" class="en submit-btn" id="submitBtn">
             <span class="default">SEND</span>
             <span class="loading" style="display: none;">

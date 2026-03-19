@@ -1,347 +1,353 @@
 /**
- * リッチアニメーション（Three.js / GSAP）
+ * Animations JS | Gloria Design Works
  * @file assets/js/animations.js
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-  /**
-   * Main Visual の 3D パーティクル背景を初期化する
-   * #mv 内に canvas を追加し、Three.js でパーティクルを描画する
-   * @returns {void}
-   */
-  function initParticleBackground() {
-    if (typeof THREE === 'undefined') return;
+/**
+ * ローディングアニメーション用クラス
+ * @type {class}
+ */
+class LoadingAnimation {
+  // アニメーションの最小時間
+  static MIN_MS = 3000;
 
-    const mvSection = document.getElementById('mv');
-    if (!mvSection) return;
+  static _scrollLock = {
+    locked: false,
+    prevBodyOverflow: '',
+    prevDocOverflow: '',
+    prevBodyWidth: '',
+    preventFn: null,
+    enforceTimer: null,
+  };
 
-    const canvas = document.createElement('canvas');
-    canvas.id = 'particle-canvas';
-    Object.assign(canvas.style, {
-      position: 'absolute',
-      top: '0',
-      left: '0',
-      width: '100%',
-      height: '100%',
-      zIndex: '1',
-      opacity: '0.3',
-      pointerEvents: 'none'
-    });
-    mvSection.style.position = 'relative';
-    mvSection.appendChild(canvas);
-
-    const scene = new THREE.Scene();
-    const width = mvSection.offsetWidth || window.innerWidth;
-    const height = mvSection.offsetHeight || window.innerHeight;
-    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-    const particleCount = 2000;
-    const positions = new Float32Array(particleCount * 3);
-    const colors = new Float32Array(particleCount * 3);
-
-    for (let i = 0; i < particleCount * 3; i += 3) {
-      positions[i] = (Math.random() - 0.5) * 2000;
-      positions[i + 1] = (Math.random() - 0.5) * 2000;
-      positions[i + 2] = (Math.random() - 0.5) * 2000;
-      const color = new THREE.Color();
-      color.setHSL(0.6, 0.8, 0.5 + Math.random() * 0.3);
-      colors[i] = color.r;
-      colors[i + 1] = color.g;
-      colors[i + 2] = color.b;
+  // スクロール位置が戻る/復元されるケースがあるため、強制的に先頭へ寄せる
+  static forceScrollTop() {
+    try {
+      window.scrollTo(0, 0);
+    } catch (e) {
+      // ignore
     }
-
-    const particles = new THREE.BufferGeometry();
-    particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-    const material = new THREE.PointsMaterial({
-      size: 2,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.6,
-      blending: THREE.AdditiveBlending
-    });
-
-    const particleSystem = new THREE.Points(particles, material);
-    scene.add(particleSystem);
-    camera.position.z = 1000;
-
-    /**
-     * パーティクルのループアニメーション（回転・波打ち）
-     * @returns {void}
-     */
-    function animate() {
-      requestAnimationFrame(animate);
-      particleSystem.rotation.x += 0.0005;
-      particleSystem.rotation.y += 0.001;
-      const posAttr = particleSystem.geometry.attributes.position;
-      const posArray = posAttr.array;
-      for (let i = 1; i < posArray.length; i += 3) {
-        posArray[i] += Math.sin(Date.now() * 0.001 + i) * 0.5;
-      }
-      posAttr.needsUpdate = true;
-      renderer.render(scene, camera);
-    }
-
-    window.addEventListener('resize', () => {
-      const w = mvSection.offsetWidth || window.innerWidth;
-      const h = mvSection.offsetHeight || window.innerHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    });
-
-    animate();
+    // 一部ブラウザで補助的に効く
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }
 
-  /**
-   * Main Visual のコンセプト見出しを即時表示する
-   * GSAP の opacity / y を設定し、フェードをスキップする
-   * @returns {void}
-   */
-  function initMainVisualText() {
-    if (typeof gsap === 'undefined') return;
-    const concept = document.querySelector('.concept h1');
-    if (!concept || concept.dataset.animated === 'true') return;
-    concept.dataset.animated = 'true';
-    gsap.set(concept, { opacity: 1, y: 0 });
-  }
+  static lockScroll() {
+    if (LoadingAnimation._scrollLock.locked) return;
+    LoadingAnimation._scrollLock.locked = true;
 
-  /**
-   * スクロール用のターゲット表示とポートフォリオモーダルの開閉アニメーションを初期化する
-   * window.animatePortfolioOpen / animatePortfolioClose を定義する
-   * @returns {void}
-   */
-  function initScrollAnimations() {
-    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
-    gsap.registerPlugin(ScrollTrigger);
+    const state = LoadingAnimation._scrollLock;
+    state.prevBodyOverflow = document.body.style.overflow;
+    state.prevDocOverflow = document.documentElement.style.overflow;
+    state.prevBodyWidth = document.body.style.width;
 
-    gsap.utils.toArray('.target').forEach((el) => {
-      gsap.set(el, { opacity: 1, y: 0 });
-    });
-
-    const portfolioSelect = document.querySelector('.portfolio-select');
-    const shadow = document.querySelector('#shadow');
-    if (!portfolioSelect || !shadow) return;
-
-    const cards = gsap.utils.toArray('.portfolio-select li');
-    const closeBtn = portfolioSelect.querySelector('.portfolio-close-btn');
-
-    gsap.set(portfolioSelect, { opacity: 0, scale: 0.96, y: '-50%', visibility: 'hidden' });
-    gsap.set(shadow, { opacity: 0 });
-    if (closeBtn) {
-      gsap.set(closeBtn, { opacity: 0, scale: 0, rotation: -180, transformOrigin: 'center center' });
-      closeBtn.style.pointerEvents = 'none';
-    }
-    cards.forEach((card) => {
-      gsap.set(card, { clearProps: 'all' });
-      gsap.set(card, { opacity: 0, scale: 0.9, y: 40, transformOrigin: 'center center', force3D: true });
-    });
-
-    /** ポートフォリオモーダルを開くアニメーション */
-    window.animatePortfolioOpen = () => {
-      gsap.killTweensOf([portfolioSelect, shadow]);
-      cards.forEach((c) => gsap.killTweensOf(c));
-      gsap.set(portfolioSelect, { visibility: 'visible' });
-      const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
-      tl.to(shadow, { opacity: 0.5, duration: 0.3 }, 0)
-        .to(portfolioSelect, { opacity: 1, scale: 1, duration: 0.4 }, 0.05)
-        .to(cards, {
-          opacity: 1,
-          scale: 1,
-          y: 0,
-          duration: 0.5,
-          stagger: { each: 0.08, from: 'start', ease: 'power1.out' },
-          ease: 'power2.out',
-          force3D: true,
-          immediateRender: false
-        }, 0.15);
-      if (closeBtn) {
-        closeBtn.style.pointerEvents = 'auto';
-        tl.to(closeBtn, { opacity: 1, scale: 1, rotation: 0, duration: 0.3, ease: 'back.out(1.4)' }, 0.3);
-      }
+    state.preventFn = (e) => {
+      e.preventDefault();
     };
 
-    /**
-     * ポートフォリオモーダルを閉じるアニメーション完了後に callback を実行する
-     * @param {function(): void} [callback] - 閉じた後に呼ぶ関数
-     * @returns {void}
-     */
-    window.animatePortfolioClose = (callback) => {
-      gsap.killTweensOf([portfolioSelect, shadow]);
-      cards.forEach((c) => gsap.killTweensOf(c));
-      const tl = gsap.timeline({
-        defaults: { ease: 'power2.in' },
-        onComplete: () => {
-          gsap.set(portfolioSelect, { visibility: 'hidden' });
-          callback?.();
-        }
-      });
-      if (closeBtn) {
-        closeBtn.style.pointerEvents = 'none';
-        tl.to(closeBtn, { opacity: 0, scale: 0, rotation: 180, duration: 0.2 }, 0);
-      }
-      tl.to(cards, {
-        opacity: 0,
-        scale: 0.9,
-        y: 40,
-        duration: 0.35,
-        stagger: { each: 0.06, from: 'end', ease: 'power1.in' },
-        ease: 'power2.in',
-        force3D: true,
-        immediateRender: false
-      }, 0.05)
-        .to([portfolioSelect, shadow], { opacity: 0, scale: 0.96, duration: 0.25, ease: 'power2.in' }, 0.15);
-    };
+    // overflow hidden だけだと環境によってはまだ動くことがあるので、念のためイベントも止める
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.width = '100%';
+
+    window.addEventListener('wheel', state.preventFn, { passive: false, capture: true });
+    window.addEventListener('touchmove', state.preventFn, { passive: false, capture: true });
+
+    // ローディング中にブラウザが復元しようとするスクロール位置を潰す
+    LoadingAnimation.forceScrollTop();
+    state.enforceTimer = window.setInterval(() => {
+      LoadingAnimation.forceScrollTop();
+    }, 50);
   }
 
-  /**
-   * ABOUT セクションの #yuyaTaki SVG をスクロールで線描画する
-   * path の strokeDashoffset を ScrollTrigger で 0 にする
-   * @returns {void}
-   */
-  function initSVGAnimation() {
-    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
-    const svg = document.querySelector('#yuyaTaki');
-    if (!svg) return;
+  static unlockScroll() {
+    const state = LoadingAnimation._scrollLock;
+    if (!state.locked) return;
 
-    if (svg.classList.contains('is-show')) {
-      svg.querySelectorAll('path').forEach((path) => gsap.set(path, { opacity: 1 }));
-      return;
+    state.locked = false;
+
+    if (state.enforceTimer) {
+      window.clearInterval(state.enforceTimer);
+      state.enforceTimer = null;
     }
 
-    const paths = svg.querySelectorAll('path');
-    paths.forEach((path, index) => {
-      const len = path.getTotalLength();
-      if (!path.style.strokeDasharray) {
-        path.style.strokeDasharray = len;
-        path.style.strokeDashoffset = len;
-      }
-      ScrollTrigger.create({
-        trigger: svg,
-        start: 'top 80%',
-        onEnter: () => {
-          gsap.to(path, {
-            strokeDashoffset: 0,
-            opacity: 1,
-            duration: 1,
-            delay: index * 0.05,
-            ease: 'power2.inOut'
-          });
-        }
-      });
-    });
+    // 開放した直後に復元されることがあるため、解除前後で先頭を確定
+    LoadingAnimation.forceScrollTop();
+
+    document.body.style.overflow = state.prevBodyOverflow;
+    document.documentElement.style.overflow = state.prevDocOverflow;
+    document.body.style.width = state.prevBodyWidth;
+
+    if (state.preventFn) {
+      window.removeEventListener('wheel', state.preventFn, { capture: true });
+      window.removeEventListener('touchmove', state.preventFn, { capture: true });
+    }
   }
 
-  /**
-   * ローディング画面を初期化する
-   * ロゴ SVG の線描画を行い、load 完了と最低表示時間（3秒）後にフェードアウトする
-   * @returns {void}
-   */
-  function initLoadingAnimation() {
+  // ロゴの描写
+  static drawLogo(logoContainer, logoSrc) {
+    if (!logoContainer) return Promise.resolve();
+    return fetch(logoSrc)
+      .then((r) => r.text())
+      .then((svgText) => {
+        const svg = new DOMParser().parseFromString(svgText, 'image/svg+xml').querySelector('svg');
+        if (!svg) throw new Error('SVG not found');
+        svg.classList.add('loader-logo-svg');
+        logoContainer.innerHTML = '';
+        logoContainer.appendChild(svg);
+        // ロゴのグラデーション
+        const [, , w, h] = (svg.getAttribute('viewBox') || '0 0 532 61').split(/\s+/).map(Number);
+        const root = document.documentElement;
+        const accent = getComputedStyle(root).getPropertyValue('--color-accent').trim() || '#1b86d4';
+        const accent2 = getComputedStyle(root).getPropertyValue('--color-accent2').trim() || '#d4521b';
+        const defsStr = `<defs><linearGradient id="loader-logo-gradient" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="${w}" y2="${h}"><stop offset="0%" stop-color="${accent}"/><stop offset="100%" stop-color="${accent2}"/></linearGradient></defs>`;
+        const defs = new DOMParser().parseFromString(`<svg xmlns="http://www.w3.org/2000/svg">${defsStr}</svg>`, 'image/svg+xml').querySelector('defs');
+        svg.insertBefore(defs, svg.firstChild);
+
+        // ロゴの要素
+        const elements = svg.querySelectorAll('path, line, polyline, polygon, rect, circle, ellipse');
+        if (!elements.length) return new Promise((resolve) => gsap.fromTo(svg, { opacity: 0 }, { opacity: 1, duration: 0.5, onComplete: resolve }));
+
+        const grad = 'url(#loader-logo-gradient)';
+        elements.forEach((el) => {
+          if (typeof el.getTotalLength !== 'function') return;
+          const len = el.getTotalLength();
+          el.style.strokeDasharray = el.style.strokeDashoffset = `${len}`;
+          el.style.stroke = grad;
+          el.style.strokeWidth = '1.5';
+          el.style.fill = 'transparent';
+        });
+        return new Promise((resolve) => {
+          const tl = gsap.timeline({ onComplete: resolve });
+          elements.forEach((el, i) => tl.to(el, { strokeDashoffset: 0, duration: 0.55, ease: 'power2.out' }, i * 0.04));
+          tl.to(elements, { fill: grad, duration: 0.25, stagger: 0.01 }, '-=0.15');
+        });
+      })
+      .catch(() => { logoContainer.innerHTML = `<img src="${logoSrc}" alt="Gloria Design Works logo">`; });
+  }
+
+  static init() {
+    // リロード時はページの先頭へ
+    try {
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    } catch (e) {
+      // ignore
+    }
+    window.scrollTo(0, 0);
+    LoadingAnimation.lockScroll();
+
     let loader = document.getElementById('page-loader');
     if (!loader) {
       loader = document.createElement('div');
       loader.id = 'page-loader';
-      loader.innerHTML = `
-        <div class="loader-content">
-          <div class="loader-logo" id="loaderLogo" aria-label="Gloria Design Works logo"></div>
-        </div>`;
+      loader.innerHTML = '<div class="loader-content"><div class="loader-logo" id="loaderLogo" aria-label="Gloria Design Works logo"></div></div>';
       document.body.appendChild(loader);
       document.body.classList.add('is-loading');
     }
-
-    const logoContainer = loader.querySelector('#loaderLogo') ?? (() => {
-      const wrap = document.createElement('div');
-      wrap.className = 'loader-content';
-      const logo = document.createElement('div');
-      logo.className = 'loader-logo';
-      logo.id = 'loaderLogo';
-      logo.setAttribute('aria-label', 'Gloria Design Works logo');
-      wrap.appendChild(logo);
-      loader.appendChild(wrap);
-      return logo;
-    })();
-
+    const logoContainer = loader.querySelector('#loaderLogo');
     const logoSrc = document.querySelector('header .logo img')?.src ?? './assets/images/logo.svg';
 
-    /**
-     * ロゴ SVG を fetch して線描画アニメーションを実行する
-     * @returns {Promise<void>}
-     */
-    const drawLogo = () => {
-      if (!logoContainer) return Promise.resolve();
-      return fetch(logoSrc)
-        .then((res) => res.text())
-        .then((svgText) => {
-          const svg = new DOMParser().parseFromString(svgText, 'image/svg+xml').querySelector('svg');
-          if (!svg) throw new Error('SVG not found');
-          svg.classList.add('loader-logo-svg');
-          logoContainer.innerHTML = '';
-          logoContainer.appendChild(svg);
-
-          const elements = svg.querySelectorAll('path, line, polyline, polygon, rect, circle, ellipse');
-          if (elements.length === 0) {
-            return new Promise((resolve) => {
-              gsap.fromTo(svg, { opacity: 0 }, { opacity: 1, duration: 0.5, onComplete: resolve });
-            });
-          }
-
-          elements.forEach((el) => {
-            if (typeof el.getTotalLength !== 'function') return;
-            const len = el.getTotalLength();
-            el.style.strokeDasharray = `${len}`;
-            el.style.strokeDashoffset = `${len}`;
-            el.style.stroke = 'var(--color-secondary)';
-            el.style.strokeWidth = '1.5';
-            el.style.fill = 'transparent';
-          });
-
-          return new Promise((resolve) => {
-            const tl = gsap.timeline({ onComplete: resolve });
-            elements.forEach((el, i) => {
-              tl.to(el, { strokeDashoffset: 0, duration: 0.55, ease: 'power2.out' }, i * 0.04);
-            });
-            tl.to(elements, { fill: 'var(--color-secondary)', duration: 0.25, stagger: 0.01 }, '-=0.15');
-          });
-        })
-        .catch(() => {
-          logoContainer.innerHTML = `<img src="${logoSrc}" alt="Gloria Design Works logo">`;
-        });
-    };
-
-    /** ローダーをフェードアウトして DOM から削除する */
     const hideLoader = () => {
       const cleanup = () => {
+
+        LoadingAnimation.unlockScroll();
         document.body.classList.remove('is-loading');
         loader.remove();
+        if (typeof MainVisualText !== 'undefined' && typeof MainVisualText.init === 'function') {
+          MainVisualText.init();
+        }
       };
-      if (typeof gsap === 'undefined') {
-        cleanup();
-        return;
-      }
-      gsap.to(loader, { opacity: 0, duration: 0.45, delay: 0.15, onComplete: cleanup });
+      if (typeof gsap === 'undefined') cleanup();
+      else gsap.to(loader, { opacity: 0, duration: 0.45, delay: 0.15, onComplete: cleanup });
     };
-
-    const MIN_LOADER_MS = 3000;
     const start = Date.now();
-
     Promise.all([
-      drawLogo(),
+      LoadingAnimation.drawLogo(logoContainer, logoSrc),
       document.readyState === 'complete' ? Promise.resolve() : new Promise((r) => window.addEventListener('load', r, { once: true }))
     ]).then(() => {
-      const wait = Math.max(0, MIN_LOADER_MS - (Date.now() - start));
+      const wait = Math.max(0, LoadingAnimation.MIN_MS - (Date.now() - start));
       wait > 0 ? setTimeout(hideLoader, wait) : hideLoader();
     });
   }
+}
 
-  /** 初期化: パーティクル / MV テキスト / スクロール・モーダル / SVG / ローディング */
-  initParticleBackground();
-  initMainVisualText();
-  initScrollAnimations();
-  initSVGAnimation();
-  initLoadingAnimation();
+/**
+ * スクロールアニメーション用クラス
+ * @type {class}
+ */
+class ScrollAnimations {
+  static SELECTOR = '.scroll-trigger';
+  static STAGGER_SELECTOR = '.scroll-stagger';
+  static DEFAULT = {
+    duration: 1.2,
+    ease: 'power2.out',
+    trigger: 'top 85%',
+    toggleActions: 'play none none none',
+  };
+
+  /** バリエーション定義 */
+  static VARIANTS = {
+    'scroll-fade-up': {
+      from: { y: 36, opacity: 0 },
+      to: { y: 0, opacity: 1 },
+    },
+    'scroll-fade-down': {
+      from: { y: -36, opacity: 0 },
+      to: { y: 0, opacity: 1 },
+    },
+    'scroll-fade-left': {
+      from: { x: 36, opacity: 0 },
+      to: { x: 0, opacity: 1 },
+    },
+    'scroll-fade-right': {
+      from: { x: -36, opacity: 0 },
+      to: { x: 0, opacity: 1 },
+    },
+    'scroll-scale': {
+      from: { scale: 0.92, opacity: 0 },
+      to: { scale: 1, opacity: 1 },
+    },
+    'scroll-scale-up': {
+      from: { scale: 0.6, opacity: 0 },
+      to: { scale: 1, opacity: 1 },
+    },
+    'scroll-scale-down': {
+      from: { scale: 1.2, opacity: 0 },
+      to: { scale: 1, opacity: 1 },
+    },
+    'scroll-blur': {
+      from: { filter: 'blur(12px)', opacity: 0 },
+      to: { filter: 'blur(0px)', opacity: 1 },
+    },
+    'scroll-rotate-y': {
+      from: { rotationY: -18, opacity: 0 },
+      to: { rotationY: 0, opacity: 1 },
+    },
+    'scroll-rotate-x': {
+      from: { rotationX: 18, opacity: 0 },
+      to: { rotationX: 0, opacity: 1 },
+    },
+    'scroll-slide-up': {
+      from: { y: '1.2em', opacity: 0 },
+      to: { y: 0, opacity: 1 },
+    },
+    'scroll-slide-down': {
+      from: { y: '-1.2em', opacity: 0 },
+      to: { y: 0, opacity: 1 },
+    },
+    'scroll-slide-left': {
+      from: { x: '1.5em', opacity: 0 },
+      to: { x: 0, opacity: 1 },
+    },
+    'scroll-slide-right': {
+      from: { x: '-1.5em', opacity: 0 },
+      to: { x: 0, opacity: 1 },
+    },
+    'scroll-reveal-up': {
+      from: { y: '100%', opacity: 0 },
+      to: { y: 0, opacity: 1 },
+    },
+    'scroll-reveal-down': {
+      from: { y: '-100%', opacity: 0 },
+      to: { y: 0, opacity: 1 },
+    },
+    'scroll-flip-x': {
+      from: { rotationY: -75, opacity: 0 },
+      to: { rotationY: 0, opacity: 1 },
+    },
+    'scroll-flip-y': {
+      from: { rotationX: 55, opacity: 0 },
+      to: { rotationX: 0, opacity: 1 },
+    },
+    'scroll-zoom-in': {
+      from: { scale: 0.5, opacity: 0 },
+      to: { scale: 1, opacity: 1 },
+    },
+    'scroll-opacity': {
+      from: { opacity: 0 },
+      to: { opacity: 1 },
+    },
+    'scroll-line': {
+      from: { scaleX: 0, opacity: 0.8, transformOrigin: 'left center' },
+      to: { scaleX: 1, opacity: 1, transformOrigin: 'left center' },
+    },
+  };
+
+  /** 要素に付いているバリエーションクラスを1つ取得 */
+  static getVariantClass(el) {
+    for (const key of Object.keys(ScrollAnimations.VARIANTS)) {
+      if (el.classList.contains(key)) return key;
+    }
+    return null;
+  }
+
+  static getOptions(el) {
+    return {
+      duration: parseFloat(el.dataset.scrollDuration) || ScrollAnimations.DEFAULT.duration,
+      ease: el.dataset.scrollEase || ScrollAnimations.DEFAULT.ease,
+      trigger: el.dataset.scrollTrigger || ScrollAnimations.DEFAULT.trigger,
+      delay: parseFloat(el.dataset.scrollDelay) || 0,
+    };
+  }
+
+  static animateElement(el, variantKey, options) {
+    const def = ScrollAnimations.VARIANTS[variantKey];
+    if (!def) return;
+    gsap.fromTo(el, def.from, {
+      ...def.to,
+      duration: options.duration,
+      delay: options.delay,
+      ease: options.ease,
+      scrollTrigger: {
+        trigger: el,
+        start: options.trigger,
+        toggleActions: ScrollAnimations.DEFAULT.toggleActions,
+      },
+      overwrite: true,
+    });
+  }
+
+  static init() {
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+    gsap.registerPlugin(ScrollTrigger);
+
+    // 単体要素
+    document.querySelectorAll(ScrollAnimations.SELECTOR).forEach((el) => {
+      if (el.closest(ScrollAnimations.STAGGER_SELECTOR)) return;
+      const variant = ScrollAnimations.getVariantClass(el);
+      const key = variant || 'scroll-fade-up';
+      if (!ScrollAnimations.VARIANTS[key]) return;
+      const opts = ScrollAnimations.getOptions(el);
+      ScrollAnimations.animateElement(el, key, opts);
+    });
+
+    // 子要素のスタッガー
+    document.querySelectorAll(ScrollAnimations.STAGGER_SELECTOR).forEach((container) => {
+      const children = container.querySelectorAll(ScrollAnimations.SELECTOR);
+      if (!children.length) return;
+      const firstVariant = ScrollAnimations.getVariantClass(children[0]) || 'scroll-fade-up';
+      const def = ScrollAnimations.VARIANTS[firstVariant];
+      if (!def) return;
+      const trigger = container.dataset.scrollTrigger || ScrollAnimations.DEFAULT.trigger;
+      const duration = parseFloat(container.dataset.scrollDuration) || ScrollAnimations.DEFAULT.duration;
+      const stagger = parseFloat(container.dataset.scrollStagger) || 0.12;
+      gsap.fromTo(children, def.from, {
+        ...def.to,
+        duration,
+        stagger,
+        ease: ScrollAnimations.DEFAULT.ease,
+        scrollTrigger: {
+          trigger: container,
+          start: trigger,
+          toggleActions: ScrollAnimations.DEFAULT.toggleActions,
+        },
+        overwrite: true,
+      });
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  LoadingAnimation.init();
+  ScrollAnimations.init();
 });

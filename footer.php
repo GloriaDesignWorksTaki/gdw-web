@@ -1,10 +1,10 @@
 <footer>
-  <div class="footer-logo">
+  <div class="footer-logo scroll-trigger scroll-blur">
     <a href="<?php echo $url; ?>">
       <img src="<?php echo $url; ?>/assets/images/common/logo-white.svg" alt="Gloria Design Works LOGO">
     </a>
   </div>
-  <div class="footer-links">
+  <div class="footer-links scroll-trigger scroll-blur">
     <ul>
       <li>
         <a href="https://github.com/GloriaDesignWorksTaki" target="_blank" rel="noopener noreferrer">
@@ -28,8 +28,9 @@
   </div>
 </footer>
 <!-- JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="./assets/js/animations.js"></script>
 <script src="./assets/js/common.js"></script>
 <script>

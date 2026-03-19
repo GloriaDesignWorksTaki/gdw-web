@@ -325,154 +325,6 @@ class ExpandingBoxScroll {
   }
 }
 
-/** TODO:消す
- * ポートフォリオのモーダル表示・切り替えを制御するクラス
- *
- * `.portfolio-mock` のクリックでモーダルを開閉し、
- * リスト内のリンククリックで対象作品と説明を切り替える。
- *
- * @example
- * new PortfolioModal().init();
- */
-class PortfolioModal {
-  /**
-   * PortfolioModal インスタンスを生成する
-   */
-  constructor() {
-    /**
-     * モーダル開閉トリガー要素
-     * @type {HTMLElement | null}
-     */
-    this.mock = document.querySelector('.portfolio-mock');
-
-    /**
-     * ポートフォリオ選択リスト要素
-     * @type {HTMLElement | null}
-     */
-    this.list = document.querySelector('.portfolio-select');
-
-    /**
-     * オーバーレイ要素
-     * @type {HTMLElement | null}
-     */
-    this.shadow = document.querySelector('#shadow');
-
-    /**
-     * 作品切り替えリンク一覧
-     * @type {NodeListOf<HTMLAnchorElement>}
-     */
-    this.links = document.querySelectorAll('.portfolio-select a');
-
-    /**
-     * 作品要素一覧
-     * @type {NodeListOf<HTMLElement>}
-     */
-    this.works = document.querySelectorAll('.portfolio-works');
-
-    /**
-     * 説明要素一覧
-     * @type {NodeListOf<HTMLElement>}
-     */
-    this.descriptions = document.querySelectorAll('.portfolio-desc');
-  }
-
-  /**
-   * モーダルを閉じる
-   * @param {() => void} [callback] クローズ完了後に実行するコールバック
-   * @returns {void}
-   */
-  close(callback) {
-    const done = () => {
-      if (!this.list || !this.shadow) return;
-
-      this.list.classList.remove('active');
-      this.shadow.classList.remove('active');
-      document.body.classList.remove('fixed');
-      callback?.();
-    };
-
-    if (typeof window.animatePortfolioClose === 'function') {
-      window.animatePortfolioClose(done);
-    } else {
-      done();
-    }
-  }
-
-  /**
-   * PortfolioModal を初期化する
-   * @returns {void}
-   */
-  init() {
-    if (!this.mock || !this.list || !this.shadow) return;
-
-    this.mock.addEventListener('click', () => {
-      const isOpening = !this.list.classList.contains('active');
-
-      if (isOpening) {
-        this.list.classList.add('active');
-        this.shadow.classList.add('active');
-        document.body.classList.add('fixed');
-
-        if (typeof window.animatePortfolioOpen === 'function') {
-          window.animatePortfolioOpen();
-        }
-      } else {
-        this.close();
-      }
-    });
-
-    this.works.forEach((w) => {
-      w.style.display = 'none';
-    });
-
-    this.descriptions.forEach((d) => {
-      d.style.display = 'none';
-    });
-
-    if (this.works.length > 0 && this.descriptions.length > 0) {
-      const firstId = this.works[0].id;
-      this.works[0].style.display = 'block';
-
-      const firstDesc = document.querySelector(`.portfolio-desc#${firstId}`);
-      if (firstDesc) firstDesc.style.display = 'block';
-    }
-
-    this.links.forEach((link) => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-
-        const targetId = link.getAttribute('href')?.replace('#', '') ?? '';
-        const targetWork = document.querySelector(`#${targetId}`);
-        const targetDesc = document.querySelector(`.portfolio-desc#${targetId}`);
-
-        if (targetWork && targetDesc) {
-          this.works.forEach((w) => {
-            w.style.display = 'none';
-          });
-
-          this.descriptions.forEach((d) => {
-            d.style.display = 'none';
-          });
-
-          targetWork.style.display = 'block';
-          targetDesc.style.display = 'block';
-        }
-
-        this.links.forEach((l) => l.classList.remove('active'));
-        link.classList.add('active');
-        this.close();
-      });
-    });
-
-    this.shadow.addEventListener('click', () => this.close());
-
-    document.querySelector('.portfolio-close-btn')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.close();
-    });
-  }
-}
-
 /**
  * FLIP gallery modal
  * @type {class}
@@ -624,6 +476,7 @@ class WorksFlipModal {
             gsap.set(slot, { zIndex: 'auto' });
             gsap.set(image, { zIndex: 'auto' });
             gsap.set(modalOverlay, { clearProps: 'filter', opacity: 0 });
+            slot.style.minHeight = '';
             modal.setAttribute('aria-hidden', 'true');
             resetMetaDom();
             unlockScrollAndStalker();
@@ -666,6 +519,13 @@ class WorksFlipModal {
 
         document.body.classList.add('fixed', 'works-modal-open');
 
+        // スロットの高さを保つ
+        const slot = slots[i];
+        const reserveH = Math.round(slot.getBoundingClientRect().height);
+        if (reserveH > 0) {
+          slot.style.minHeight = `${reserveH}px`;
+        }
+
         const state = Flip.getState(image);
         mount.appendChild(image);
         boxIndex = i;
@@ -687,7 +547,6 @@ class WorksFlipModal {
 const init = () => {
   new MouseStalker().init();
   ExpandingBoxScroll.init();
-  new PortfolioModal().init();
   new WorksFlipModal().init();
 };
 

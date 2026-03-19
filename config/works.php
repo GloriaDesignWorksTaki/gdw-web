@@ -13,7 +13,7 @@ return [
   ],
   [
     'id' => 'works02',
-    'title' => '1010bit Offical Corplate Site',
+    'title' => '1010bit Offical Corpolate Site',
     'year' => '2023',
     'charge' => 'Design / Develop',
     'tech' => ['html5', 'css3-alt', 'php', 'js'],
@@ -50,5 +50,12 @@ return [
     'charge' => 'UIDesign / Develop',
     'tech' => ['react', 'node-js', 'css3-alt', 'aws'],
     'image' => 'set-list-tool.webp',
+  ],
+  [
+    'id' => 'works07',
+    'title' => 'ToyJoy Artist Logo Design',
+    'year' => '2026',
+    'charge' => 'Design',
+    'image' => 'toyjoy-logo.webp',
   ]
 ];

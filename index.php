@@ -5,7 +5,7 @@ $errors = [];
 $name = $email = $message = '';
 require_once __DIR__ . '/include/contact_form.php';
 
-$portfolioItems = require __DIR__ . '/config/portfolio.php';
+$worksItems = require __DIR__ . '/config/works.php';
 $skills = require __DIR__ . '/config/skills.php';
 
 require_once __DIR__ . '/header.php';
@@ -39,7 +39,15 @@ require_once __DIR__ . '/include/dialog.php';
     </div>
   </section>
   <section id="works">
-    <div class="wrapper"></div>
+    <div class="wrapper">
+      <div class="works-lists">
+        <?php foreach ($worksItems as $workItem): ?>
+          <div class="works-image image scroll-trigger scroll-blur">
+            <img src="<?php echo $url; ?>/assets/images/works/<?php echo $workItem['image']; ?>" alt="<?php echo $workItem['title']; ?>">
+          </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
   </section>
   <section id="skills">
     <div class="wrapper">

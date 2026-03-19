@@ -9,9 +9,7 @@ return [
     'year' => '2022',
     'charge' => 'Design / Develop',
     'tech' => ['html5', 'css3-alt', 'php', 'js', 'wordpress'],
-    'image_pc' => '01.webp',
-    'image_sp' => '01-s.webp',
-    'alt' => 'The Traveling Theory Artist Site'
+    'image' => 'thetravelingtheory.webp',
   ],
   [
     'id' => 'works02',
@@ -19,9 +17,7 @@ return [
     'year' => '2023',
     'charge' => 'Design / Develop',
     'tech' => ['html5', 'css3-alt', 'php', 'js'],
-    'image_pc' => '02.webp',
-    'image_sp' => '02-s.webp',
-    'alt' => '1010bit Offical Corplate Site'
+    'image' => '1010bit.webp',
   ],
   [
     'id' => 'works03',
@@ -29,9 +25,7 @@ return [
     'year' => '2024',
     'charge' => 'Design / Develop',
     'tech' => ['html5', 'css3-alt', 'php', 'js', 'wordpress'],
-    'image_pc' => '03.webp',
-    'image_sp' => '03-s.webp',
-    'alt' => 'Cotovia Clinic Offical Site'
+    'image' => 'cotovia-clinic.webp',
   ],
   [
     'id' => 'works04',
@@ -39,9 +33,7 @@ return [
     'year' => '2021',
     'charge' => 'Design / Develop',
     'tech' => ['html5', 'css3-alt', 'php', 'js', 'wordpress'],
-    'image_pc' => '04.webp',
-    'image_sp' => '04-s.webp',
-    'alt' => 'Nico Nico House Sendai Official Site'
+    'image' => 'niconicohouse-sendai.webp',
   ],
   [
     'id' => 'works05',
@@ -49,9 +41,7 @@ return [
     'year' => '2024',
     'charge' => 'Design / Develop',
     'tech' => ['react', 'node-js', 'css3-alt', 'aws'],
-    'image_pc' => '05.webp',
-    'image_sp' => '05-s.webp',
-    'alt' => 'Ken5.golf Official Site'
+    'image' => 'ken5golf.webp',
   ],
   [
     'id' => 'works06',
@@ -59,8 +49,6 @@ return [
     'year' => '2024',
     'charge' => 'UIDesign / Develop',
     'tech' => ['react', 'node-js', 'css3-alt', 'aws'],
-    'image_pc' => '06.webp',
-    'image_sp' => '06-s.webp',
-    'alt' => 'Set List Tool'
+    'image' => 'set-list-tool.webp',
   ]
 ];

@@ -13,7 +13,7 @@ return [
   ],
   [
     'id' => 'works02',
-    'title' => '1010bit Offical Corpolate Site',
+    'title' => '1010bit Offical Corporate Site',
     'year' => '2023',
     'charge' => 'Design / Develop',
     'tech' => ['html5', 'css3-alt', 'php', 'js'],

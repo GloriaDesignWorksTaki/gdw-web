@@ -10,6 +10,9 @@ $styleVersion = file_exists(__DIR__ . '/assets/css/style.css') ? filemtime(__DIR
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <?php if (!empty($page_meta_robots ?? '')): ?>
+  <meta name="robots" content="<?php echo escape($page_meta_robots); ?>">
+  <?php endif; ?>
   <title>デザイン×コード=Gloria Design Works|千葉県柏のWebデザインプロジェクト</title>
   <meta name="description" content="千葉県柏市を拠点に活動するWebデザインプロジェクトです。Webのみならずロゴやプロダクトデザインまで幅広く手がけます。マーケティング、ブランディングを意識したデザインをお届けします。">
   <!-- no cache -->
@@ -30,7 +33,10 @@ $styleVersion = file_exists(__DIR__ . '/assets/css/style.css') ? filemtime(__DIR
   })(window,document,'script','dataLayer','GTM-TQCN4897');</script>
   <!-- End Google Tag Manager -->
 </head>
-<body class="dark is-loading">
+<?php
+$body_class_extra = isset($body_class_extra) ? trim((string) $body_class_extra) : '';
+?>
+<body class="dark is-loading<?php echo $body_class_extra !== '' ? ' ' . escape($body_class_extra) : ''; ?>">
   <div id="page-loader">
     <div class="loader-content">
       <div class="loader-logo" id="loaderLogo" aria-label="Gloria Design Works logo"></div>

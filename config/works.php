@@ -65,5 +65,12 @@ return [
     'year' => '2026',
     'charge' => 'Design',
     'image' => 'toyjoy-logo.webp',
+  ],
+  [
+    'id' => 'works09',
+    'title' => 'Gloria Design Works Business Card',
+    'year' => '2026',
+    'charge' => 'Design',
+    'image' => 'gdw-business-card.webp',
   ]
 ];

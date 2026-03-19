@@ -52,6 +52,7 @@ require_once __DIR__ . '/include/dialog.php';
             data-stalker-title="<?php echo escape($workItem['title'] ?? ''); ?>"
             data-work-title="<?php echo escape($workItem['title'] ?? ''); ?>"
             data-work-year="<?php echo escape($workItem['year'] ?? ''); ?>"
+            data-work-charge="<?php echo escape($workItem['charge'] ?? ''); ?>"
             data-work-tech="<?php echo escape(implode(',', $workItem['tech'] ?? [])); ?>"
           >
             <div class="works-image image">
@@ -73,6 +74,7 @@ require_once __DIR__ . '/include/dialog.php';
           <div class="works-flip-modal-meta-inner">
             <p class="works-flip-modal-meta-year en"></p>
             <h2 class="works-flip-modal-meta-title en"></h2>
+            <p class="works-flip-modal-meta-charge en"></p>
             <ul class="works-flip-modal-meta-tech"></ul>
           </div>
         </div>

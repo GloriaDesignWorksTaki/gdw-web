@@ -332,13 +332,21 @@ section .wrapper {
   will-change: opacity, filter;
 }
 .works-flip-modal-meta-title {
-  margin-bottom: 1rem;
   font-size: clamp(1.1rem, 2.5vw, 2rem);
 }
 .works-flip-modal-meta-year {
   font-size: 0.875rem;
   letter-spacing: 0.12em;
   color: var(--color-primary-pale);
+}
+.works-flip-modal-meta-charge {
+  margin: 0.5rem 0 1rem;
+  font-size: 0.825rem;
+  letter-spacing: 0.08em;
+  color: var(--color-secondary);
+}
+.works-flip-modal-meta-charge:empty {
+  display: none;
 }
 .works-flip-modal-meta-tech {
   display: flex;

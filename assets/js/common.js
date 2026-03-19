@@ -452,48 +452,146 @@ class WorksFlipModal {
 
     gsap.registerPlugin(Flip);
 
-    const modal        = document.querySelector('.works-flip-modal');
-    const modalContent = modal.querySelector('.works-flip-modal-content');
+    const modal = document.querySelector('.works-flip-modal');
+    if (!modal) return;
+
     const modalOverlay = modal.querySelector('.works-flip-modal-overlay');
-    const slots        = gsap.utils.toArray('#works .works-lists .works-slot');
-    const images       = gsap.utils.toArray('#works .works-lists .works-image');
+    const mount = modal.querySelector('.works-flip-modal-image-mount');
+    const meta = modal.querySelector('.works-flip-modal-meta');
+    const metaShade = modal.querySelector('.works-flip-modal-meta-shade');
+    const metaInner = modal.querySelector('.works-flip-modal-meta-inner');
+    const metaTitle = modal.querySelector('.works-flip-modal-meta-title');
+    const metaYear = modal.querySelector('.works-flip-modal-meta-year');
+    const metaTech = modal.querySelector('.works-flip-modal-meta-tech');
+
+    if (!modalOverlay || !mount || !meta || !metaShade || !metaInner || !metaTitle || !metaYear || !metaTech) {
+      return;
+    }
+
+    const slots = gsap.utils.toArray('#works .works-lists .works-slot');
+    const images = gsap.utils.toArray('#works .works-lists .works-image');
     let boxIndex = undefined;
+
+    const resetMetaDom = () => {
+      metaTitle.textContent = '';
+      metaYear.textContent = '';
+      metaTech.innerHTML = '';
+    };
+
+    const fillMetaFromSlot = (slot) => {
+      if (!slot) return;
+      metaTitle.textContent = slot.dataset.workTitle?.trim() || '';
+      metaYear.textContent = slot.dataset.workYear?.trim() || '';
+      metaTech.innerHTML = '';
+      const raw = slot.dataset.workTech?.trim() || '';
+      raw.split(',').forEach((name) => {
+        const icon = name.trim();
+        if (!icon) return;
+        const li = document.createElement('li');
+        const ic = document.createElement('i');
+        ic.className = `fa-brands fa-${icon}`;
+        ic.setAttribute('aria-hidden', 'true');
+        li.appendChild(ic);
+        metaTech.appendChild(li);
+      });
+    };
+
+    const showMetaAfterFlip = () => {
+      gsap.killTweensOf([meta, metaShade, metaInner]);
+      gsap.set(meta, { visibility: 'visible', autoAlpha: 1 });
+      gsap.set(metaShade, { opacity: 0 });
+      gsap.set(metaInner, { opacity: 0, filter: 'blur(14px)' });
+      meta.setAttribute('aria-hidden', 'false');
+
+      gsap
+        .timeline()
+        .to(metaShade, { opacity: 1, duration: 0.5, ease: 'power2.out' })
+        .to(
+          metaInner,
+          { opacity: 1, filter: 'blur(0px)', duration: 0.7, ease: 'power2.out' },
+          '-=0.35'
+        );
+    };
+
+    const hideMetaThen = (onDone) => {
+      gsap.killTweensOf([meta, metaShade, metaInner]);
+      gsap
+        .timeline()
+        .to(metaInner, {
+          opacity: 0,
+          filter: 'blur(12px)',
+          duration: 0.25,
+          ease: 'power1.in',
+        })
+        .to(
+          metaShade,
+          {
+            opacity: 0,
+            duration: 0.25,
+            ease: 'power1.in',
+          },
+          0
+        )
+        .set(meta, { autoAlpha: 0, visibility: 'hidden' })
+        .add(() => {
+          meta.setAttribute('aria-hidden', 'true');
+          onDone();
+        });
+    };
+
+    gsap.set(meta, { autoAlpha: 0, visibility: 'hidden' });
+    gsap.set(metaShade, { opacity: 0 });
+    gsap.set(metaInner, { opacity: 0, filter: 'blur(14px)' });
 
     images.forEach((image, i) => {
       image.addEventListener('click', () => {
         if (boxIndex !== undefined) {
+          if (i !== boxIndex) return;
 
-          // 閉じる
-          const state = Flip.getState(image);
-          slots[boxIndex].appendChild(image);
-          boxIndex = undefined;
+          hideMetaThen(() => {
+            const state = Flip.getState(image);
+            const closedIndex = boxIndex;
+            const slot = slots[closedIndex];
+            slot.appendChild(image);
+            boxIndex = undefined;
 
-          // slot ごと前面に出す
-          gsap.set(slots[i], { zIndex: 1002, position: 'relative' });
+            gsap.set(slot, { zIndex: 1002, position: 'relative' });
 
-          gsap.to([modal, modalOverlay], {
-            autoAlpha: 0,
-            ease: 'power1.inOut',
-            duration: 0.35,
-          });
-          Flip.from(state, {
-            duration: 0.7,
-            ease: 'power1.inOut',
-            absolute: true,
-            onComplete: () => {
-              gsap.set(slots[i], { zIndex: 'auto' });
-              gsap.set(image, { zIndex: 'auto' });
-            },
+            gsap.to([modal, modalOverlay], {
+              autoAlpha: 0,
+              ease: 'power1.inOut',
+              duration: 0.35,
+            });
+            Flip.from(state, {
+              duration: 0.7,
+              ease: 'power1.inOut',
+              absolute: true,
+              onComplete: () => {
+                gsap.set(slot, { zIndex: 'auto' });
+                gsap.set(image, { zIndex: 'auto' });
+                modal.setAttribute('aria-hidden', 'true');
+                resetMetaDom();
+              },
+            });
           });
         } else {
-          // --- 開く ---
+          fillMetaFromSlot(slots[i]);
+          gsap.killTweensOf([meta, metaShade, metaInner]);
+          gsap.set(meta, { autoAlpha: 0, visibility: 'hidden' });
+          gsap.set(metaShade, { opacity: 0 });
+          gsap.set(metaInner, { opacity: 0, filter: 'blur(14px)' });
+          meta.setAttribute('aria-hidden', 'true');
+
           const state = Flip.getState(image);
-          modalContent.appendChild(image);
+          mount.appendChild(image);
           boxIndex = i;
           gsap.set(modal, { autoAlpha: 1 });
+          modal.setAttribute('aria-hidden', 'false');
+
           Flip.from(state, {
             duration: 0.7,
             ease: 'power1.inOut',
+            onComplete: showMetaAfterFlip,
           });
           gsap.to(modalOverlay, { autoAlpha: 0.65, duration: 0.35 });
         }

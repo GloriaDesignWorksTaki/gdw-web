@@ -46,6 +46,9 @@ require_once __DIR__ . '/include/dialog.php';
             class="works-slot scroll-trigger scroll-blur"
             data-work-id="<?php echo escape($workItem['id'] ?? ''); ?>"
             data-stalker-title="<?php echo escape($workItem['title'] ?? ''); ?>"
+            data-work-title="<?php echo escape($workItem['title'] ?? ''); ?>"
+            data-work-year="<?php echo escape($workItem['year'] ?? ''); ?>"
+            data-work-tech="<?php echo escape(implode(',', $workItem['tech'] ?? [])); ?>"
           >
             <div class="works-image image">
               <img src="<?php echo $url; ?>/assets/images/works/<?php echo escape($workItem['image'] ?? ''); ?>" alt="<?php echo escape($workItem['title'] ?? ''); ?>">
@@ -58,7 +61,19 @@ require_once __DIR__ . '/include/dialog.php';
 
   <div class="works-flip-modal" aria-hidden="true">
     <div class="works-flip-modal-overlay"></div>
-    <div class="works-flip-modal-content" aria-label="Works gallery"></div>
+    <div class="works-flip-modal-body">
+      <div class="works-flip-modal-content" aria-label="Works gallery">
+        <div class="works-flip-modal-image-mount"></div>
+        <div class="works-flip-modal-meta" aria-hidden="true">
+          <div class="works-flip-modal-meta-shade" aria-hidden="true"></div>
+          <div class="works-flip-modal-meta-inner">
+            <p class="works-flip-modal-meta-year en"></p>
+            <h2 class="works-flip-modal-meta-title en"></h2>
+            <ul class="works-flip-modal-meta-tech"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <section id="skills">

@@ -239,22 +239,8 @@ section .wrapper {
   right: 0;
   background-color: transparent;
   z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   opacity: 0;
   visibility: hidden;
-}
-.works-flip-modal-content {
-  height: auto;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.works-flip-modal-content .works-image {
-  width: 95vw;
-  height: auto;
 }
 .works-flip-modal-overlay {
   position: absolute;
@@ -265,6 +251,91 @@ section .wrapper {
   height: 100%;
   background-color: black;
   opacity: 0;
+  z-index: 0;
+}
+.works-flip-modal-body {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.works-flip-modal-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+.works-flip-modal-image-mount {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.works-flip-modal-image-mount .works-image {
+  width: 95vw;
+  height: auto;
+  max-height: 85vh;
+}
+.works-flip-modal-image-mount .works-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* works meta */
+.works-flip-modal-meta {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+.works-flip-modal-meta-shade {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  opacity: 0;
+  pointer-events: none;
+}
+.works-flip-modal-meta-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 42rem;
+  padding: clamp(1.25rem, 2.5vw, 3rem);
+  color: var(--color-secondary);
+  opacity: 0;
+  filter: blur(14px);
+  will-change: opacity, filter;
+}
+.works-flip-modal-meta-title {
+  margin-bottom: 1rem;
+  font-size: clamp(1.1rem, 2.5vw, 2rem);
+}
+.works-flip-modal-meta-year {
+  font-size: 0.875rem;
+  letter-spacing: 0.12em;
+  color: var(--color-primary-pale);
+}
+.works-flip-modal-meta-tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  list-style: none;
+  font-size: 1.25rem;
+  color: var(--color-secondary);
+}
+.works-flip-modal-meta-tech li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* #contact */
@@ -711,7 +782,7 @@ footer .copy {
   }
 
   /* flip modal */
-  .works-flip-modal-content .works-image {
+  .works-flip-modal-image-mount .works-image {
     width: 60vw;
   }
 

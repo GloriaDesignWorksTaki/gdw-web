@@ -11,6 +11,79 @@ class LoadingAnimation {
   // アニメーションの最小時間
   static MIN_MS = 3000;
 
+  static _scrollLock = {
+    locked: false,
+    prevBodyOverflow: '',
+    prevDocOverflow: '',
+    prevBodyWidth: '',
+    preventFn: null,
+    enforceTimer: null,
+  };
+
+  // スクロール位置が戻る/復元されるケースがあるため、強制的に先頭へ寄せる
+  static forceScrollTop() {
+    try {
+      window.scrollTo(0, 0);
+    } catch (e) {
+      // ignore
+    }
+    // 一部ブラウザで補助的に効く
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }
+
+  static lockScroll() {
+    if (LoadingAnimation._scrollLock.locked) return;
+    LoadingAnimation._scrollLock.locked = true;
+
+    const state = LoadingAnimation._scrollLock;
+    state.prevBodyOverflow = document.body.style.overflow;
+    state.prevDocOverflow = document.documentElement.style.overflow;
+    state.prevBodyWidth = document.body.style.width;
+
+    state.preventFn = (e) => {
+      e.preventDefault();
+    };
+
+    // overflow hidden だけだと環境によってはまだ動くことがあるので、念のためイベントも止める
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.width = '100%';
+
+    window.addEventListener('wheel', state.preventFn, { passive: false, capture: true });
+    window.addEventListener('touchmove', state.preventFn, { passive: false, capture: true });
+
+    // ローディング中にブラウザが復元しようとするスクロール位置を潰す
+    LoadingAnimation.forceScrollTop();
+    state.enforceTimer = window.setInterval(() => {
+      LoadingAnimation.forceScrollTop();
+    }, 50);
+  }
+
+  static unlockScroll() {
+    const state = LoadingAnimation._scrollLock;
+    if (!state.locked) return;
+
+    state.locked = false;
+
+    if (state.enforceTimer) {
+      window.clearInterval(state.enforceTimer);
+      state.enforceTimer = null;
+    }
+
+    // 開放した直後に復元されることがあるため、解除前後で先頭を確定
+    LoadingAnimation.forceScrollTop();
+
+    document.body.style.overflow = state.prevBodyOverflow;
+    document.documentElement.style.overflow = state.prevDocOverflow;
+    document.body.style.width = state.prevBodyWidth;
+
+    if (state.preventFn) {
+      window.removeEventListener('wheel', state.preventFn, { capture: true });
+      window.removeEventListener('touchmove', state.preventFn, { capture: true });
+    }
+  }
+
   // ロゴの描写
   static drawLogo(logoContainer, logoSrc) {
     if (!logoContainer) return Promise.resolve();
@@ -54,6 +127,15 @@ class LoadingAnimation {
   }
 
   static init() {
+    // リロード時はページの先頭へ
+    try {
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    } catch (e) {
+      // ignore
+    }
+    window.scrollTo(0, 0);
+    LoadingAnimation.lockScroll();
+
     let loader = document.getElementById('page-loader');
     if (!loader) {
       loader = document.createElement('div');
@@ -64,8 +146,11 @@ class LoadingAnimation {
     }
     const logoContainer = loader.querySelector('#loaderLogo');
     const logoSrc = document.querySelector('header .logo img')?.src ?? './assets/images/logo.svg';
+
     const hideLoader = () => {
       const cleanup = () => {
+
+        LoadingAnimation.unlockScroll();
         document.body.classList.remove('is-loading');
         loader.remove();
         if (typeof MainVisualText !== 'undefined' && typeof MainVisualText.init === 'function') {
@@ -94,7 +179,7 @@ class ScrollAnimations {
   static SELECTOR = '.scroll-trigger';
   static STAGGER_SELECTOR = '.scroll-stagger';
   static DEFAULT = {
-    duration: 1.4,
+    duration: 1.2,
     ease: 'power2.out',
     trigger: 'top 85%',
     toggleActions: 'play none none none',
@@ -230,7 +315,7 @@ class ScrollAnimations {
     document.querySelectorAll(ScrollAnimations.SELECTOR).forEach((el) => {
       if (el.closest(ScrollAnimations.STAGGER_SELECTOR)) return;
       const variant = ScrollAnimations.getVariantClass(el);
-      const key = variant || 'js-scroll-fade-up';
+      const key = variant || 'scroll-fade-up';
       if (!ScrollAnimations.VARIANTS[key]) return;
       const opts = ScrollAnimations.getOptions(el);
       ScrollAnimations.animateElement(el, key, opts);
@@ -240,7 +325,7 @@ class ScrollAnimations {
     document.querySelectorAll(ScrollAnimations.STAGGER_SELECTOR).forEach((container) => {
       const children = container.querySelectorAll(ScrollAnimations.SELECTOR);
       if (!children.length) return;
-      const firstVariant = ScrollAnimations.getVariantClass(children[0]) || 'js-scroll-fade-up';
+      const firstVariant = ScrollAnimations.getVariantClass(children[0]) || 'scroll-fade-up';
       const def = ScrollAnimations.VARIANTS[firstVariant];
       if (!def) return;
       const trigger = container.dataset.scrollTrigger || ScrollAnimations.DEFAULT.trigger;

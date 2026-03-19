@@ -325,7 +325,6 @@ section .wrapper {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 42rem;
   padding: clamp(1.25rem, 2.5vw, 3rem);
   color: var(--color-secondary);
   opacity: 0;

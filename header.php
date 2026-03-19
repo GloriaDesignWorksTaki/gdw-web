@@ -22,7 +22,7 @@ $styleVersion = file_exists(__DIR__ . '/assets/css/style.css') ? filemtime(__DIR
   <link rel="icon" href="<?php echo $url; ?>/assets/images/favicon.ico" id="favicon">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <!-- CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css">
   <link rel="stylesheet" href="<?php echo $url; ?>/assets/css/reset.css">
   <link rel="stylesheet" href="<?php echo $url; ?>/assets/css/style.css?v=<?php echo $styleVersion; ?>">
   <!-- Google Tag Manager -->

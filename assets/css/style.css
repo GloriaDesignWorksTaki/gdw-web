@@ -213,6 +213,20 @@ section .wrapper {
   padding: 0 1.25rem;
 }
 
+/* #about */
+#about .profile-box {
+  margin-top: 3rem;
+}
+#about .profile-box .profile-role {
+  font-size: 0.825em;
+  color: var(--color-secondary);
+}
+#about .profile-box .profile-name {
+  font-size: 1.25rem;
+  font-family: var(--font-family-title);
+  color: var(--color-secondary);
+}
+
 /* #works */
 #works .works-lists {
   display: grid;

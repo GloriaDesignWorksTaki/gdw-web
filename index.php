@@ -36,6 +36,10 @@ require_once __DIR__ . '/include/dialog.php';
           <p>要素を整理し、余白や空間を活かすことで視線の流れを設計し、直感的に理解できるデザインを心がけています。</p>
         </div>
       </div>
+      <div class="profile-box scroll-trigger scroll-blur">
+        <p class="profile-role">Designer / Developer</p>
+        <p class="profile-name">Yuya Taki</p>
+      </div>
     </div>
   </section>
   <section id="works">

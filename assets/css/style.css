@@ -34,6 +34,7 @@ body {
   letter-spacing: var(--font-spacing);
   line-height: var(--font-height);
   height: 100%;
+  scroll-behavior: smooth;
 }
 body.fixed {
   overflow: hidden;

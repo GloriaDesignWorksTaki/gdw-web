@@ -52,25 +52,25 @@ jobs:
           script: |
             set -e
             cd "${{ secrets.DEPLOY_PATH }}"
-            PHP_BINDIR=""
-            for d in $(ls -d /usr/local/php/*/bin 2>/dev/null | sort -V); do
-              if [ -x "$d/php" ]; then
-                PHP_BINDIR="$d"
-              fi
+            # ロリポップ: php は /usr/local/php/VERSION/bin/php。PATH に無いと /usr/bin/env php が失敗する
+            PHP_BIN=""
+            for f in /usr/local/php/*/bin/php; do
+              [ -x "$f" ] && PHP_BIN="$f"
             done
-            if [ -n "$PHP_BINDIR" ]; then
-              export PATH="$PHP_BINDIR:$PATH"
-            fi
-            if ! command -v php >/dev/null 2>&1; then
-              echo "php が見つかりません。/usr/local/php 以下を確認してください。"
+            if [ -z "$PHP_BIN" ]; then
+              echo "php が見つかりません。/usr/local/php/*/bin/php を確認してください。"
               ls -la /usr/local/php/ 2>/dev/null || true
               exit 1
             fi
-            if command -v composer >/dev/null 2>&1; then
-              composer install --no-dev --optimize-autoloader --no-interaction
+            echo "Using: $PHP_BIN"
+            "$PHP_BIN" -v
+            if [ -x /usr/local/bin/composer ]; then
+              "$PHP_BIN" /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction
+            elif command -v composer >/dev/null 2>&1; then
+              "$PHP_BIN" "$(command -v composer)" install --no-dev --optimize-autoloader --no-interaction
             elif [ -f composer.phar ]; then
-              php composer.phar install --no-dev --optimize-autoloader --no-interaction
+              "$PHP_BIN" composer.phar install --no-dev --optimize-autoloader --no-interaction
             else
-              echo "composer が見つかりません。which composer / ls composer.phar を確認してください。"
+              echo "composer が見つかりません。"
               exit 1
             fi

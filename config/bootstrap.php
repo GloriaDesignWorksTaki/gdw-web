@@ -31,8 +31,6 @@ if ($dotenvFromEnv !== false && $dotenvFromEnv !== '') {
 
 if (is_readable($root . '/' . $dotenvName)) {
   Dotenv::createImmutable($root, $dotenvName)->load();
-} elseif (is_readable($root . '/.env')) {
-  Dotenv::createImmutable($root, '.env')->load();
 }
 
 session_start();

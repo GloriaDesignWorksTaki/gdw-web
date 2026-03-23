@@ -7,9 +7,9 @@
  */
 
 if (!isset($url)) {
-  require_once __DIR__ . '/config/bootstrap.php';
+  require_once __DIR__ . '/../config/bootstrap.php';
 }
-$styleVersion = file_exists(__DIR__ . '/assets/css/style.css') ? filemtime(__DIR__ . '/assets/css/style.css') : time();
+$styleVersion = file_exists(__DIR__ . '/../assets/css/style.css') ? filemtime(__DIR__ . '/../assets/css/style.css') : time();
 ?>
 <!DOCTYPE html>
 <html lang="ja">

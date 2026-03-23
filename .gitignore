@@ -5,6 +5,8 @@ logs/*
 
 # Environment variables
 .env
+.env_local
+.env_prod
 .env.local
 .env.*.local
 

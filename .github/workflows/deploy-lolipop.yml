@@ -30,13 +30,15 @@ jobs:
           set -euo pipefail
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          printf '%s' "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+          printf '\n' >> ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p 2222 "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+          RSYNC_RSH="ssh -i ~/.ssh/deploy_key -p 2222 -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes"
           rsync -avzr --delete \
             --exclude-from=deploy/rsync-exclude.txt \
             --filter="merge deploy/rsync-filter.txt" \
-            -e "ssh -i ~/.ssh/deploy_key -p 2222 -o StrictHostKeyChecking=accept-new" \
+            -e "$RSYNC_RSH" \
             ./ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/"
 
       - name: Composer install on server
@@ -50,11 +52,25 @@ jobs:
           script: |
             set -e
             cd "${{ secrets.DEPLOY_PATH }}"
+            PHP_BINDIR=""
+            for d in $(ls -d /usr/local/php/*/bin 2>/dev/null | sort -V); do
+              if [ -x "$d/php" ]; then
+                PHP_BINDIR="$d"
+              fi
+            done
+            if [ -n "$PHP_BINDIR" ]; then
+              export PATH="$PHP_BINDIR:$PATH"
+            fi
+            if ! command -v php >/dev/null 2>&1; then
+              echo "php が見つかりません。/usr/local/php 以下を確認してください。"
+              ls -la /usr/local/php/ 2>/dev/null || true
+              exit 1
+            fi
             if command -v composer >/dev/null 2>&1; then
               composer install --no-dev --optimize-autoloader --no-interaction
             elif [ -f composer.phar ]; then
               php composer.phar install --no-dev --optimize-autoloader --no-interaction
             else
-              echo "composer が見つかりません。ロリポップのマニュアルに沿いパスを確認してください。"
+              echo "composer が見つかりません。which composer / ls composer.phar を確認してください。"
               exit 1
             fi

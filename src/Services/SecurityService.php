@@ -28,11 +28,17 @@ class SecurityService {
    * IPアドレスを取得
    */
   public function getClientIp() {
-    $ipKeys = ['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR'];
-    foreach ($ipKeys as $key) {
-      if (array_key_exists($key, $_SERVER) === true) {
-        foreach (explode(',', $_SERVER[$key]) as $ip) {
-          $ip = trim($ip);
+    if (function_exists('is_request_from_trusted_proxy') && \is_request_from_trusted_proxy()) {
+      $ipKeys = ['HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP'];
+      foreach ($ipKeys as $key) {
+        if (!array_key_exists($key, $_SERVER) || $_SERVER[$key] === '') {
+          continue;
+        }
+        foreach (explode(',', (string) $_SERVER[$key]) as $raw) {
+          $ip = trim($raw);
+          if ($ip === '') {
+            continue;
+          }
           if (filter_var($ip, FILTER_VALIDATE_IP,
             FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
             return $ip;
@@ -40,7 +46,12 @@ class SecurityService {
         }
       }
     }
-    return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+
+    $remote = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    if (filter_var($remote, FILTER_VALIDATE_IP)) {
+      return $remote;
+    }
+    return '0.0.0.0';
   }
 
   /**

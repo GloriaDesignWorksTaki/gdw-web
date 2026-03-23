@@ -1,0 +1,52 @@
+# ロリポップ！レンタルサーバーへの自動デプロイ（GitHub Actions）
+
+name: Deploy to Lolipop
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-lolipop
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy (rsync over SSH)
+        uses: burnett01/rsync-deployments@6.0.0
+        with:
+          # --filter P logs/ … 本番の logs 内データ（rate_limit 等）を --delete 対象から除外
+          switches: -avzr --delete --exclude-from=deploy/rsync-exclude.txt --filter=P logs/
+          path: ./
+          remote_path: ${{ secrets.DEPLOY_PATH }}
+          remote_host: ${{ secrets.DEPLOY_HOST }}
+          remote_user: ${{ secrets.DEPLOY_USER }}
+          remote_key: ${{ secrets.DEPLOY_SSH_KEY }}
+          remote_port: 2222
+
+      - name: Composer install on server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: 2222
+          script_stop: true
+          script: |
+            set -e
+            cd "${{ secrets.DEPLOY_PATH }}"
+            if command -v composer >/dev/null 2>&1; then
+              composer install --no-dev --optimize-autoloader --no-interaction
+            elif [ -f composer.phar ]; then
+              php composer.phar install --no-dev --optimize-autoloader --no-interaction
+            else
+              echo "composer が見つかりません。ロリポップのマニュアルに沿いパスを確認してください。"
+              exit 1
+            fi

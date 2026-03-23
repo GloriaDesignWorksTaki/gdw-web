@@ -1,0 +1,18 @@
+# rsync で送らないもの（vendor はサーバーで composer install）
+.git/
+.github/
+.gitignore
+.env
+.env_local
+.env_prod
+.env.local
+vendor/
+node_modules/
+composer.phar
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.cursor/
+.cursorrules

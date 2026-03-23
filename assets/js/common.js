@@ -345,9 +345,10 @@ class WorksFlipModal {
     const metaInner = modal.querySelector('.works-flip-modal-meta-inner');
     const metaTitle = modal.querySelector('.works-flip-modal-meta-title');
     const metaYear = modal.querySelector('.works-flip-modal-meta-year');
+    const metaCharge = modal.querySelector('.works-flip-modal-meta-charge');
     const metaTech = modal.querySelector('.works-flip-modal-meta-tech');
 
-    if (!modalOverlay || !mount || !meta || !metaShade || !metaInner || !metaTitle || !metaYear || !metaTech) {
+    if (!modalOverlay || !mount || !meta || !metaShade || !metaInner || !metaTitle || !metaYear || !metaCharge || !metaTech) {
       return;
     }
 
@@ -359,6 +360,7 @@ class WorksFlipModal {
     const resetMetaDom = () => {
       metaTitle.textContent = '';
       metaYear.textContent = '';
+      metaCharge.textContent = '';
       metaTech.innerHTML = '';
     };
 
@@ -366,6 +368,7 @@ class WorksFlipModal {
       if (!slot) return;
       metaTitle.textContent = slot.dataset.workTitle?.trim() || '';
       metaYear.textContent = slot.dataset.workYear?.trim() || '';
+      metaCharge.textContent = slot.dataset.workCharge?.trim() || '';
       metaTech.innerHTML = '';
       const raw = slot.dataset.workTech?.trim() || '';
       raw.split(',').forEach((name) => {

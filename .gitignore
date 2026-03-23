@@ -1,9 +1,12 @@
 # Logs
-logs/
+logs/*
+!logs/.htaccess
 *.log
 
 # Environment variables
 .env
+.env_local
+.env_prod
 .env.local
 .env.*.local
 

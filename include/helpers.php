@@ -1,8 +1,54 @@
 <?php
 /**
- * 共通ヘルパー関数
- * bootstrap.php から読み込まれる
+ * Helpers
+ * @author Gloria Design Works
+ * @version 1.00.000
+ * @see https://gloria-design-works.com/
+ * @package App\Helpers
  */
+
+// ベースURLの設定
+function base_url(): string {
+  $fromEnv = $_ENV['APP_BASE_URL'] ?? getenv('APP_BASE_URL');
+  if (is_string($fromEnv) && $fromEnv !== '') {
+    return rtrim($fromEnv, '/');
+  }
+
+  $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+  $https = false;
+
+  if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+    $https = true;
+  }
+
+  if (!$https && is_request_from_trusted_proxy()) {
+    $proto = strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''));
+    if ($proto === 'https') {
+      $https = true;
+    }
+  }
+
+  $scheme = $https ? 'https' : 'http';
+  return $scheme . '://' . $host;
+}
+
+// TRUSTED_PROXY_IPSにREMOTE_ADDRが含まれるかのチェック
+function is_request_from_trusted_proxy(): bool {
+  $remote = $_SERVER['REMOTE_ADDR'] ?? '';
+  if ($remote === '' || $remote === '0.0.0.0') {
+    return false;
+  }
+  $list = $_ENV['TRUSTED_PROXY_IPS'] ?? getenv('TRUSTED_PROXY_IPS');
+  if (!is_string($list) || trim($list) === '') {
+    return false;
+  }
+  foreach (array_map('trim', explode(',', $list)) as $trusted) {
+    if ($trusted !== '' && $trusted === $remote) {
+      return true;
+    }
+  }
+  return false;
+}
 
 // HTMLエスケープ
 function escape($string) {

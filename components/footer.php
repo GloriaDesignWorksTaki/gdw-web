@@ -1,3 +1,15 @@
+<?php
+/**
+ * Footer Parts
+ * @author Gloria Design Works
+ * @version 1.00.000
+ * @see https://gloria-design-works.com/
+ */
+
+if (!isset($url)) {
+  require_once __DIR__ . '/../config/bootstrap.php';
+}
+?>
 <footer>
   <div class="footer-logo scroll-trigger scroll-blur">
     <a href="<?php echo $url; ?>">
@@ -32,8 +44,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
-<script src="./assets/js/animations.js"></script>
-<script src="./assets/js/common.js"></script>
+<script src="<?php echo $url; ?>/assets/js/animations.js"></script>
+<script src="<?php echo $url; ?>/assets/js/common.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const contactForm = document.getElementById('contactForm');

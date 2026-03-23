@@ -1,7 +1,11 @@
 <?php
 /**
- * お問い合わせフォームの受信・バリデーション・送信
+ * Contact Form Validation
+ * @author Gloria Design Works
+ * @version 1.00.000
+ * @see https://gloria-design-works.com/
  */
+
 use App\Services\Mailer;
 use App\Services\SecurityService;
 

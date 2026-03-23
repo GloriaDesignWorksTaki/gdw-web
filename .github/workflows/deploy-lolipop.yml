@@ -53,12 +53,22 @@ jobs:
             set -e
             cd "${{ secrets.DEPLOY_PATH }}"
             # ロリポップ: php は /usr/local/php/VERSION/bin/php。PATH に無いと /usr/bin/env php が失敗する
+            # PHP 8.4 + サーバー同梱の古い composer は array_merge で落ちるため、8.3 → 8.2… を優先
             PHP_BIN=""
-            for f in /usr/local/php/*/bin/php; do
-              [ -x "$f" ] && PHP_BIN="$f"
+            for v in 8.3 8.2 8.1 8.0 7.4 7.3; do
+              f="/usr/local/php/$v/bin/php"
+              if [ -x "$f" ]; then
+                PHP_BIN="$f"
+                break
+              fi
             done
             if [ -z "$PHP_BIN" ]; then
-              echo "php が見つかりません。/usr/local/php/*/bin/php を確認してください。"
+              for f in /usr/local/php/*/bin/php; do
+                [ -x "$f" ] && PHP_BIN="$f"
+              done
+            fi
+            if [ -z "$PHP_BIN" ]; then
+              echo "php が見つかりません。/usr/local/php を確認してください。"
               ls -la /usr/local/php/ 2>/dev/null || true
               exit 1
             fi

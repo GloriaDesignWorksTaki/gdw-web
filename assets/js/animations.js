@@ -1,6 +1,9 @@
 /**
- * Animations JS | Gloria Design Works
+ * Animation JS
  * @file assets/js/animations.js
+ * @version 1.00.000
+ * @author Gloria Design Works
+ * @see https://gloria-design-works.com/
  */
 
 /**
@@ -153,6 +156,9 @@ class LoadingAnimation {
         if (typeof MainVisualText !== 'undefined' && typeof MainVisualText.init === 'function') {
           MainVisualText.init();
         }
+        if (typeof onPageLoaderComplete === 'function') {
+          onPageLoaderComplete();
+        }
       };
       if (typeof gsap === 'undefined') cleanup();
       else gsap.to(loader, { opacity: 0, duration: 0.45, delay: 0.15, onComplete: cleanup });
@@ -179,6 +185,7 @@ class ScrollAnimations {
     duration: 1.2,
     ease: 'power2.out',
     trigger: 'top 85%',
+    /** play のみ。`once: true` と併用し二重再生を防ぐ */
     toggleActions: 'play none none none',
   };
 
@@ -287,20 +294,28 @@ class ScrollAnimations {
     };
   }
 
+  /**
+   * スクロール表示アニメーション（推奨パターン）
+   * 1) 先に gsap.set で from を確定（opacity0 等が「最初から」効く）
+   * 2) gsap.to + scrollTrigger.once で 1 回だけ再生（二重発火を防ぐ）
+   * fromTo + immediateRender:false は初期フレームで素の見た目のままになりやすい
+   */
   static animateElement(el, variantKey, options) {
     const def = ScrollAnimations.VARIANTS[variantKey];
     if (!def) return;
-    gsap.fromTo(el, def.from, {
+    gsap.set(el, def.from);
+    gsap.to(el, {
       ...def.to,
       duration: options.duration,
       delay: options.delay,
       ease: options.ease,
+      overwrite: 'auto',
       scrollTrigger: {
         trigger: el,
         start: options.trigger,
         toggleActions: ScrollAnimations.DEFAULT.toggleActions,
+        once: true,
       },
-      overwrite: true,
     });
   }
 
@@ -328,23 +343,75 @@ class ScrollAnimations {
       const trigger = container.dataset.scrollTrigger || ScrollAnimations.DEFAULT.trigger;
       const duration = parseFloat(container.dataset.scrollDuration) || ScrollAnimations.DEFAULT.duration;
       const stagger = parseFloat(container.dataset.scrollStagger) || 0.12;
-      gsap.fromTo(children, def.from, {
+      gsap.set(children, def.from);
+      gsap.to(children, {
         ...def.to,
         duration,
         stagger,
         ease: ScrollAnimations.DEFAULT.ease,
+        overwrite: 'auto',
         scrollTrigger: {
           trigger: container,
           start: trigger,
           toggleActions: ScrollAnimations.DEFAULT.toggleActions,
+          once: true,
         },
-        overwrite: true,
       });
     });
+
+    // レイアウト確定後の1回だけ（二重 refresh は再計算でチラつきの原因になりやすい）
+    if (typeof ScrollTrigger.refresh === 'function') {
+      ScrollTrigger.refresh();
+    }
   }
+}
+
+/** ScrollTrigger は「スクロール位置が確定してから」張るのが前提。ローダー中は scroll が 0 に固定されるため、同時初期化するとズレる。 */
+let scrollAnimationsInitialized = false;
+let scrollAnimationsSchedulePending = false;
+
+function scheduleScrollAnimationsInit() {
+  if (scrollAnimationsInitialized) return;
+  if (scrollAnimationsSchedulePending) return;
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  scrollAnimationsSchedulePending = true;
+
+  const run = () => {
+    if (scrollAnimationsInitialized) return;
+    try {
+      ScrollAnimations.init();
+      scrollAnimationsInitialized = true;
+    } finally {
+      scrollAnimationsSchedulePending = false;
+    }
+  };
+
+  const afterPaint = () => {
+    if (document.readyState === 'complete') {
+      requestAnimationFrame(run);
+    } else {
+      window.addEventListener(
+        'load',
+        () => {
+          requestAnimationFrame(run);
+        },
+        { once: true }
+      );
+    }
+  };
+
+  requestAnimationFrame(afterPaint);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   LoadingAnimation.init();
-  ScrollAnimations.init();
+  const loader = document.getElementById('page-loader');
+  if (!loader) {
+    scheduleScrollAnimationsInit();
+  }
 });
+
+/** ローダー解除直後に呼ぶ（LoadingAnimation から参照するため関数宣言でホイスト） */
+function onPageLoaderComplete() {
+  scheduleScrollAnimationsInit();
+}

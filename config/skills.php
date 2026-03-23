@@ -1,7 +1,12 @@
 <?php
 /**
- * スキル・ツール設定ファイル
+ * Skills Config
+ * @package App\Config
+ * @author Gloria Design Works
+ * @version 1.00.000
+ * @see https://gloria-design-works.com/
  */
+
 return [
   [
     'title' => 'Design Tools',

@@ -1,4 +1,12 @@
 <?php
+/**
+ * Site　Config
+ * @package App\Config
+ * @author Gloria Design Works
+ * @version 1.00.000
+ * @see https://gloria-design-works.com/
+ */
+
 return [
   'site' => [
     'name' => 'Gloria Design Works',

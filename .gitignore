@@ -1,5 +1,6 @@
 # Logs
-logs/
+logs/*
+!logs/.htaccess
 *.log
 
 # Environment variables

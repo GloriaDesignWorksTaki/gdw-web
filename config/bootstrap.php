@@ -1,7 +1,12 @@
 <?php
 /**
- * アプリケーションの共通ブートストラップ
+ * Bootstrap
+ * @package App\Bootstrap
+ * @author Gloria Design Works
+ * @version 1.00.000
+ * @see https://gloria-design-works.com/
  */
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Dotenv\Dotenv;
@@ -16,8 +21,8 @@ if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// 共通で使うベースURL（header / footer / リンク用）
-$url = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . ($_SERVER['HTTP_HOST'] ?? 'localhost');
-
 // 共通ヘルパーを読み込み
 require_once __DIR__ . '/../include/helpers.php';
+
+// 共通で使うベースURL
+$url = base_url();

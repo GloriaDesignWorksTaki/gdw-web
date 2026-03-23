@@ -1,0 +1,5 @@
+# /logs/ への HTTP アクセスを拒否
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^logs(/|$) - [F,L]
+</IfModule>

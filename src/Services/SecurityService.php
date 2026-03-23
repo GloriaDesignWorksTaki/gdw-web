@@ -1,4 +1,11 @@
 <?php
+/**
+ * Security Service
+ * @package App\Services
+ * @author Gloria Design Works
+ * @version 1.00.000
+ * @see https://gloria-design-works.com/
+ */
 namespace App\Services;
 
 class SecurityService {
@@ -74,7 +81,6 @@ class SecurityService {
 
   /**
    * 時間制限チェック（短時間での連続送信を防ぐ）
-   * 注意: このメソッドはレート制限チェックの前に実行する必要があります
    */
   public function checkTimeLimit($ip = null) {
     if ($ip === null) {
@@ -87,22 +93,10 @@ class SecurityService {
       return true;
     }
 
-    // 最新の記録を除外（まだ記録されていないので、2番目に新しい記録をチェック）
     $timestamps = $data[$ip];
-    if (count($timestamps) < 2) {
-      // 記録が1つ以下なら時間制限なし
-      return true;
-    }
-
-    // ソートして2番目に新しい記録を取得
-    rsort($timestamps);
-    $secondLastAttempt = $timestamps[1] ?? null;
-
-    if ($secondLastAttempt === null) {
-      return true;
-    }
-
-    $timeSinceLastAttempt = time() - $secondLastAttempt;
+    // 最新の送信時刻から minSubmitTime 秒以上経過しているか
+    $lastAttempt = max($timestamps);
+    $timeSinceLastAttempt = time() - (int) $lastAttempt;
 
     if ($timeSinceLastAttempt < $this->minSubmitTime) {
       $this->logSecurityEvent('TIME_LIMIT_EXCEEDED', $ip, ['time_since' => $timeSinceLastAttempt]);

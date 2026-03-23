@@ -1,11 +1,24 @@
 <?php
+/**
+ * Index Page
+ * @package App\Index
+ * @author Gloria Design Works
+ * @version 1.00.000
+ * @see https://gloria-design-works.com/
+ */
+
+// Bootstrap
 require_once __DIR__ . '/config/bootstrap.php';
 
+// Contact Form
 $errors = [];
 $name = $email = $message = '';
 require_once __DIR__ . '/include/contact_form.php';
 
+// Works
 $worksItems = require __DIR__ . '/config/works.php';
+
+// Skills
 $skills = require __DIR__ . '/config/skills.php';
 
 require_once __DIR__ . '/header.php';

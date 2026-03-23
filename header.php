@@ -1,7 +1,13 @@
 <?php
-// $url は config/bootstrap.php で設定済み（全ページで require すること）
+/**
+ * Header Parts
+ * @author Gloria Design Works
+ * @version 1.00.000
+ * @see https://gloria-design-works.com/
+ */
+
 if (!isset($url)) {
-  $url = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+  require_once __DIR__ . '/config/bootstrap.php';
 }
 $styleVersion = file_exists(__DIR__ . '/assets/css/style.css') ? filemtime(__DIR__ . '/assets/css/style.css') : time();
 ?>
@@ -18,9 +24,9 @@ $styleVersion = file_exists(__DIR__ . '/assets/css/style.css') ? filemtime(__DIR
   <!-- no cache -->
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Cache-Control" content="no-cache">
-  <!-- ファビコン・アップルタッチアイコン -->
+  <!-- Favicon & Apple Touch Icon -->
   <link rel="icon" href="<?php echo $url; ?>/assets/images/favicon.ico" id="favicon">
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="<?php echo $url; ?>/apple-touch-icon.png">
   <!-- CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css">
   <link rel="stylesheet" href="<?php echo $url; ?>/assets/css/reset.css">
@@ -49,6 +55,7 @@ $body_loading_class = $show_page_loader ? ' is-loading' : '';
   <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TQCN4897" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->
+  <noscript><style>.scroll-trigger{opacity:1!important}</style></noscript>
   <header>
     <div class="logo">
       <a href="<?php echo $url; ?>">

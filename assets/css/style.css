@@ -32,7 +32,6 @@ Version: 1.00.000
 /* body */
 body {
   position: relative;
-  overflow-x: hidden;
   font-family: var(--font-family);
   font-size: var(--font-size);
   color: var(--color-secondary);
@@ -56,7 +55,6 @@ body.fixed {
 /* desc */
 .desc h2 {
   font-size: 1.75rem;
-  font-family: var(--font-family-title);
   color: var(--color-secondary);
 }
 .desc h3 {
@@ -67,8 +65,8 @@ body.fixed {
   font-size: 1.25rem;
   font-family: var(--font-family-title);
 }
-.desc .text {
-  margin: 1.5rem auto;
+.desc .text + .text {
+  margin-top: 1.5rem;
 }
 .desc .text p + p {
   margin-top: 0.5rem;
@@ -133,6 +131,24 @@ a {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
+}
+
+/* outline title */
+h2.outline-title {
+  background-color: transparent;
+  color: transparent;
+  -webkit-text-stroke: 0.6px var(--color-secondary);
+  -webkit-text-fill-color: transparent;
+  font-family: var(--font-family-title);
+  font-size: clamp(3rem, 16vw, 8rem);
+  opacity: .2;
+  pointer-events: none;
+  z-index: 99;
+  margin-bottom: 1.5rem;
+  line-height: normal;
+}
+section:nth-child(odd) h2.outline-title {
+  text-align: right;
 }
 
 /* header */
@@ -212,6 +228,7 @@ header .logo a img {
   transform: translate(-50%, -50%);
   width: 100px;
   height: 100px;
+  z-index: 0;
 }
 
 /* section common */
@@ -219,6 +236,8 @@ section {
   position: relative;
   padding: 3rem 0;
   z-index: 99;
+  overflow-x: hidden;
+  overflow-y: clip;
 }
 section .wrapper {
   padding: 0 1.25rem;
@@ -244,6 +263,9 @@ section .wrapper {
 }
 
 /* #works */
+#works h2.outline-title {
+  top: -15%;
+}
 #works .works-lists {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

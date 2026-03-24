@@ -34,6 +34,7 @@ require_once $root . '/components/dialog.php';
   <!-- #about -->
   <section id="about">
     <div class="wrapper">
+      <h2 class="outline-title scroll-trigger scroll-blur">About</h2>
       <div class="desc">
         <div class="text scroll-trigger scroll-blur">
           <p>My work focuses on minimal and simple design, with a strong emphasis on the use of white space.</p>
@@ -54,6 +55,7 @@ require_once $root . '/components/dialog.php';
   </section>
   <section id="works">
     <div class="wrapper">
+      <h2 class="outline-title scroll-trigger scroll-blur">Works</h2>
       <div class="works-lists">
         <?php foreach ($worksItems as $workItem): ?>
           <div
@@ -74,26 +76,9 @@ require_once $root . '/components/dialog.php';
     </div>
   </section>
 
-  <div class="works-flip-modal" aria-hidden="true">
-    <div class="works-flip-modal-overlay"></div>
-    <div class="works-flip-modal-body">
-      <div class="works-flip-modal-content" aria-label="Works gallery">
-        <div class="works-flip-modal-image-mount"></div>
-        <div class="works-flip-modal-meta" aria-hidden="true">
-          <div class="works-flip-modal-meta-shade" aria-hidden="true"></div>
-          <div class="works-flip-modal-meta-inner">
-            <p class="works-flip-modal-meta-year en"></p>
-            <h2 class="works-flip-modal-meta-title en"></h2>
-            <p class="works-flip-modal-meta-charge en"></p>
-            <ul class="works-flip-modal-meta-tech"></ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <section id="skills">
     <div class="wrapper">
+      <h2 class="outline-title scroll-trigger scroll-blur">Skills</h2>
       <div class="desc-lists">
         <?php foreach ($skills as $skill): ?>
           <dl class="scroll-trigger scroll-blur">
@@ -108,8 +93,10 @@ require_once $root . '/components/dialog.php';
       </div>
     </div>
   </section>
+
   <section id="contact">
     <div class="wrapper">
+      <h2 class="outline-title scroll-trigger scroll-blur">Contact</h2>
       <form method="post" action="" id="contactForm">
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
         <div class="form-block scroll-trigger scroll-blur">
@@ -137,4 +124,23 @@ require_once $root . '/components/dialog.php';
     </div>
   </section>
 </main>
+
+<div class="works-flip-modal" aria-hidden="true">
+  <div class="works-flip-modal-overlay"></div>
+  <div class="works-flip-modal-body">
+    <div class="works-flip-modal-content" aria-label="Works gallery">
+      <div class="works-flip-modal-image-mount"></div>
+      <div class="works-flip-modal-meta" aria-hidden="true">
+        <div class="works-flip-modal-meta-shade" aria-hidden="true"></div>
+        <div class="works-flip-modal-meta-inner">
+          <p class="works-flip-modal-meta-year en"></p>
+          <h2 class="works-flip-modal-meta-title en"></h2>
+          <p class="works-flip-modal-meta-charge en"></p>
+          <ul class="works-flip-modal-meta-tech"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <?php require_once $root . '/components/footer.php'; ?>

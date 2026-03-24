@@ -16,7 +16,8 @@ class Mailer {
   private $mailer;
   private $config;
   public function __construct() {
-    $this->config = require_once __DIR__ . '/../../config/config.php';
+    // 設定ファイルの読み込み
+    $this->config = require __DIR__ . '/../../config/config.php';
     $this->mailer = new PHPMailer(true);
 
     // SMTPの設定

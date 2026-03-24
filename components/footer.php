@@ -9,6 +9,12 @@
 if (!isset($url)) {
   require_once __DIR__ . '/../config/bootstrap.php';
 }
+
+$root = dirname(__DIR__);
+$jsAnimationsPath = $root . '/assets/js/animations.js';
+$jsCommonPath = $root . '/assets/js/common.js';
+$jsAnimationsVer = is_file($jsAnimationsPath) ? filemtime($jsAnimationsPath) : time();
+$jsCommonVer = is_file($jsCommonPath) ? filemtime($jsCommonPath) : time();
 ?>
 <footer>
   <div class="footer-logo scroll-trigger scroll-blur">
@@ -44,8 +50,8 @@ if (!isset($url)) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
-<script src="<?php echo $url; ?>/assets/js/animations.js"></script>
-<script src="<?php echo $url; ?>/assets/js/common.js"></script>
+<script src="<?php echo $url; ?>/assets/js/animations.js?v=<?php echo $jsAnimationsVer; ?>"></script>
+<script src="<?php echo $url; ?>/assets/js/common.js?v=<?php echo $jsCommonVer; ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const contactForm = document.getElementById('contactForm');

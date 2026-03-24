@@ -212,7 +212,7 @@ header .logo a img {
 }
 #mv .concept-box .concept h1 {
   position: relative;
-  font-size: clamp(1.75rem, 3.5vw, 5rem);
+  font-size: clamp(1.75rem, 7vw, 5rem);
   color: var(--color-accent);
   font-family: var(--font-family-title);
   text-align: center;
@@ -362,13 +362,14 @@ section .wrapper {
   position: relative;
   z-index: 1;
   width: 100%;
-  padding: clamp(1.25rem, 2.5vw, 3rem);
+  padding: clamp(1rem, 2.5vw, 3rem);
   color: var(--color-secondary);
   opacity: 0;
   filter: blur(14px);
   will-change: opacity, filter;
 }
 .works-flip-modal-meta-title {
+  line-height: normal;
   font-size: clamp(1.1rem, 2.5vw, 2rem);
 }
 .works-flip-modal-meta-year {

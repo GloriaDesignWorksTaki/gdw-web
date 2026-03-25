@@ -58,16 +58,34 @@ require_once $root . '/components/dialog.php';
       <h2 class="outline-title scroll-trigger scroll-blur">Works</h2>
       <div class="works-lists">
         <?php foreach ($worksItems as $workItem): ?>
+          <?php
+          $worksConceptRaw = $workItem['concept'] ?? '';
+          $worksConcept = is_string($worksConceptRaw) ? trim($worksConceptRaw) : '';
+          $worksPeriodRaw = $workItem['period'] ?? '';
+          $worksPeriod = is_string($worksPeriodRaw) ? trim($worksPeriodRaw) : '';
+          ?>
           <div
-            class="works-slot scroll-trigger scroll-blur"
+            class="works-slot"
             data-work-id="<?php echo escape($workItem['id'] ?? ''); ?>"
             data-stalker-title="<?php echo escape($workItem['title'] ?? ''); ?>"
             data-work-title="<?php echo escape($workItem['title'] ?? ''); ?>"
             data-work-year="<?php echo escape($workItem['year'] ?? ''); ?>"
             data-work-charge="<?php echo escape($workItem['charge'] ?? ''); ?>"
             data-work-tech="<?php echo escape(implode(',', $workItem['tech'] ?? [])); ?>"
+            <?php if ($worksConcept !== ''): ?>
+              data-work-concept="<?php echo escape(base64_encode($worksConcept)); ?>"
+            <?php endif; ?>
+            <?php if ($worksPeriod !== ''): ?>
+              data-work-period="<?php echo escape(base64_encode($worksPeriod)); ?>"
+            <?php endif; ?>
+            <?php if (!empty($workItem['target'])): ?>
+              data-work-target="<?php echo escape((string) $workItem['target']); ?>"
+            <?php endif; ?>
+            <?php if (!empty($workItem['url'])): ?>
+              data-work-url="<?php echo escape((string) $workItem['url']); ?>"
+            <?php endif; ?>
           >
-            <div class="works-image image">
+            <div class="works-image image scroll-trigger scroll-blur">
               <img src="<?php echo $url; ?>/assets/images/works/<?php echo escape($workItem['image'] ?? ''); ?>" alt="<?php echo escape($workItem['title'] ?? ''); ?>">
             </div>
           </div>
@@ -125,18 +143,34 @@ require_once $root . '/components/dialog.php';
   </section>
 </main>
 
-<div class="works-flip-modal" aria-hidden="true">
-  <div class="works-flip-modal-overlay"></div>
-  <div class="works-flip-modal-body">
-    <div class="works-flip-modal-content" aria-label="Works gallery">
-      <div class="works-flip-modal-image-mount"></div>
-      <div class="works-flip-modal-meta" aria-hidden="true">
-        <div class="works-flip-modal-meta-shade" aria-hidden="true"></div>
-        <div class="works-flip-modal-meta-inner">
-          <p class="works-flip-modal-meta-year en"></p>
-          <h2 class="works-flip-modal-meta-title en"></h2>
-          <p class="works-flip-modal-meta-charge en"></p>
-          <ul class="works-flip-modal-meta-tech"></ul>
+<div class="wf-modal" aria-hidden="true">
+  <div class="wf-modal-ov"></div>
+  <div class="wf-modal-body">
+    <div class="wf-modal-content" aria-label="Works gallery">
+      <div class="wf-modal-mount"></div>
+      <div class="wf-modal-meta" aria-hidden="true">
+        <div class="wf-modal-shade" aria-hidden="true"></div>
+        <div class="wf-modal-inner">
+          <p class="wf-modal-year en"></p>
+          <h2 class="wf-modal-title en"></h2>
+          <p class="wf-modal-charge en"></p>
+          <ul class="wf-modal-tech"></ul>
+          <div class="wf-modal-box">
+            <h3>Concept</h3>
+            <div class="wf-modal-concept" aria-label="Concept"></div>
+          </div>
+          <div class="wf-modal-box">
+            <h3>Target</h3>
+            <p class="wf-modal-target en"></p>
+          </div>
+          <div class="wf-modal-box">
+            <h3>Period</h3>
+            <div class="wf-modal-period" aria-label="Period"></div>
+          </div>
+          <div class="wf-modal-box">
+            <h3>URL</h3>
+            <a href="" class="wf-modal-url" target="_blank" rel="nofollow noopener noreferrer"></a>
+          </div>
         </div>
       </div>
     </div>

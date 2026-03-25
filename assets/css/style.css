@@ -140,7 +140,7 @@ h2.outline-title {
   -webkit-text-stroke: 0.6px var(--color-secondary);
   -webkit-text-fill-color: transparent;
   font-family: var(--font-family-title);
-  font-size: clamp(3rem, 16vw, 8rem);
+  font-size: clamp(3rem, 16vw, 6rem);
   opacity: .2;
   pointer-events: none;
   z-index: 99;
@@ -212,7 +212,7 @@ header .logo a img {
 }
 #mv .concept-box .concept h1 {
   position: relative;
-  font-size: clamp(1.75rem, 7vw, 5rem);
+  font-size: clamp(1.75rem, 7vw, 3.5rem);
   color: var(--color-accent);
   font-family: var(--font-family-title);
   text-align: center;
@@ -282,7 +282,7 @@ section .wrapper {
 }
 
 /* flip modal */
-.works-flip-modal {
+.wf-modal {
   width: 100%;
   height: 100vh;
   position: fixed;
@@ -293,8 +293,9 @@ section .wrapper {
   z-index: 100010;
   opacity: 0;
   visibility: hidden;
+  pointer-events: none;
 }
-.works-flip-modal-overlay {
+.wf-modal-ov {
   position: absolute;
   top: 0;
   left: 0;
@@ -305,8 +306,10 @@ section .wrapper {
   opacity: 0;
   z-index: 0;
   will-change: opacity, filter;
+  pointer-events: auto;
+  cursor: pointer;
 }
-.works-flip-modal-body {
+.wf-modal-body {
   position: absolute;
   inset: 0;
   z-index: 1;
@@ -315,31 +318,31 @@ section .wrapper {
   justify-content: center;
   pointer-events: none;
 }
-.works-flip-modal-content {
+.wf-modal-content {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: auto;
 }
-.works-flip-modal-image-mount {
+.wf-modal-mount {
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.works-flip-modal-image-mount .works-image {
+.wf-modal-mount .works-image {
   width: 95vw;
   height: auto;
   max-height: 85vh;
 }
-.works-flip-modal-image-mount .works-image img {
+.wf-modal-mount .works-image img {
   width: 100%;
   height: auto;
   display: block;
 }
 
 /* works meta */
-.works-flip-modal-meta {
+.wf-modal-meta {
   position: absolute;
   inset: 0;
   z-index: 2;
@@ -350,15 +353,15 @@ section .wrapper {
   opacity: 0;
   visibility: hidden;
 }
-.works-flip-modal-meta-shade {
+.wf-modal-shade {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.725);
   opacity: 0;
   pointer-events: none;
   will-change: opacity, filter;
 }
-.works-flip-modal-meta-inner {
+.wf-modal-inner {
   position: relative;
   z-index: 1;
   width: 100%;
@@ -367,34 +370,64 @@ section .wrapper {
   opacity: 0;
   filter: blur(14px);
   will-change: opacity, filter;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  pointer-events: auto;
 }
-.works-flip-modal-meta-title {
+.wf-modal-title {
   line-height: normal;
   font-size: clamp(1.1rem, 2.5vw, 2rem);
 }
-.works-flip-modal-meta-year {
+.wf-modal-year {
   font-size: 0.875rem;
   letter-spacing: 0.12em;
   color: var(--color-primary-pale);
 }
-.works-flip-modal-meta-charge {
+.wf-modal-charge {
   margin: 0.5rem 0 1rem;
   font-size: 0.825rem;
   letter-spacing: 0.08em;
   color: var(--color-secondary);
 }
-.works-flip-modal-meta-charge:empty {
+.wf-modal-charge:empty {
   display: none;
 }
-.works-flip-modal-meta-tech {
+.wf-modal-box {
+  margin-top: 1.25rem;
+  font-size: 0.8125rem;
+}
+.wf-modal-box h3 {
+  padding-bottom: .5rem;
+}
+.wf-modal-box a {
+  color: var(--color-secondary);
+}
+.wf-modal-concept:empty {
+  display: none;
+}
+.wf-modal-concept p + p {
+  margin-top: 0.5rem;
+}
+.wf-modal-period:empty {
+  display: none;
+}
+.wf-modal-period p + p {
+  margin-top: 0.5rem;
+}
+.wf-modal-tech {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
   list-style: none;
+  margin: 0;
+  padding: 0;
   font-size: 1.25rem;
   color: var(--color-secondary);
 }
-.works-flip-modal-meta-tech li {
+.wf-modal-tech li {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -786,7 +819,15 @@ footer .copy {
     background: var(--color-secondary);
     border-radius: 50%;
     transform: translate(0, 0);
-    transition: transform 0.1s, width 0.2s, height 0.2s, top 0.2s, left 0.2s;
+    transition:
+      transform 0.1s,
+      width 0.28s,
+      height 0.28s,
+      top 0.28s,
+      left 0.28s,
+      background 0.28s,
+      border 0.28s,
+      opacity 0.22s;
     transition-timing-function: ease-out;
     z-index: 99999;
     mix-blend-mode: difference;
@@ -857,6 +898,16 @@ footer .copy {
     border-radius: 2px;
     pointer-events: none;
     transform-origin: center center;
+    opacity: 0;
+    animation: works-stalker-close-x-in 0.28s ease forwards;
+  }
+  @keyframes works-stalker-close-x-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
   .mouse-stalker.is-works-modal-close::before {
     transform: translate(-50%, -50%) rotate(45deg);
@@ -904,7 +955,7 @@ footer .copy {
   }
 
   /* flip modal */
-  .works-flip-modal-image-mount .works-image {
+  .wf-modal-mount .works-image {
     width: 60vw;
   }
 

@@ -48,8 +48,6 @@ class MouseStalker {
     this.stalkerY = 0; // 補間済みY座標
     /** @type {string} 非ホバー時のドット塗り（mix-blend 用） */
     this._idleFill = '#ffffff';
-    /** works モーダル表示中はバツカーソル */
-    this._worksModalCursor = false;
   }
 
   // 対象要素に応じたアクション文言を返す
@@ -65,6 +63,9 @@ class MouseStalker {
     }
     // リンクの場合はクリック
     if (tag === 'A') {
+      if (el.classList.contains('wf-modal-url')) {
+        return 'OPEN LINK';
+      }
       const href = el.getAttribute('href') ?? '';
       const icon = el.querySelector('i');
       for (const [cls, text] of Object.entries(MouseStalker.TEXT_MAP.iconText)) {
@@ -145,6 +146,7 @@ class MouseStalker {
       left: '',
       background: '',
       border: '',
+      borderRadius: '',
       mixBlendMode: ''
     });
   }
@@ -188,6 +190,50 @@ class MouseStalker {
     this.applyIdleVisual();
   }
 
+  hitTargetExcludingStalker() {
+    const stack = document.elementsFromPoint(this.mouseX, this.mouseY);
+    for (const n of stack) {
+      if (!(n instanceof Element)) continue;
+      if (n.classList.contains('mouse-stalker')) continue;
+      return n;
+    }
+    return null;
+  }
+
+  syncWorksModalStalkerVisual() {
+    if (!this.stalker || !document.body.classList.contains('works-modal-open')) return;
+    const modal = document.querySelector('.wf-modal');
+    const overlay = modal?.querySelector('.wf-modal-ov');
+    if (!modal || !overlay) return;
+
+    const stack = document.elementsFromPoint(this.mouseX, this.mouseY);
+    let onOverlay = false;
+    let onContent = false;
+    for (const n of stack) {
+      if (!(n instanceof Element)) continue;
+      if (n.classList.contains('mouse-stalker')) continue;
+      if (!modal.contains(n)) continue;
+      if (n.closest('.wf-modal-content')) {
+        onContent = true;
+        break;
+      }
+      if (n === overlay || n.closest('.wf-modal-ov')) {
+        onOverlay = true;
+        break;
+      }
+    }
+
+    if (onOverlay && !onContent) {
+      if (!this.stalker.classList.contains('is-works-modal-close')) {
+        this.applyWorksModalCloseCursor();
+      }
+      return;
+    }
+    if (this.stalker.classList.contains('is-works-modal-close')) {
+      this.clearWorksModalCursor();
+    }
+  }
+
   // MouseStalkerを初期化
   init() {
     if (!this.stalker || !this.stalkerText) return;
@@ -209,8 +255,8 @@ class MouseStalker {
       position: 'fixed',
       top: '-6px',
       left: '-6px',
-      /* z-index は CSS 側（通常 99999 / works モーダル時はモーダルより上） */
-      transition: 'transform 0.1s, width 0.22s, height 0.22s, top 0.22s, left 0.22s, background 0.2s, border 0.2s, mix-blend-mode 0.2s',
+      transition:
+        'transform 0.1s, width 0.28s, height 0.28s, top 0.28s, left 0.28s, background 0.28s, border 0.28s, mix-blend-mode 0.2s',
       transitionTimingFunction: 'ease-out'
     });
     this.applyIdleVisual();
@@ -227,13 +273,20 @@ class MouseStalker {
         this.stalker.style.transform = `translate(${this.stalkerX}px, ${this.stalkerY}px)`;
 
         if (document.body.classList.contains('works-modal-open')) {
-          if (!this._worksModalCursor) {
-            this.applyWorksModalCloseCursor();
-            this._worksModalCursor = true;
+          if (this.stalker.classList.contains('is_active')) {
+            const top = this.hitTargetExcludingStalker();
+            const stillValid =
+              top && top.closest('.wf-modal') && top.closest(MouseStalker.SELECTOR);
+            if (!stillValid) {
+              this.stalker.classList.remove('is_active');
+              this.resetStyle();
+            }
           }
-        } else if (this._worksModalCursor) {
+          if (!this.stalker.classList.contains('is_active')) {
+            this.syncWorksModalStalkerVisual();
+          }
+        } else if (this.stalker.classList.contains('is-works-modal-close')) {
           this.clearWorksModalCursor();
-          this._worksModalCursor = false;
         }
 
         requestAnimationFrame(tick);
@@ -257,13 +310,33 @@ class MouseStalker {
 
     document.querySelectorAll(MouseStalker.SELECTOR).forEach((elem) => {
       elem.addEventListener('mouseover', () => {
+        if (
+          document.body.classList.contains('works-modal-open') &&
+          !elem.closest('.wf-modal')
+        ) {
+          return;
+        }
+        const inModal =
+          document.body.classList.contains('works-modal-open') &&
+          elem.closest('.wf-modal');
+        const isModalUrl =
+          inModal &&
+          elem.matches('a.wf-modal-url') &&
+          (() => {
+            const h = elem.getAttribute('href');
+            return Boolean(h && h.trim() !== '' && h !== '#');
+          })();
+        if (isModalUrl) {
+          this.stalker.classList.remove('is-works-modal-close');
+        }
+
         this.stalker.classList.add('is_active');
         const txt = this.getActionText(elem);
         this.updateSize(txt);
-        // 非ホバー時と同様 mix-blend-mode: difference（背景と似た色でも反転して見える）
         Object.assign(this.stalker.style, {
           background: 'transparent',
           border: `2px solid ${this._idleFill}`,
+          borderRadius: '50%',
           mixBlendMode: 'difference',
           boxSizing: 'border-box'
         });
@@ -272,7 +345,11 @@ class MouseStalker {
       elem.addEventListener('mouseout', () => {
         this.stalker.classList.remove('is_active');
         this.resetStyle();
-        this.applyIdleVisual();
+        if (document.body.classList.contains('works-modal-open')) {
+          this.syncWorksModalStalkerVisual();
+        } else {
+          this.applyIdleVisual();
+        }
       });
     });
   }
@@ -330,23 +407,37 @@ class ExpandingBoxScroll {
  * @type {class}
  */
 class WorksFlipModal {
+  // decode base64
+  static decodeConceptBase64(b64) {
+    const binary = atob(b64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+
   init() {
     if (typeof gsap === 'undefined' || typeof Flip === 'undefined') return;
 
     gsap.registerPlugin(Flip);
 
-    const modal = document.querySelector('.works-flip-modal');
+    const modal = document.querySelector('.wf-modal');
     if (!modal) return;
 
-    const modalOverlay = modal.querySelector('.works-flip-modal-overlay');
-    const mount = modal.querySelector('.works-flip-modal-image-mount');
-    const meta = modal.querySelector('.works-flip-modal-meta');
-    const metaShade = modal.querySelector('.works-flip-modal-meta-shade');
-    const metaInner = modal.querySelector('.works-flip-modal-meta-inner');
-    const metaTitle = modal.querySelector('.works-flip-modal-meta-title');
-    const metaYear = modal.querySelector('.works-flip-modal-meta-year');
-    const metaCharge = modal.querySelector('.works-flip-modal-meta-charge');
-    const metaTech = modal.querySelector('.works-flip-modal-meta-tech');
+    const modalOverlay = modal.querySelector('.wf-modal-ov');
+    const mount = modal.querySelector('.wf-modal-mount');
+    const meta = modal.querySelector('.wf-modal-meta');
+    const metaShade = modal.querySelector('.wf-modal-shade');
+    const metaInner = modal.querySelector('.wf-modal-inner');
+    const metaTitle = modal.querySelector('.wf-modal-title');
+    const metaYear = modal.querySelector('.wf-modal-year');
+    const metaCharge = modal.querySelector('.wf-modal-charge');
+    const metaConcept = modal.querySelector('.wf-modal-concept');
+    const metaTech = modal.querySelector('.wf-modal-tech');
+    const metaTarget = modal.querySelector('.wf-modal-target');
+    const metaPeriod = modal.querySelector('.wf-modal-period');
+    const metaUrl = modal.querySelector('.wf-modal-url');
 
     if (!modalOverlay || !mount || !meta || !metaShade || !metaInner || !metaTitle || !metaYear || !metaCharge || !metaTech) {
       return;
@@ -361,7 +452,21 @@ class WorksFlipModal {
       metaTitle.textContent = '';
       metaYear.textContent = '';
       metaCharge.textContent = '';
+      if (metaConcept) metaConcept.innerHTML = '';
       metaTech.innerHTML = '';
+      if (metaTarget) metaTarget.textContent = '';
+      if (metaPeriod) {
+        metaPeriod.innerHTML = '';
+        const periodBox = metaPeriod.closest('.wf-modal-box');
+        if (periodBox) periodBox.hidden = false;
+      }
+      if (metaUrl) {
+        metaUrl.removeAttribute('href');
+        metaUrl.textContent = '';
+        metaUrl.hidden = false;
+        const urlBox = metaUrl.closest('.wf-modal-box');
+        if (urlBox) urlBox.hidden = false;
+      }
     };
 
     const fillMetaFromSlot = (slot) => {
@@ -381,6 +486,51 @@ class WorksFlipModal {
         li.appendChild(ic);
         metaTech.appendChild(li);
       });
+      if (metaConcept) {
+        const conceptB64 = slot.dataset.workConcept?.trim() || '';
+        if (conceptB64) {
+          try {
+            metaConcept.innerHTML = WorksFlipModal.decodeConceptBase64(conceptB64);
+          } catch {
+            metaConcept.innerHTML = '';
+          }
+        } else {
+          metaConcept.innerHTML = '';
+        }
+      }
+      if (metaTarget) {
+        metaTarget.textContent = slot.dataset.workTarget?.trim() || '';
+      }
+      if (metaPeriod) {
+        const periodB64 = slot.dataset.workPeriod?.trim() || '';
+        const periodBox = metaPeriod.closest('.wf-modal-box');
+        if (periodB64) {
+          try {
+            metaPeriod.innerHTML = WorksFlipModal.decodeConceptBase64(periodB64);
+          } catch {
+            metaPeriod.innerHTML = '';
+          }
+          if (periodBox) periodBox.hidden = false;
+        } else {
+          metaPeriod.innerHTML = '';
+          if (periodBox) periodBox.hidden = true;
+        }
+      }
+      if (metaUrl) {
+        const urlStr = slot.dataset.workUrl?.trim() || '';
+        const urlBox = metaUrl.closest('.wf-modal-box');
+        if (urlStr) {
+          metaUrl.href = urlStr;
+          metaUrl.textContent = urlStr;
+          metaUrl.hidden = false;
+          if (urlBox) urlBox.hidden = false;
+        } else {
+          metaUrl.removeAttribute('href');
+          metaUrl.textContent = '';
+          metaUrl.hidden = true;
+          if (urlBox) urlBox.hidden = true;
+        }
+      }
     };
 
     const showMetaAfterFlip = () => {
@@ -489,16 +639,14 @@ class WorksFlipModal {
       });
     };
 
-    modal.addEventListener(
-      'click',
-      (e) => {
-        if (boxIndex === undefined) return;
-        e.preventDefault();
-        e.stopPropagation();
-        runClose();
-      },
-      true
-    );
+    // オーバーレイ
+    modalOverlay.addEventListener('click', (e) => {
+      if (boxIndex === undefined) return;
+      if (e.target !== modalOverlay) return;
+      e.preventDefault();
+      e.stopPropagation();
+      runClose();
+    });
 
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Escape') return;

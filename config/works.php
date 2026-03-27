@@ -65,7 +65,7 @@
       <p>Frontend Development：1week</p>
     ',
     'target' => '企業顧客 / パートナー企業 / 採用候補者',
-    'url' => 'https://1010bit.com/',
+    'url' => 'https://1010bit.jp/',
   ],
   [
     'id' => 'works04',
@@ -86,7 +86,7 @@
       <p>UI Design：2weeks</p>
       <p>Frontend Development：2months</p>
     ',
-    'url' => 'https://cotovia.com/',
+    'url' => 'https://cotovia-clinic.com/',
   ],
   [
     'id' => 'works05',
@@ -128,7 +128,7 @@
       <p>UI Design：1month</p>
       <p>Frontend Development：3months</p>
     ',
-    'url' => 'https://ken5.golf/',
+    'url' => 'https://www.ken5.golf/',
   ],
   [
     'id' => 'works07',

@@ -44,7 +44,7 @@
       <p>自分のバンドなので、わりと好きにやってます。</p>
     ',
     'target' => '音楽ファン / ライブ来場検討者 / 音楽関係者',
-    'url' => 'https://thetravelingtheory.com/',
+    'url' => 'https://thetravelingtheory.info/',
   ],
   [
     'id' => 'works03',

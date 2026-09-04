@@ -154,6 +154,41 @@
   ],
   [
     'id' => 'works08',
+    'title' => 'FOUR GET ME A NOTS Official Site',
+    'year' => '2026',
+    'charge' => 'UI Design / Frontend Development',
+    'image' => 'fourgetmeanots.webp',
+    'concept' => '
+      <p>千葉県で活動中のメロディックパンクバンド、FOUR GET ME A NOTSの公式サイトです。</p>
+      <p>旧サイトはサーバーやWPのバージョン等の問題が多く、それらを一新した上でレスポンシブで見やすいサイトに再構築しました。</p>
+      <p>バンドの楽曲やイメージをサイトの雰囲気に落とし込みつつ必要な情報に辿り着きやすいセマンティックな構造にしています。</p>
+    ',
+    'target' => 'ファン / 音楽関係者',
+    'period' => '
+      <p>UI/UX Design：2days</p>
+      <p>Frontend Development：1week</p>
+    ',
+    'url' => 'https://fourgetmeanots.net/',
+  ],
+  [
+    'id' => 'works09',
+    'title' => 'Brightside Booking Official Site',
+    'year' => '2026',
+    'charge' => 'UI Design / Frontend Development',
+    'image' => 'brightside-booking.webp',
+    'concept' => '
+      <p>大阪のハードコア・パンクプロモーターBrightside Bookingの公式サイトです。</p>
+      <p>今までのツアーやリリースした作品・招聘しているバンドの雰囲気をサイト全体に落とし込み、全体的に必要な情報を取り出しやすい設計にしました。</p>
+    ',
+    'target' => 'ハードコアパンクファン / 音楽関係者',
+    'period' => '
+      <p>UI/UX Design：1week</p>
+      <p>Frontend Development：3weeks</p>
+    ',
+    'url' => 'https://brightsidebooking.com/',
+  ],
+  [
+    'id' => 'works10',
     'title' => 'ToyJoy Artist Logo Design',
     'year' => '2026',
     'charge' => 'Graphic Design',
@@ -169,7 +204,7 @@
     ',
   ],
   [
-    'id' => 'works09',
+    'id' => 'works11',
     'title' => 'Gloria Design Works Business Card',
     'year' => '2026',
     'charge' => 'Graphic Design',
@@ -184,5 +219,5 @@
       <p>Design：2days</p>
     ',
     'target' => '企業担当者 / デザイナー',
-  ]
+  ],
 ];

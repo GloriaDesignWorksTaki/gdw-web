@@ -243,9 +243,13 @@ section .wrapper {
   padding: 0 1.25rem;
 }
 
-/* scroll trigger (JS Animation) */
+/* scroll trigger (JS Animation)
+ * 初期は非表示。再生完了後は .is-scroll-revealed で表示を確定（CSS の opacity:0 に戻らないようにする） */
 .scroll-trigger {
   opacity: 0;
+}
+.scroll-trigger.is-scroll-revealed {
+  opacity: 1;
 }
 
 /* #about */

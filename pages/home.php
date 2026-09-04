@@ -10,6 +10,7 @@
 $root = dirname(__DIR__);
 
 require_once $root . '/config/bootstrap.php';
+$url = base_url();
 
 $errors = [];
 $name = $email = $message = '';

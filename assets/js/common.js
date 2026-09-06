@@ -448,7 +448,12 @@ class WorksFlipModal {
     let boxIndex = undefined;
     let isClosing = false;
 
+    const resetMetaScroll = () => {
+      metaInner.scrollTop = 0;
+    };
+
     const resetMetaDom = () => {
+      resetMetaScroll();
       metaTitle.textContent = '';
       metaYear.textContent = '';
       metaCharge.textContent = '';
@@ -471,6 +476,7 @@ class WorksFlipModal {
 
     const fillMetaFromSlot = (slot) => {
       if (!slot) return;
+      resetMetaScroll();
       metaTitle.textContent = slot.dataset.workTitle?.trim() || '';
       metaYear.textContent = slot.dataset.workYear?.trim() || '';
       metaCharge.textContent = slot.dataset.workCharge?.trim() || '';
@@ -534,6 +540,7 @@ class WorksFlipModal {
     };
 
     const showMetaAfterFlip = () => {
+      resetMetaScroll();
       gsap.killTweensOf([meta, metaShade, metaInner]);
       gsap.set(meta, { visibility: 'visible', autoAlpha: 1 });
       gsap.set(metaShade, { opacity: 0, filter: 'blur(0px)' });

@@ -294,6 +294,56 @@ class ScrollAnimations {
     };
   }
 
+  /** タッチ端末／狭い画面では filter:blur がフェード後にチカつきやすい */
+  static prefersReducedBlur() {
+    try {
+      return window.matchMedia('(hover: none), (max-width: 1023px)').matches;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /** バリエーション解決（モバイルでは scroll-blur → fade-up） */
+  static resolveVariant(variantKey) {
+    const key =
+      variantKey === 'scroll-blur' && ScrollAnimations.prefersReducedBlur()
+        ? 'scroll-fade-up'
+        : variantKey;
+    return ScrollAnimations.VARIANTS[key] || null;
+  }
+
+  /**
+   * 再生完了後の安定化
+   * - filter:blur(0) を残すとモバイル Safari/Chrome で合成レイヤーの付け外しにより一瞬チカつく
+   * - CSS の .scroll-trigger { opacity:0 } に戻らないようクラスで表示を確定
+   */
+  static markRevealed(targets) {
+    gsap.utils.toArray(targets).forEach((el) => {
+      el.classList.add('is-scroll-revealed');
+      gsap.set(el, { clearProps: 'filter' });
+    });
+  }
+
+  /**
+   * ページ最下部など「start に到達できない」once アニメだけを救済する。
+   * ※ scrub / once 以外は絶対に触らない（ExpandingBox の start:top top は
+   *    scroll=0 でも alreadyPast になり、play() するとファーストビューが青一色になる）
+   */
+  static playUnreachableTriggers() {
+    if (typeof ScrollTrigger === 'undefined') return;
+    ScrollTrigger.getAll().forEach((st) => {
+      if (st.vars.scrub) return;
+      if (!st.vars.once) return;
+      const tween = st.animation;
+      if (!tween || typeof tween.play !== 'function') return;
+      const max = ScrollTrigger.maxScroll(st.scroller);
+      const unreachable = st.start >= max - 1;
+      if (unreachable && tween.progress() === 0 && !tween.isActive()) {
+        tween.play();
+      }
+    });
+  }
+
   /**
    * スクロール表示アニメーション（推奨パターン）
    * 1) 先に gsap.set で from を確定（opacity0 等が「最初から」効く）
@@ -301,7 +351,7 @@ class ScrollAnimations {
    * fromTo + immediateRender:false は初期フレームで素の見た目のままになりやすい
    */
   static animateElement(el, variantKey, options) {
-    const def = ScrollAnimations.VARIANTS[variantKey];
+    const def = ScrollAnimations.resolveVariant(variantKey);
     if (!def) return;
     gsap.set(el, def.from);
     gsap.to(el, {
@@ -316,6 +366,7 @@ class ScrollAnimations {
         toggleActions: ScrollAnimations.DEFAULT.toggleActions,
         once: true,
       },
+      onComplete: () => ScrollAnimations.markRevealed(el),
     });
   }
 
@@ -338,7 +389,7 @@ class ScrollAnimations {
       const children = container.querySelectorAll(ScrollAnimations.SELECTOR);
       if (!children.length) return;
       const firstVariant = ScrollAnimations.getVariantClass(children[0]) || 'scroll-fade-up';
-      const def = ScrollAnimations.VARIANTS[firstVariant];
+      const def = ScrollAnimations.resolveVariant(firstVariant);
       if (!def) return;
       const trigger = container.dataset.scrollTrigger || ScrollAnimations.DEFAULT.trigger;
       const duration = parseFloat(container.dataset.scrollDuration) || ScrollAnimations.DEFAULT.duration;
@@ -356,6 +407,7 @@ class ScrollAnimations {
           toggleActions: ScrollAnimations.DEFAULT.toggleActions,
           once: true,
         },
+        onComplete: () => ScrollAnimations.markRevealed(children),
       });
     });
 
@@ -363,6 +415,7 @@ class ScrollAnimations {
     if (typeof ScrollTrigger.refresh === 'function') {
       ScrollTrigger.refresh();
     }
+    ScrollAnimations.playUnreachableTriggers();
   }
 }
 

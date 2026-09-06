@@ -10,6 +10,7 @@
 $root = dirname(__DIR__);
 
 require_once $root . '/config/bootstrap.php';
+$url = base_url();
 
 $form_data = isset($_SESSION['form_data']) ? $_SESSION['form_data'] : null;
 unset($_SESSION['form_data']);

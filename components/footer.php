@@ -17,12 +17,12 @@ $jsAnimationsVer = is_file($jsAnimationsPath) ? filemtime($jsAnimationsPath) : t
 $jsCommonVer = is_file($jsCommonPath) ? filemtime($jsCommonPath) : time();
 ?>
 <footer>
-  <div class="footer-logo scroll-trigger scroll-blur">
+  <div class="footer-logo scroll-trigger scroll-blur" data-scroll-trigger="top bottom">
     <a href="<?php echo $url; ?>">
       <img src="<?php echo $url; ?>/assets/images/common/logo-white.svg" alt="Gloria Design Works LOGO">
     </a>
   </div>
-  <div class="footer-links scroll-trigger scroll-blur">
+  <div class="footer-links scroll-trigger scroll-blur" data-scroll-trigger="top bottom">
     <ul>
       <li>
         <a href="https://github.com/GloriaDesignWorksTaki" target="_blank" rel="noopener noreferrer">
@@ -35,7 +35,7 @@ $jsCommonVer = is_file($jsCommonPath) ? filemtime($jsCommonPath) : time();
         </a>
       </li>
       <li>
-        <a href="https://www.instagram.com/takiboy_95/" target="_blank" rel="noopener noreferrer">
+        <a href="https://www.instagram.com/gloriadesignworks/" target="_blank" rel="noopener noreferrer">
           <i class="fa-brands fa-instagram"></i>
         </a>
       </li>

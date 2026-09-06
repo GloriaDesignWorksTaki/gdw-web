@@ -157,6 +157,7 @@
     'title' => 'FOUR GET ME A NOTS Official Site',
     'year' => '2026',
     'charge' => 'UI Design / Frontend Development',
+    'tech' => ['html5', 'css3-alt', 'php', 'js', 'wordpress'],
     'image' => 'fourgetmeanots.webp',
     'concept' => '
       <p>千葉県で活動中のメロディックパンクバンド、FOUR GET ME A NOTSの公式サイトです。</p>
@@ -175,6 +176,7 @@
     'title' => 'Brightside Booking Official Site',
     'year' => '2026',
     'charge' => 'UI Design / Frontend Development',
+    'tech' => ['html5', 'css3-alt', 'php', 'js', 'wordpress'],
     'image' => 'brightside-booking.webp',
     'concept' => '
       <p>大阪のハードコア・パンクプロモーターBrightside Bookingの公式サイトです。</p>
